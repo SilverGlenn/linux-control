@@ -29,7 +29,7 @@ QList<SidebarLink> EaseOfAccessPage::sidebarSeeAlso()
 {
     return {
         Nav::to("Personalization", PageId::Personalization),
-        Nav::command("Display", kcm("kcm_kscreen")),
+        Nav::to("Screen Resolution", PageId::Display),
     };
 }
 
@@ -48,8 +48,14 @@ void EaseOfAccessPage::addSettingLink(QVBoxLayout *into, const QString &iconName
     row->addWidget(icon, 0, Qt::AlignVCenter);
 
     auto *link = new LinkLabel(text);
+    if (cmd != kCursorTheme && isAeroPolicyBlockedCommand(cmd)) {
+        link->setEnabled(false);
+        link->setToolTip(aeroPolicyCommandReason());
+        link->setAccessibleDescription(link->toolTip());
+    }
     QObject::connect(link, &LinkLabel::clicked, this, [this, cmd]() {
-        launchDetached(this, cmd);
+        if (cmd == kCursorTheme) emit navigationRequested(PageId::Personalization);
+        else launchDetached(this, cmd);
     });
     row->addWidget(link, 0, Qt::AlignVCenter);
     row->addStretch(1);
@@ -107,6 +113,11 @@ EaseOfAccessPage::EaseOfAccessPage(QScrollArea *sidebar, QWidget *parent)
         tile->addWidget(icon, 0, Qt::AlignVCenter);
 
         auto *link = new LinkLabel(text);
+        if (isAeroPolicyBlockedCommand(cmd)) {
+            link->setEnabled(false);
+            link->setToolTip(aeroPolicyCommandReason());
+            link->setAccessibleDescription(link->toolTip());
+        }
         QObject::connect(link, &LinkLabel::clicked, this, [this, cmd]() {
             launchDetached(this, cmd);
         });
@@ -115,10 +126,10 @@ EaseOfAccessPage::EaseOfAccessPage(QScrollArea *sidebar, QWidget *parent)
         return tile;
     };
 
-    grid->addLayout(makeTile("zoom-in", "Start Magnifier", kMagnifier), 0, 0);
+    grid->addLayout(makeTile("zoom-in", "Configure magnification effects", kMagnifier), 0, 0);
     grid->addLayout(makeTile("preferences-desktop-keyboard",
-                             "Start On-Screen Keyboard", kAccess), 0, 1);
-    grid->addLayout(makeTile("audio-volume-high", "Start Narrator", kAccess), 1, 0);
+                             "Accessibility settings", kAccess), 0, 1);
+    grid->addLayout(makeTile("audio-volume-high", "Screen reader settings", kAccess), 1, 0);
     grid->addLayout(makeTile("preferences-desktop-theme",
                              "Set up High Contrast", kHighContrast), 1, 1);
     grid->setColumnStretch(0, 1);
@@ -131,8 +142,7 @@ EaseOfAccessPage::EaseOfAccessPage(QScrollArea *sidebar, QWidget *parent)
     addHeading("Explore all settings");
 
     auto *explore = Win7::label(
-        "When you select these settings, they will automatically start each time "
-        "you sign in.", 9, "#333333");
+        "Open the settings below to configure accessibility tools.", 9, "#333333");
     explore->setWordWrap(true);
     contentV->addWidget(explore);
     contentV->addSpacing(12);

@@ -7,6 +7,9 @@
 #include <QList>
 #include <QHash>
 
+#include "settings/PowerProfileService.h"
+#include "settings/PowerPolicySettings.h"
+
 class QScrollArea;
 class QVBoxLayout;
 class QButtonGroup;
@@ -15,6 +18,11 @@ class QRadioButton;
 class QLabel;
 class QObject;
 class QEvent;
+class QComboBox;
+class QCheckBox;
+class QSpinBox;
+class QGroupBox;
+class QPushButton;
 
 // The "Power Options" detail page, a Linux-flavoured take on the Windows 7
 // "Select a power plan" screen.
@@ -34,14 +42,17 @@ class QEvent;
 //   balanced     -> "Balanced (recommended)"
 //   power-saver  -> "Power saver"
 //
-// When PPD is absent (typical on a desktop with no profile switching) the page
-// degrades to a single, selected "Balanced (recommended)" plan, mirroring what
-// Windows shows on hardware that exposes no alternative plans.
+// When PPD is absent, the page shows a disabled Balanced placeholder explaining
+// that no active profile can be read or changed.
 class PowerOptionsPage : public QWidget {
     Q_OBJECT
 
 public:
     explicit PowerOptionsPage(QScrollArea *sidebar, QWidget *parent = nullptr);
+    PowerOptionsPage(QScrollArea *sidebar, PowerPolicySettings *session, QWidget *parent = nullptr);
+    PowerOptionsPage(QScrollArea *sidebar, PowerPolicySettings *session,
+                     PowerProfileService *profiles, QWidget *parent);
+    SettingsSession *settingsSession() const { return m_policy; }
 
     // Left-nav entries shown by MainWindow's subpage sidebar.
     static QList<SidebarLink> sidebarLinks();
@@ -52,9 +63,8 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-    // One selectable plan, as presented to the user. `profileId` is the raw PPD
-    // profile name ("balanced", …) used to read/write the daemon; empty for the
-    // synthetic fall-back plan shown when PPD is unavailable.
+    // One plan row. `profileId` is the raw PPD profile name used to read/write
+    // the daemon; empty for a disabled placeholder when PPD is unavailable.
     struct Plan {
         QString profileId;
         QString name;          // e.g. "Balanced (recommended)"
@@ -68,19 +78,27 @@ private:
     QStringList availableProfiles(bool &ok) const;
     QString     activeProfile() const;
     void        setActiveProfile(const QString &profileId);
+    void        setProfileControlsEnabled(bool enabled);
+    void        updateServiceState();
+    void buildPolicyControls(QVBoxLayout *layout);
+    void buildAdvancedControls(QVBoxLayout *layout);
+    void updateAdvancedState(bool enabled);
+    QString selectedPolicySource() const;
+    void updatePolicyState();
+    void bindPolicyControl(QWidget *control, PowerPolicyKey key, const QString &source);
+    void activatePolicyChoice(QComboBox *control, int index);
+    void editCustomTimeout(QComboBox *control);
+    void showDefaultsReview();
+    QString controlSource(QWidget *control) const;
+    void stageControlValue(QWidget *control, const QVariant &value);
+    void restoreControlDefault(QWidget *control);
 
     // Build the visual plan list and the additional-plans expander.
     void buildPlans(const QStringList &profiles);
     QWidget *buildPlanRow(const Plan &plan);
 
-    // Re-checks the radio matching the daemon's current ActiveProfile. Used both
-    // on load and from the PropertiesChanged signal handler.
+    // Re-checks the radio matching the service's most recently read ActiveProfile.
     void syncSelection();
-
-private slots:
-    void onProfilesPropertiesChanged(const QString &interface,
-                                     const QVariantMap &changed,
-                                     const QStringList &invalidated);
 
 private:
     QVBoxLayout  *m_planList      = nullptr;   // holds the preferred-plan rows
@@ -88,6 +106,34 @@ private:
     QWidget      *m_additionalWrap = nullptr;  // toggled by the expander
     QWidget      *m_additionalHeader = nullptr; // heading row, hidden if empty
     QButtonGroup *m_group         = nullptr;
+    QLabel       *m_errorLabel    = nullptr;
+    PowerProfileService *m_service = nullptr;
+    PowerPolicySettings *m_policy = nullptr;
+    struct TimeoutControls {
+        QString profile;
+        QCheckBox *displayEnabled;
+        QComboBox *display;
+        QComboBox *sleep;
+        QLabel *reason;
+    };
+    QList<TimeoutControls> m_timeoutControls;
+    QLabel *m_policyStatus = nullptr;
+    QPushButton *m_apply = nullptr;
+    QPushButton *m_revert = nullptr;
+    QPushButton *m_advancedToggle = nullptr;
+    QGroupBox *m_advanced = nullptr;
+    QComboBox *m_policySource = nullptr;
+    QComboBox *m_idleAction = nullptr, *m_dim = nullptr, *m_lockedDisplay = nullptr;
+    QComboBox *m_powerButton = nullptr, *m_powerDown = nullptr, *m_lid = nullptr, *m_sleepMode = nullptr;
+    QComboBox *m_criticalAction = nullptr;
+    QCheckBox *m_dimEnabled = nullptr;
+    QCheckBox *m_brightnessEnabled = nullptr, *m_keyboardBrightnessEnabled = nullptr;
+    QCheckBox *m_lockDisplay = nullptr, *m_inhibitLid = nullptr;
+    QSpinBox *m_brightness = nullptr, *m_keyboardBrightness = nullptr;
+    QSpinBox *m_batteryLow = nullptr, *m_batteryCritical = nullptr;
+    QLabel *m_advancedReason = nullptr;
+    QPushButton *m_defaults = nullptr;
+    bool m_updatingPolicy = false;
     bool          m_ppdAvailable  = false;
     bool          m_syncing       = false;     // guards programmatic re-checks
 

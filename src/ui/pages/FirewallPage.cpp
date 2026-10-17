@@ -1,5 +1,6 @@
 #include "FirewallPage.h"
 #include "ConfFile.h"
+#include "FirewallStatus.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
 #include "Branding.h"
@@ -19,11 +20,14 @@ using Win7::ClickableWidget;
 // True when the machine has a default route (i.e. is on a network). Mirrors the
 // Network and Sharing Center's reading of /proc/net/route: the default route is
 // the row whose Destination column ("00000000") is all-zero.
-static bool hasDefaultRoute()
+static bool hasDefaultRoute(bool *known)
 {
     QFile f(QStringLiteral("/proc/net/route"));
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        *known = false;
         return false;
+    }
+    *known = true;
     const QString text = QString::fromUtf8(f.readAll());
     const QList<QStringView> lines = QStringView(text).split(u'\n');
     for (int i = 1; i < lines.size(); ++i) {           // skip the header row
@@ -36,17 +40,15 @@ static bool hasDefaultRoute()
 
 // Count the `### tuple` rule entries in a ufw user.rules file, one per rule
 // the user has added, matching the rule count KDE's firewall module lists.
-static int countRules(const QString &path)
+static int countRules(const QString &path, bool *known)
 {
     QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        *known = false;
         return 0;
-    const QString text = QString::fromUtf8(f.readAll());
-    int n = 0;
-    for (const QStringView &line : QStringView(text).split(u'\n')) {
-        if (line.trimmed().startsWith(QLatin1String("### tuple ###")))
-            ++n;
     }
+    const int n = parseUfwRuleCount(QString::fromUtf8(f.readAll())).count;
+    *known = true;
     return n;
 }
 
@@ -54,24 +56,20 @@ FirewallPage::FwInfo FirewallPage::gatherInfo()
 {
     FwInfo fw;
 
-    fw.enabled = readConfField(QStringLiteral("/etc/ufw/ufw.conf"),
-                           QStringLiteral("ENABLED")).compare(
-                               QStringLiteral("yes"), Qt::CaseInsensitive) == 0;
-    fw.logLevel = readConfField(QStringLiteral("/etc/ufw/ufw.conf"),
-                            QStringLiteral("LOGLEVEL"));
+    const UfwConfiguredState configured = readUfwConfiguredState();
+    fw.enabledKnown = configured.enabledKnown;
+    fw.enabled = configured.enabled;
+    if (configured.inputPolicyKnown) fw.inputPolicy = configured.inputPolicy;
+    if (configured.outputPolicyKnown) fw.outputPolicy = configured.outputPolicy;
+    if (configured.logLevelKnown) fw.logLevel = configured.logLevel;
 
-    fw.inputPolicy  = readConfField(QStringLiteral("/etc/default/ufw"),
-                                QStringLiteral("DEFAULT_INPUT_POLICY")).toUpper();
-    fw.outputPolicy = readConfField(QStringLiteral("/etc/default/ufw"),
-                                QStringLiteral("DEFAULT_OUTPUT_POLICY")).toUpper();
-    if (fw.inputPolicy.isEmpty())
-        fw.inputPolicy = QStringLiteral("DROP");
+    bool v4RulesKnown = false, v6RulesKnown = false;
+    const int v4Rules = countRules(QStringLiteral("/etc/ufw/user.rules"), &v4RulesKnown);
+    const int v6Rules = countRules(QStringLiteral("/etc/ufw/user6.rules"), &v6RulesKnown);
+    fw.ruleCountKnown = v4RulesKnown && v6RulesKnown;
+    fw.ruleCount = v4Rules + v6Rules;
 
-    fw.ruleCount = countRules(QStringLiteral("/etc/ufw/user.rules"))
-                 + countRules(QStringLiteral("/etc/ufw/user6.rules"));
-
-    fw.netConnected = hasDefaultRoute();
-    fw.networkName  = QStringLiteral("Network");
+    fw.netConnected = hasDefaultRoute(&fw.routeKnown);
 
     return fw;
 }
@@ -107,18 +105,18 @@ static QString incomingText(const QString &policy)
     if (policy == QLatin1String("REJECT"))
         return QStringLiteral("Reject all connections to programs that are not "
                               "on the list of allowed programs");
-    // DROP (the ufw default): silently dropped, matching Windows' "Block all".
-    return QStringLiteral("Block all connections to programs that are not on "
-                          "the list of allowed programs");
+    if (policy == QLatin1String("DROP"))
+        return QStringLiteral("Drop incoming connections not allowed by rules");
+    return QStringLiteral("Unknown (policy unavailable or unrecognized)");
 }
 
-// Notification phrasing derived from ufw's LOGLEVEL ("off" disables logging).
-static QString notifyText(const QString &logLevel)
+static QString loggingText(const QString &logLevel)
 {
-    if (logLevel.compare(QLatin1String("off"), Qt::CaseInsensitive) == 0)
-        return Branding::brand("Do not notify me when Linux Firewall blocks a "
-                               "new program");
-    return Branding::brand("Notify me when Linux Firewall blocks a new program");
+    if (logLevel.isEmpty())
+        return QStringLiteral("Unknown (configured level unavailable)");
+    if (logLevel == QLatin1String("off"))
+        return QStringLiteral("Off");
+    return QStringLiteral("%1 (logging level)").arg(logLevel);
 }
 
 QWidget *FirewallPage::buildLocationPanel(const QString &title,
@@ -138,6 +136,8 @@ QWidget *FirewallPage::buildLocationPanel(const QString &title,
     // The header is clickable and toggles the body below, like the Windows
     // firewall network sections.
     auto *header = new ClickableWidget;
+    header->setAccessibleName(title);
+    header->setChecked(expanded);
     header->setStyleSheet("background: transparent;");
     header->setCursor(Qt::PointingHandCursor);
     auto *headerH = new QHBoxLayout(header);
@@ -147,7 +147,9 @@ QWidget *FirewallPage::buildLocationPanel(const QString &title,
     auto *accent = new QFrame;
     accent->setFixedWidth(14);
     accent->setMinimumHeight(34);
-    accent->setStyleSheet("background: #4E9A2A; border: none;");
+    accent->setStyleSheet(QStringLiteral("background: %1; border: none;")
+        .arg(info.enabledKnown && info.enabled ? QStringLiteral("#4E9A2A")
+                                               : QStringLiteral("#888888")));
     headerH->addWidget(accent);
 
     auto *shield = new QLabel;
@@ -193,8 +195,8 @@ QWidget *FirewallPage::buildLocationPanel(const QString &title,
     bodyV->setSpacing(0);
 
     auto *caption = Win7::bodyLabel(
-        "Linux Firewall (ufw) applies one set of rules to every network. Unlike "
-        "Windows, Linux has no separate Home, Work, or Public network profiles.");
+        "Values below come from UFW configuration files. This page does not "
+        "check whether UFW is running or enforcing these settings.");
     caption->setContentsMargins(kLeftInset, 0, kRightInset, 0);
     bodyV->addWidget(caption);
     bodyV->addSpacing(12);
@@ -211,16 +213,27 @@ QWidget *FirewallPage::buildLocationPanel(const QString &title,
     grid->setColumnStretch(1, 1);
 
     int r = 0;
-    grid->addWidget(Win7::bodyLabel(Branding::brand("Linux Firewall state:")),
-                    r, 0);
-    grid->addWidget(Win7::bodyLabel(info.enabled ? "On" : "Off"), r, 1);
+    grid->addWidget(Win7::bodyLabel(Branding::brand("UFW configured enabled flag:")), r, 0);
+    grid->addWidget(Win7::bodyLabel(!info.enabledKnown ? "Unknown"
+                                  : info.enabled ? "Yes" : "No"), r, 1);
     ++r;
 
     grid->addWidget(Win7::bodyLabel("Incoming connections:"), r, 0);
     grid->addWidget(Win7::bodyLabel(incomingText(info.inputPolicy)), r, 1);
     ++r;
 
-    grid->addWidget(Win7::bodyLabel("Active networks:"), r, 0);
+    grid->addWidget(Win7::bodyLabel("Outgoing policy:"), r, 0);
+    grid->addWidget(Win7::bodyLabel(info.outputPolicy.isEmpty()
+        ? QStringLiteral("Unknown (policy unavailable or unrecognized)")
+        : info.outputPolicy), r, 1);
+    ++r;
+
+    grid->addWidget(Win7::bodyLabel("Configured user rules:"), r, 0);
+    grid->addWidget(Win7::bodyLabel(info.ruleCountKnown
+        ? QString::number(info.ruleCount) : QStringLiteral("Unavailable")), r, 1);
+    ++r;
+
+    grid->addWidget(Win7::bodyLabel("IPv4 default route:"), r, 0);
     // Icon + network-name cell.
     {
         auto *cell = new QWidget;
@@ -235,16 +248,17 @@ QWidget *FirewallPage::buildLocationPanel(const QString &title,
                             .pixmap(16, 16));
         icon->setStyleSheet("background: transparent;");
         h->addWidget(icon, 0, Qt::AlignVCenter);
-        h->addWidget(Win7::bodyLabel(info.netConnected ? info.networkName
-                                                       : QStringLiteral("None")),
+        h->addWidget(Win7::bodyLabel(!info.routeKnown ? QStringLiteral("Unknown")
+                             : info.netConnected ? QStringLiteral("Present")
+                                                 : QStringLiteral("Not present")),
                      0, Qt::AlignVCenter);
         h->addStretch(1);
         grid->addWidget(cell, r, 1, Qt::AlignLeft | Qt::AlignTop);
     }
     ++r;
 
-    grid->addWidget(Win7::bodyLabel("Notification state:"), r, 0);
-    grid->addWidget(Win7::bodyLabel(notifyText(info.logLevel)), r, 1);
+    grid->addWidget(Win7::bodyLabel("Configured UFW logging level:"), r, 0);
+    grid->addWidget(Win7::bodyLabel(loggingText(info.logLevel)), r, 1);
     ++r;
 
     bodyV->addLayout(grid);
@@ -291,7 +305,7 @@ FirewallPage::FirewallPage(QScrollArea *sidebar, QWidget *parent)
     contentV->addSpacing(10);
 
     auto addHelpLink = [&](const QString &text) {
-        contentV->addWidget(Win7::bodyLabel(text, /*link=*/true), 0, Qt::AlignLeft);
+        contentV->addWidget(Win7::bodyLabel(text), 0, Qt::AlignLeft);
         contentV->addSpacing(4);
     };
     addHelpLink("How does a firewall help protect my computer?");
@@ -305,7 +319,8 @@ FirewallPage::FirewallPage(QScrollArea *sidebar, QWidget *parent)
     // "Connected" when a default route exists.
     contentV->addWidget(buildLocationPanel(
         "All networks",
-        info.netConnected ? "Connected" : "Not Connected",
+        !info.routeKnown ? "Route status unknown"
+          : info.netConnected ? "Default route present" : "No default route",
         /*expanded=*/true, info));
 
     contentV->addStretch(1);

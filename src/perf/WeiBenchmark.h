@@ -44,17 +44,27 @@ struct WeiResult {
 class WeiBenchmark : public QObject {
     Q_OBJECT
 public:
+    // The engine outlives individual pages so navigation cannot discard an
+    // active assessment or its latest progress/result.
+    static WeiBenchmark *instance();
+
     explicit WeiBenchmark(QObject *parent = nullptr);
     ~WeiBenchmark() override;
 
     void run();                 // start a fresh assessment
     bool isRunning() const { return m_running; }
+    bool hasResult() const { return m_lastResult.valid; }
+    WeiResult result() const { return m_lastResult; }
+    int percent() const { return m_percent; }
+    QString phaseText() const { return m_phaseText; }
 
 signals:
     void progress(int percent, const QString &phase);
+    void stateChanged();
     void finished(const WeiResult &result);
 
 private:
+    void setProgress(int percent, const QString &phase);
     void startPhase();          // advance the state machine
     void runWorkerPhase();      // dispatch the current CPU/mem/disk metric
     void runGlPhase();          // run the current GL metric inline
@@ -69,6 +79,17 @@ private:
     enum class Phase { Idle, Cpu, Memory, Disk, Graphics, Gaming, Done };
     Phase m_phase = Phase::Idle;
     bool  m_running = false;
-    WeiResult m_result;
+    int m_percent = 0;
+    QString m_phaseText;
+    WeiResult m_lastResult;
+    WeiResult m_workingResult;
     QFutureWatcher<double> *m_watcher = nullptr;
+
+#ifdef WEI_BENCHMARK_TESTING
+public:
+    // Lifecycle test hooks update the same public state as the real runner
+    // without launching CPU, disk, or graphics work.
+    void beginTestRun(int percent, const QString &phase);
+    void finishTestRun(const WeiResult &result);
+#endif
 };

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Linux Control Panel</vendor>
+  <action id="org.linuxcontrol.aerologin.configure">
+    <description>Configure the approved Aero login appearance</description>
+    <message>Authentication is required to save the reviewed Aero login preferences and background.</message>
+    <icon_name>preferences-system-login</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">@CONTROL_AERO_LOGIN_HELPER_PATH@</annotate>
+  </action>
+</policyconfig>

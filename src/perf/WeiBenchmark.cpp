@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QThread>
 #include <QStandardPaths>
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QSettings>
@@ -15,6 +16,7 @@
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
+#include <QPointer>
 
 #include <vector>
 #include <thread>
@@ -452,17 +454,37 @@ double WeiBenchmark::benchGaming()
 
 // Orchestration
 
-WeiBenchmark::WeiBenchmark(QObject *parent) : QObject(parent) {}
+WeiBenchmark *WeiBenchmark::instance()
+{
+    // Deliberately process-owned: page destruction must not cancel or discard
+    // a benchmark that MainWindow and other pages still need to observe.
+    static QPointer<WeiBenchmark> benchmark;
+    if (!benchmark)
+        benchmark = new WeiBenchmark(QCoreApplication::instance());
+    return benchmark;
+}
+
+WeiBenchmark::WeiBenchmark(QObject *parent)
+    : QObject(parent), m_lastResult(WeiResult::load())
+{}
 WeiBenchmark::~WeiBenchmark() = default;
+
+void WeiBenchmark::setProgress(int percent, const QString &phase)
+{
+    m_percent = percent;
+    m_phaseText = phase;
+    emit progress(m_percent, m_phaseText);
+    emit stateChanged();
+}
 
 void WeiBenchmark::run()
 {
     if (m_running)
         return;
     m_running = true;
-    m_result = WeiResult{};
+    m_workingResult = WeiResult{};
     m_phase = Phase::Cpu;
-    emit progress(0, QStringLiteral("Assessing processor…"));
+    setProgress(0, QStringLiteral("Assessing processor…"));
     startPhase();
 }
 
@@ -479,13 +501,14 @@ void WeiBenchmark::startPhase()
         runGlPhase();
         break;
     case Phase::Done: {
-        m_result.assessedAt = QDateTime::currentDateTime();
-        m_result.rescore();
-        m_result.valid = true;
-        m_result.save();
+        m_workingResult.assessedAt = QDateTime::currentDateTime();
+        m_workingResult.rescore();
+        m_workingResult.valid = true;
+        m_workingResult.save();
+        m_lastResult = m_workingResult;
         m_running = false;
-        emit progress(100, QStringLiteral("Assessment complete"));
-        emit finished(m_result);
+        setProgress(100, QStringLiteral("Assessment complete"));
+        emit finished(m_lastResult);
         break;
     }
     case Phase::Idle:
@@ -503,19 +526,19 @@ void WeiBenchmark::runWorkerPhase()
         const double v = watcher->result();
         switch (phase) {
         case Phase::Cpu:
-            m_result.cpuThroughputMBs = v;
+            m_workingResult.cpuThroughputMBs = v;
             m_phase = Phase::Memory;
-            emit progress(20, QStringLiteral("Assessing memory (RAM)…"));
+            setProgress(20, QStringLiteral("Assessing memory (RAM)…"));
             break;
         case Phase::Memory:
-            m_result.memoryBandwidthMBs = v;
+            m_workingResult.memoryBandwidthMBs = v;
             m_phase = Phase::Disk;
-            emit progress(40, QStringLiteral("Assessing primary hard disk…"));
+            setProgress(40, QStringLiteral("Assessing primary hard disk…"));
             break;
         case Phase::Disk:
-            m_result.diskReadMBs = v;
+            m_workingResult.diskReadMBs = v;
             m_phase = Phase::Graphics;
-            emit progress(60, QStringLiteral("Assessing desktop graphics…"));
+            setProgress(60, QStringLiteral("Assessing desktop graphics…"));
             break;
         default:
             break;
@@ -541,14 +564,34 @@ void WeiBenchmark::runGlPhase()
     // Defer the (blocking) GL work one tick so the progress label paints first.
     QTimer::singleShot(0, this, [this, phase]() {
         if (phase == Phase::Graphics) {
-            m_result.graphicsFps = benchGraphics();
+            m_workingResult.graphicsFps = benchGraphics();
             m_phase = Phase::Gaming;
-            emit progress(80, QStringLiteral("Assessing 3D gaming graphics…"));
+            setProgress(80, QStringLiteral("Assessing 3D gaming graphics…"));
         } else { // Gaming
-            m_result.gamingFps = benchGaming();
+            m_workingResult.gamingFps = benchGaming();
             m_phase = Phase::Done;
-            emit progress(95, QStringLiteral("Computing scores…"));
+            setProgress(95, QStringLiteral("Computing scores…"));
         }
         QTimer::singleShot(0, this, [this]() { startPhase(); });
     });
 }
+
+#ifdef WEI_BENCHMARK_TESTING
+void WeiBenchmark::beginTestRun(int percent, const QString &phase)
+{
+    if (m_running)
+        return;
+    m_running = true;
+    setProgress(percent, phase);
+}
+
+void WeiBenchmark::finishTestRun(const WeiResult &result)
+{
+    if (!m_running)
+        return;
+    m_lastResult = result;
+    m_running = false;
+    setProgress(100, QStringLiteral("Assessment complete"));
+    emit finished(m_lastResult);
+}
+#endif

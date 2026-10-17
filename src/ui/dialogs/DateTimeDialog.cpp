@@ -2,6 +2,8 @@
 #include "AnalogClock.h"
 #include "IconHelper.h"
 #include "WindowsTimeZones.h"
+#include "Win7Ui.h"
+#include "time/TimeSyncConfig.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -25,7 +27,9 @@
 #include <QDateTime>
 #include <QTimeZone>
 #include <QLocale>
-#include <QSettings>
+#include <QStandardPaths>
+#include <QPointer>
+#include <QFileInfo>
 #include <QFont>
 #include <QRegularExpression>
 #include <QIcon>
@@ -36,17 +40,18 @@
 // System backend helpers
 namespace {
 
-// Run a short read-only helper under a C locale so field labels stay parseable.
-QString runTool(const QString &program, const QStringList &args)
+QString timeHelperPath() { return QString::fromLocal8Bit(CONTROL_TIME_HELPER_PATH); }
+
+bool timeHelperAvailable()
 {
-    QProcess proc;
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
-    proc.setProcessEnvironment(env);
-    proc.start(program, args);
-    if (!proc.waitForFinished(2500))
-        return QString();
-    return QString::fromUtf8(proc.readAllStandardOutput());
+    return TimeSyncConfig::trustedPath(timeHelperPath())
+        && QFileInfo(timeHelperPath()).isExecutable();
+}
+
+QString providerArgument(TimeSync::Provider provider)
+{
+    return provider == TimeSync::Provider::Chrony ? QStringLiteral("chrony")
+                                                : QStringLiteral("timesyncd");
 }
 
 // The locale's long date, but without the leading weekday name, Windows' date
@@ -68,36 +73,6 @@ QString systemZoneId()
     if (id.isEmpty())
         id = QStringLiteral("UTC");
     return id;
-}
-
-bool ntpEnabled()
-{
-    const QString out = runTool(QStringLiteral("timedatectl"),
-                                { QStringLiteral("show"),
-                                  QStringLiteral("-p"), QStringLiteral("NTP"),
-                                  QStringLiteral("--value") });
-    return out.trimmed() == QLatin1String("yes");
-}
-
-// The active NTP server, taken from `timedatectl timesync-status` ("Server:"
-// line: an address optionally followed by "(hostname)"). Empty when not synced.
-QString ntpServer()
-{
-    const QString out = runTool(QStringLiteral("timedatectl"),
-                                { QStringLiteral("timesync-status") });
-    const QList<QStringView> lines = QStringView(out).split(u'\n');
-    for (const QStringView &line : lines) {
-        const QStringView t = line.trimmed();
-        if (t.startsWith(u"Server:")) {
-            QString val = t.mid(7).trimmed().toString();
-            const int lp = val.indexOf(QLatin1Char('('));
-            const int rp = val.indexOf(QLatin1Char(')'));
-            if (lp >= 0 && rp > lp)
-                return val.mid(lp + 1, rp - lp - 1).trimmed();  // prefer hostname
-            return val;
-        }
-    }
-    return QString();
 }
 
 // Windows-style label for a zone id: the grouped name if known, otherwise a
@@ -194,18 +169,17 @@ QLabel *makeHelpLink(const QString &text)
     QFont f = l->font();
     f.setPointSize(9);
     l->setFont(f);
-    l->setStyleSheet(
-        "QLabel { color: #1F4E99; background: transparent; }"
-        "QLabel:hover { color: #0033AA; }");
-    l->setCursor(Qt::PointingHandCursor);
+    l->setEnabled(false);
+    l->setStyleSheet("color: #777777; background: transparent;");
+    l->setToolTip(QStringLiteral("This help link is not implemented yet."));
     return l;
 }
 
 } // namespace
 
 // Dialog
-DateTimeDialog::DateTimeDialog(QWidget *parent)
-    : QDialog(parent)
+DateTimeDialog::DateTimeDialog(QWidget *parent, std::function<TimeSync::Status()> statusReader)
+    : QDialog(parent), m_statusReader(std::move(statusReader))
 {
     m_timezone = systemZoneId();
 
@@ -227,18 +201,11 @@ DateTimeDialog::DateTimeDialog(QWidget *parent)
     m_tabs->addTab(buildInternetTimeTab(), QStringLiteral("Internet Time"));
     root->addWidget(m_tabs, 1);
 
-    // OK / Cancel / Apply, right-aligned like the Windows dialog.
-    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok
-                                         | QDialogButtonBox::Cancel
-                                         | QDialogButtonBox::Apply);
-    root->addWidget(buttons);
-    connect(buttons, &QDialogButtonBox::accepted, this, [this]() {
-        saveSettings();
-        accept();
-    });
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(buttons->button(QDialogButtonBox::Apply), &QPushButton::clicked,
-            this, [this]() { saveSettings(); });
+    // Real changes happen in the privileged subdialogs. There are no staged
+    // settings here for a cosmetic Apply button to pretend to save.
+    m_buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    root->addWidget(m_buttons);
+    connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     refreshDateTime();
     refreshInternetStatus();
@@ -249,7 +216,19 @@ DateTimeDialog::DateTimeDialog(QWidget *parent)
     connect(m_timer, &QTimer::timeout, this, &DateTimeDialog::refreshDateTime);
     m_timer->start();
 
+    auto *statusTimer = new QTimer(this);
+    statusTimer->setInterval(10000);
+    connect(statusTimer, &QTimer::timeout, this, &DateTimeDialog::refreshInternetStatus);
+    statusTimer->start();
+
     setFixedSize(432, 452);
+}
+
+void DateTimeDialog::done(int result)
+{
+    // Keep the owner alive until authorization and the bounded helper finish.
+    if (!m_privilegedBusy)
+        QDialog::done(result);
 }
 
 void DateTimeDialog::showTab(Tab tab)
@@ -341,6 +320,7 @@ QWidget *DateTimeDialog::buildDateTimeTab()
     auto *tzRow = new QHBoxLayout;
     tzRow->addStretch(1);
     auto *changeTz = new QPushButton(QStringLiteral("Change time zone…"));
+    changeTz->setIcon(uacShieldIcon());
     changeTz->setCursor(Qt::PointingHandCursor);
     connect(changeTz, &QPushButton::clicked, this,
             &DateTimeDialog::openChangeTimeZone);
@@ -359,9 +339,9 @@ QWidget *DateTimeDialog::buildDateTimeTab()
         f.setPointSize(9);
         m_notifyCheck->setFont(f);
     }
-    QSettings s;
-    m_notifyCheck->setChecked(
-        s.value(QStringLiteral("datetime/notifyClockChange"), true).toBool());
+    m_notifyCheck->setChecked(false);
+    m_notifyCheck->setEnabled(false);
+    m_notifyCheck->setToolTip(QStringLiteral("Clock-change notifications are not implemented yet."));
     v->addWidget(m_notifyCheck);
 
     v->addStretch(1);
@@ -386,9 +366,8 @@ QWidget *DateTimeDialog::buildAdditionalClocksTab()
     v->setSpacing(10);
 
     auto *intro = new QLabel(
-        QStringLiteral("Additional clocks can display the time in other time "
-                       "zones. You can view them by clicking on or hovering "
-                       "over the taskbar clock."));
+        QStringLiteral("Additional taskbar clocks are not connected to this "
+                       "Control Panel yet. These controls are unavailable."));
     {
         QFont f = intro->font();
         f.setPointSize(9);
@@ -399,7 +378,6 @@ QWidget *DateTimeDialog::buildAdditionalClocksTab()
 
     v->addSpacing(6);
 
-    QSettings s;
     for (int i = 1; i <= 2; ++i) {
         // A checkable group box: the "Show this clock" checkbox is the box's
         // title, embedded in the top of a light framed rectangle, the same
@@ -407,8 +385,9 @@ QWidget *DateTimeDialog::buildAdditionalClocksTab()
         // Windows. Unchecking it disables the fields inside automatically.
         auto *box = new QGroupBox(QStringLiteral("Show this clock"));
         box->setCheckable(true);
-        box->setChecked(
-            s.value(QStringLiteral("datetime/clock%1/show").arg(i), false).toBool());
+        box->setChecked(false);
+        box->setEnabled(false);
+        box->setToolTip(QStringLiteral("Changing the taskbar clocks is not implemented yet."));
         {
             QFont f = box->font();
             f.setPointSize(9);
@@ -421,7 +400,8 @@ QWidget *DateTimeDialog::buildAdditionalClocksTab()
             " margin-top: 7px; background: transparent; }"
             "QGroupBox::title { subcontrol-origin: margin;"
             " subcontrol-position: top left; left: 8px; padding: 0 4px;"
-            " background: #FFFFFF; color: #000000; }");
+            " background: #FFFFFF; color: #777777; }"
+            "QGroupBox:disabled, QGroupBox:disabled::title { color: #777777; }");
 
         auto *bv = new QVBoxLayout(box);
         bv->setContentsMargins(18, 12, 14, 12);
@@ -446,13 +426,10 @@ QWidget *DateTimeDialog::buildAdditionalClocksTab()
         { QFont f = nameLabel->font(); f.setPointSize(9); nameLabel->setFont(f); }
         bv->addWidget(nameLabel);
 
-        auto *nameEdit = new QLineEdit(
-            s.value(QStringLiteral("datetime/clock%1/name").arg(i),
-                    QStringLiteral("Clock %1").arg(i)).toString());
+        auto *nameEdit = new QLineEdit(QStringLiteral("Clock %1").arg(i));
         bv->addWidget(nameEdit);
 
-        // Tag the widgets so saveSettings can find them; the checkable box
-        // itself carries the "show" state.
+        // Stable names also let the regression tests check these placeholders.
         box->setObjectName(QStringLiteral("clock%1_show").arg(i));
         tzCombo->setObjectName(QStringLiteral("clock%1_tz").arg(i));
         nameEdit->setObjectName(QStringLiteral("clock%1_name").arg(i));
@@ -476,6 +453,9 @@ QWidget *DateTimeDialog::buildInternetTimeTab()
     v->setSpacing(0);
 
     m_internetStatus = new QLabel;
+    m_internetStatus->setObjectName(QStringLiteral("internetTimeStatus"));
+    m_internetStatus->setTextFormat(Qt::PlainText);
+    m_internetStatus->setText(QStringLiteral("Checking Internet time settings…"));
     {
         QFont f = m_internetStatus->font();
         f.setPointSize(9);
@@ -486,6 +466,8 @@ QWidget *DateTimeDialog::buildInternetTimeTab()
     v->addSpacing(22);
 
     m_internetSched = new QLabel;
+    m_internetSched->setObjectName(QStringLiteral("internetTimeSynchronization"));
+    m_internetSched->setTextFormat(Qt::PlainText);
     {
         QFont f = m_internetSched->font();
         f.setPointSize(9);
@@ -498,12 +480,13 @@ QWidget *DateTimeDialog::buildInternetTimeTab()
 
     auto *btnRow = new QHBoxLayout;
     btnRow->addStretch(1);
-    auto *change = new QPushButton(QStringLiteral("Change settings…"));
-    change->setIcon(uacShieldIcon());
-    change->setCursor(Qt::PointingHandCursor);
-    connect(change, &QPushButton::clicked, this,
+    m_internetChange = new QPushButton(QStringLiteral("Change settings…"));
+    m_internetChange->setObjectName(QStringLiteral("internetTimeChange"));
+    m_internetChange->setIcon(uacShieldIcon());
+    m_internetChange->setEnabled(false);
+    connect(m_internetChange, &QPushButton::clicked, this,
             &DateTimeDialog::openInternetSettings);
-    btnRow->addWidget(change);
+    btnRow->addWidget(m_internetChange);
     v->addLayout(btnRow);
     v->addSpacing(10);
 
@@ -531,46 +514,99 @@ void DateTimeDialog::refreshDateTime()
 
 void DateTimeDialog::refreshInternetStatus()
 {
-    const bool on = ntpEnabled();
-    if (on) {
-        const QString server = ntpServer();
-        m_internetStatus->setText(
-            server.isEmpty()
-                ? QStringLiteral("This computer is set to automatically "
-                                 "synchronize with an Internet time server.")
-                : QStringLiteral("This computer is set to automatically "
-                                 "synchronize with '%1'.").arg(server));
-        m_internetSched->setText(
-            QStringLiteral("This computer is set to automatically synchronize "
-                           "on a scheduled basis."));
-    } else {
-        m_internetStatus->setText(
-            QStringLiteral("This computer is not set to automatically "
-                           "synchronize with an Internet time server."));
-        m_internetSched->clear();
-    }
+    if (m_statusLoading || m_privilegedBusy)
+        return;
+    m_statusLoading = true;
+    m_internetChange->setEnabled(false);
+    const int generation = m_statusGeneration;
+    Win7::runAsync(this, m_statusReader,
+        [this, generation](TimeSync::Status status) {
+            m_statusLoading = false;
+            if (generation != m_statusGeneration) {
+                refreshInternetStatus();
+                return;
+            }
+            m_timeStatus = std::move(status);
+            renderInternetStatus();
+        });
+}
+
+void DateTimeDialog::renderInternetStatus()
+{
+    QString text = !m_timeStatus.enabled.has_value()
+        ? QStringLiteral("Automatic time synchronization: Unknown.")
+        : *m_timeStatus.enabled ? QStringLiteral("Automatic time synchronization: On.")
+                               : QStringLiteral("Automatic time synchronization: Off.");
+    if (m_timeStatus.provider != TimeSync::Provider::Unknown)
+        text += QStringLiteral("\nTime service: %1.").arg(TimeSync::providerName(m_timeStatus.provider));
+    if (!m_timeStatus.activeSource.isEmpty())
+        text += QStringLiteral("\nCurrent source: %1.").arg(m_timeStatus.activeSource);
+    if (!m_timeStatus.configuredServer.isEmpty())
+        text += QStringLiteral("\n%1: %2.")
+            .arg(m_timeStatus.provider == TimeSync::Provider::Chrony
+                     ? QStringLiteral("Preferred server") : QStringLiteral("Configured server"),
+                 m_timeStatus.configuredServer);
+    m_internetStatus->setText(text);
+    QString sync = !m_timeStatus.synchronized.has_value()
+        ? QStringLiteral("Clock synchronization could not be verified.")
+        : *m_timeStatus.synchronized ? QStringLiteral("The system clock reports synchronized.")
+                                    : QStringLiteral("The system clock does not currently report synchronization.");
+    if (!m_timeStatus.detail.isEmpty())
+        sync += QLatin1Char('\n') + m_timeStatus.detail;
+    m_internetSched->setText(sync);
+    const bool available = m_timeStatus.provider != TimeSync::Provider::Unknown
+        && m_timeStatus.enabled.has_value() && QFileInfo::exists(QStringLiteral("/usr/bin/pkexec"))
+        && QFileInfo::exists(QStringLiteral("/usr/bin/timedatectl"));
+    m_internetChange->setEnabled(available && !m_privilegedBusy);
+    m_internetChange->setToolTip(available ? QString()
+        : QStringLiteral("A supported time service and its state must be available before changing these settings."));
 }
 
 // Privileged actions
 void DateTimeDialog::runPrivileged(const QStringList &argv,
-                                   std::function<void()> onDone)
+                                   std::function<void(bool)> onDone)
 {
+    if (m_privilegedBusy)
+        return;
+    m_privilegedBusy = true;
+    ++m_statusGeneration;
+    m_tabs->setEnabled(false);
+    m_buttons->setEnabled(false);
     auto *proc = new QProcess(this);
+    auto complete = [this, proc, onDone](bool success, const QString &message) {
+        m_privilegedBusy = false;
+        m_tabs->setEnabled(true);
+        m_buttons->setEnabled(true);
+        if (!message.isEmpty())
+            QMessageBox::warning(this, QStringLiteral("Date and Time"), message);
+        if (onDone)
+            onDone(success);
+        refreshInternetStatus();
+        proc->deleteLater();
+    };
+    connect(proc, &QProcess::errorOccurred, this, [complete, proc](QProcess::ProcessError error) {
+        if (error == QProcess::FailedToStart)
+            complete(false, QStringLiteral("Could not start administrative authorization: %1").arg(proc->errorString()));
+    });
     connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, proc, onDone](int code, QProcess::ExitStatus) {
-                if (code != 0) {
-                    const QString err =
-                        QString::fromUtf8(proc->readAllStandardError()).trimmed();
-                    // Exit 126/127 == polkit auth dismissed/failed; stay quiet.
-                    if (!err.isEmpty() && code != 126 && code != 127)
-                        QMessageBox::warning(this, QStringLiteral("Date and Time"),
-                                             err);
+            this, [complete, proc](int code, QProcess::ExitStatus status) {
+                const bool success = status == QProcess::NormalExit && code == 0;
+                QString message;
+                if (!success) {
+                    if (status == QProcess::NormalExit && code == 126)
+                        message = QStringLiteral("Authentication was cancelled. The change was not applied.");
+                    else {
+                        message = QString::fromUtf8(proc->readAllStandardError()).trimmed().left(2000);
+                        if (message.isEmpty())
+                            message = QStringLiteral("The time-setting operation failed (exit %1).").arg(code);
+                    }
                 }
-                if (onDone)
-                    onDone();
-                proc->deleteLater();
+                complete(success, message);
             });
-    proc->start(QStringLiteral("pkexec"), argv);
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
+    proc->setProcessEnvironment(env);
+    proc->start(QStringLiteral("/usr/bin/pkexec"), argv);
 }
 
 void DateTimeDialog::openChangeDateTime()
@@ -610,15 +646,18 @@ void DateTimeDialog::openChangeDateTime()
         hint->setFont(f);
     }
     hint->setStyleSheet("color: #555555;");
-    if (ntpEnabled())
+    if (m_timeStatus.enabled.value_or(false))
         hint->setText(QStringLiteral(
             "Internet time synchronization is on; turn it off in the Internet "
             "Time tab before setting the clock manually."));
+    else if (!m_timeStatus.enabled.has_value())
+        hint->setText(QStringLiteral("Automatic synchronization could not be verified. The system may reject manual clock changes."));
     hint->setWordWrap(true);
     v->addWidget(hint);
 
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok
                                     | QDialogButtonBox::Cancel);
+    bb->button(QDialogButtonBox::Ok)->setEnabled(!m_timeStatus.enabled.value_or(false));
     v->addWidget(bb);
     connect(bb, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
     connect(bb, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
@@ -628,9 +667,9 @@ void DateTimeDialog::openChangeDateTime()
 
     const QDateTime chosen(cal->selectedDate(), timeEdit->time());
     const QString stamp = chosen.toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
-    runPrivileged({ QStringLiteral("timedatectl"), QStringLiteral("set-time"),
+    runPrivileged({ QStringLiteral("/usr/bin/timedatectl"), QStringLiteral("set-time"),
                     stamp },
-                  [this]() { refreshDateTime(); });
+                  [this](bool success) { if (success) refreshDateTime(); });
 }
 
 void DateTimeDialog::openChangeTimeZone()
@@ -679,16 +718,23 @@ void DateTimeDialog::openChangeTimeZone()
     const QString id = combo->currentData().toString();
     if (id.isEmpty() || id == m_timezone)
         return;
-    runPrivileged({ QStringLiteral("timedatectl"),
+    runPrivileged({ QStringLiteral("/usr/bin/timedatectl"),
                     QStringLiteral("set-timezone"), id },
-                  [this, id]() {
-                      m_timezone = systemZoneId();
-                      refreshDateTime();
+                  [this](bool success) {
+                      if (success) {
+                          m_timezone = systemZoneId();
+                          refreshDateTime();
+                      }
                   });
 }
 
 void DateTimeDialog::openInternetSettings()
 {
+    const TimeSync::Status status = m_timeStatus;
+    if (status.provider == TimeSync::Provider::Unknown || !status.enabled.has_value())
+        return;
+    const bool helperAvailable = timeHelperAvailable();
+    const bool canEditServer = helperAvailable && status.canEditServer;
     QDialog dlg(this);
     dlg.setWindowTitle(QStringLiteral("Internet Time Settings"));
     dlg.setModal(true);
@@ -696,49 +742,54 @@ void DateTimeDialog::openInternetSettings()
     v->setContentsMargins(16, 16, 16, 12);
     v->setSpacing(10);
 
-    v->addWidget(new QLabel(QStringLiteral("Configure Internet time settings:")));
+    v->addWidget(new QLabel(QStringLiteral("Time service: %1").arg(TimeSync::providerName(status.provider))));
 
     auto *sync = new QCheckBox(
         QStringLiteral("Synchronize with an Internet time server"));
-    sync->setChecked(ntpEnabled());
+    sync->setChecked(*status.enabled);
     v->addWidget(sync);
 
     auto *serverRow = new QHBoxLayout;
     serverRow->setSpacing(8);
-    auto *serverLabel = new QLabel(QStringLiteral("Server:"));
+    auto *serverLabel = new QLabel(status.provider == TimeSync::Provider::Chrony
+        ? QStringLiteral("Preferred server:") : QStringLiteral("Server:"));
     serverRow->addWidget(serverLabel);
     auto *serverCombo = new QComboBox;
     serverCombo->setEditable(true);
-    const QStringList servers = { "time.cloudflare.com", "time.windows.com",
-                                  "pool.ntp.org", "time.google.com",
-                                  "0.arch.pool.ntp.org" };
-    serverCombo->addItems(servers);
-    const QString curServer = ntpServer();
-    if (!curServer.isEmpty()) {
-        if (serverCombo->findText(curServer) < 0)
-            serverCombo->insertItem(0, curServer);
-        serverCombo->setCurrentText(curServer);
+    serverCombo->addItem(QStringLiteral("System defaults"), QString());
+    // Preserve the configured source instead of silently selecting a public
+    // third-party service when the user only toggles synchronization.
+    if (!status.configuredServer.isEmpty()) {
+        serverCombo->addItem(status.configuredServer, status.configuredServer);
+        serverCombo->setCurrentIndex(1);
     }
     serverRow->addWidget(serverCombo, 1);
     auto *update = new QPushButton(QStringLiteral("Update now"));
     serverRow->addWidget(update);
     v->addLayout(serverRow);
 
-    // Enable server controls only while synchronization is on.
-    auto syncEnable = [serverLabel, serverCombo, update](bool on) {
-        serverLabel->setEnabled(on);
-        serverCombo->setEnabled(on);
-        update->setEnabled(on);
+    auto selectedServer = [serverCombo]() {
+        const int index = serverCombo->currentIndex();
+        if (index >= 0 && serverCombo->currentText() == serverCombo->itemText(index))
+            return serverCombo->itemData(index).toString();
+        return serverCombo->currentText().trimmed();
     };
-    syncEnable(sync->isChecked());
-    connect(sync, &QCheckBox::toggled, &dlg, syncEnable);
-
-    // "Update now" forces a resync by restarting timesyncd.
-    connect(update, &QPushButton::clicked, &dlg, [this]() {
-        runPrivileged({ QStringLiteral("systemctl"), QStringLiteral("restart"),
-                        QStringLiteral("systemd-timesyncd") },
-                      [this]() { refreshInternetStatus(); });
-    });
+    auto updateControls = [=]() {
+        serverLabel->setEnabled(sync->isChecked() && canEditServer);
+        serverCombo->setEnabled(sync->isChecked() && canEditServer);
+        const bool pending = sync->isChecked() != *status.enabled
+            || selectedServer() != status.configuredServer;
+        update->setEnabled(*status.enabled && sync->isChecked() && !pending);
+        update->setToolTip(pending ? QStringLiteral("Apply the changed settings before requesting synchronization.")
+                                  : QStringLiteral("Request fresh time measurements; synchronization may take time."));
+    };
+    updateControls();
+    connect(sync, &QCheckBox::toggled, &dlg, updateControls);
+    connect(serverCombo, &QComboBox::currentTextChanged, &dlg, updateControls);
+    if (!canEditServer)
+        serverCombo->setToolTip(helperAvailable
+            ? QStringLiteral("The current Chrony configuration does not support this server editor.")
+            : QStringLiteral("Install the administrative time helper in a trusted system location to edit servers."));
 
     v->addSpacing(4);
     auto *note = new QLabel;
@@ -749,64 +800,87 @@ void DateTimeDialog::openInternetSettings()
     }
     note->setWordWrap(true);
     note->setStyleSheet("color: #555555;");
-    note->setText(QStringLiteral(
-        "This computer is set to automatically synchronize on a scheduled "
-        "basis."));
+    note->setText(status.provider == TimeSync::Provider::Chrony
+        ? QStringLiteral("A preferred server is added alongside the existing sources. System defaults removes only this preference. Update now requests new measurements; it does not force a clock jump.")
+        : QStringLiteral("System defaults restores the other configured time sources. Update now requests synchronization; it does not confirm success."));
+    if (!helperAvailable)
+        note->setText(note->text() + QStringLiteral("\nServer editing is unavailable until the administrative helper is installed."));
     v->addWidget(note);
+
+    connect(update, &QPushButton::clicked, &dlg, [this, status, helperAvailable, note, &dlg]() {
+        const QPointer<QDialog> dialogGuard(&dlg);
+        const QPointer<QLabel> noteGuard(note);
+        dlg.setEnabled(false);
+        const auto launch = [this, dialogGuard, noteGuard](const QStringList &command) {
+            runPrivileged(command, [dialogGuard, noteGuard](bool success) {
+                if (dialogGuard)
+                    dialogGuard->setEnabled(true);
+                if (success && noteGuard)
+                    noteGuard->setText(QStringLiteral("A synchronization request was accepted. Close this dialog to view the current synchronization status."));
+            });
+        };
+        if (helperAvailable) {
+            // The helper verifies the current provider again as root.
+            launch({timeHelperPath(), QStringLiteral("--refresh"), providerArgument(status.provider)});
+            return;
+        }
+        Win7::runAsync(this, m_statusReader,
+            [this, status, dialogGuard, noteGuard, launch](TimeSync::Status fresh) {
+                if (!dialogGuard)
+                    return;
+                if (fresh.provider != status.provider || !fresh.enabled.value_or(false)) {
+                    dialogGuard->setEnabled(true);
+                    if (noteGuard)
+                        noteGuard->setText(QStringLiteral("The time service changed or its state could not be verified. Reopen Internet Time settings before requesting synchronization."));
+                    m_timeStatus = std::move(fresh);
+                    renderInternetStatus();
+                    return;
+                }
+                if (fresh.provider == TimeSync::Provider::Chrony)
+                    launch({QStringLiteral("/usr/bin/chronyc"), QStringLiteral("-h"),
+                            QStringLiteral("/run/chrony/chronyd.sock"), QStringLiteral("burst"), QStringLiteral("4/4")});
+                else
+                    // Do not start an old provider if it stops after the probe.
+                    launch({QStringLiteral("/usr/bin/systemctl"), QStringLiteral("try-restart"),
+                            QStringLiteral("systemd-timesyncd.service")});
+            });
+    });
 
     v->addStretch(1);
 
     auto *bb = new QDialogButtonBox(QDialogButtonBox::Ok
                                     | QDialogButtonBox::Cancel);
     v->addWidget(bb);
-    connect(bb, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+    connect(bb, &QDialogButtonBox::accepted, &dlg, [=, &dlg]() {
+        const QString server = selectedServer();
+        if (sync->isChecked() && !server.isEmpty() && !TimeSync::validServer(server)) {
+            QMessageBox::warning(&dlg, QStringLiteral("Internet Time Settings"),
+                QStringLiteral("Enter a single DNS host name or IPv4/IPv6 address. Spaces, options, URLs and command characters are not allowed."));
+            return;
+        }
+        dlg.accept();
+    });
     connect(bb, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     const bool wantSync = sync->isChecked();
-    const QString server = serverCombo->currentText().trimmed();
-
-    // Toggle NTP to match the checkbox.
-    runPrivileged({ QStringLiteral("timedatectl"), QStringLiteral("set-ntp"),
-                    wantSync ? QStringLiteral("true") : QStringLiteral("false") },
-                  [this]() { refreshInternetStatus(); });
-
-    // If synchronizing, point timesyncd at the chosen server via a drop-in and
-    // restart it, all in one elevated shell so the user sees a single prompt.
-    if (wantSync && !server.isEmpty() && server != curServer) {
-        const QString script = QStringLiteral(
-            "mkdir -p /etc/systemd/timesyncd.conf.d && "
-            "printf '[Time]\\nNTP=%1\\n' > "
-            "/etc/systemd/timesyncd.conf.d/10-controlpanel.conf && "
-            "systemctl restart systemd-timesyncd").arg(server);
-        runPrivileged({ QStringLiteral("/bin/sh"), QStringLiteral("-c"), script },
-                      [this]() { refreshInternetStatus(); });
+    const QString server = selectedServer();
+    const bool serverChanged = wantSync && server != status.configuredServer;
+    if (wantSync == *status.enabled && !serverChanged)
+        return;
+    if (serverChanged && !canEditServer) {
+        QMessageBox::warning(this, QStringLiteral("Internet Time Settings"),
+                             QStringLiteral("Server editing is unavailable. No changes were applied."));
+        return;
     }
-}
-
-// Persistence for the cosmetic settings
-void DateTimeDialog::saveSettings()
-{
-    QSettings s;
-    if (m_notifyCheck)
-        s.setValue(QStringLiteral("datetime/notifyClockChange"),
-                   m_notifyCheck->isChecked());
-
-    // Additional clocks live on the second tab; find their widgets by name.
-    for (int i = 1; i <= 2; ++i) {
-        if (auto *show = m_tabs->findChild<QGroupBox *>(
-                QStringLiteral("clock%1_show").arg(i)))
-            s.setValue(QStringLiteral("datetime/clock%1/show").arg(i),
-                       show->isChecked());
-        if (auto *tz = m_tabs->findChild<QComboBox *>(
-                QStringLiteral("clock%1_tz").arg(i)))
-            s.setValue(QStringLiteral("datetime/clock%1/tz").arg(i),
-                       tz->currentData());
-        if (auto *name = m_tabs->findChild<QLineEdit *>(
-                QStringLiteral("clock%1_name").arg(i)))
-            s.setValue(QStringLiteral("datetime/clock%1/name").arg(i),
-                       name->text());
-    }
+    // One ordered privileged operation saves the validated source, changes
+    // service state and reloads it. The helper validates again as root.
+    const QStringList command = helperAvailable && (status.canEditServer || !wantSync)
+        ? QStringList{timeHelperPath(), QStringLiteral("--configure"), providerArgument(status.provider),
+                      wantSync ? QStringLiteral("on") : QStringLiteral("off"), server}
+        : QStringList{QStringLiteral("/usr/bin/timedatectl"), QStringLiteral("set-ntp"),
+                      wantSync ? QStringLiteral("true") : QStringLiteral("false")};
+    runPrivileged(command, [](bool) {});
 }

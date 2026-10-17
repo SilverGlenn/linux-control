@@ -4,17 +4,17 @@ const QList<DetailGroup> &userAccountsGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "system-users", "User Accounts",
+            ActionId::UserAccounts,
             {
-                { "Change your account picture",
-                  "Add or remove user accounts" },
-                { "Change your Linux Password" },
+                { ActionId::ChangeYourAccountPicture,
+                  ActionId::AddOrRemoveUserAccounts },
+                { ActionId::ChangeYourLinuxPassword },
             }
         },
         {
-            "preferences-system-login", "Credential Manager",
+            ActionId::CredentialManager,
             {
-                { "Manage Linux Credentials" },
+                { ActionId::ManageLinuxCredentials },
             }
         },
     };

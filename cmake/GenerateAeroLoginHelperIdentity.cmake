@@ -1,0 +1,8 @@
+foreach(required HELPER POLICY OUTPUT)
+    if(NOT DEFINED ${required})
+        message(FATAL_ERROR "Missing helper identity argument: ${required}")
+    endif()
+endforeach()
+file(SHA256 "${HELPER}" helper_hash)
+file(SHA256 "${POLICY}" policy_hash)
+file(WRITE "${OUTPUT}" "{\n  \"version\": 1,\n  \"protocol\": 1,\n  \"helperSha256\": \"${helper_hash}\",\n  \"policySha256\": \"${policy_hash}\"\n}\n")

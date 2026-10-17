@@ -4,18 +4,16 @@
 #include <QString>
 #include <QStringView>
 
-// Read a single shell-style `KEY=value` field out of a config file, stripping
-// surrounding single or double quotes. ufw's config files (/etc/ufw/ufw.conf,
-// /etc/default/ufw) are world-readable sourced shell fragments, so this reads
-// the same state KDE's firewall module consults, no root required. Shared by
-// the Firewall and Action Center pages.
-inline QString readConfField(const QString &path, const QString &key)
-{
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QString();
+struct ConfField {
+    bool available = false; // file was readable and contained this key
+    QString value;
+};
 
-    const QString text = QString::fromUtf8(f.readAll());
+inline ConfField parseConfFieldText(const QString &text, const QString &key,
+                                    bool readable = true)
+{
+    if (!readable)
+        return {};
     const QString prefix = key + QLatin1Char('=');
     for (const QStringView &raw : QStringView(text).split(u'\n')) {
         const QStringView line = raw.trimmed();
@@ -26,7 +24,26 @@ inline QString readConfField(const QString &path, const QString &key)
             && ((val.startsWith('"') && val.endsWith('"'))
                 || (val.startsWith('\'') && val.endsWith('\''))))
             val = val.mid(1, val.size() - 2);
-        return val;
+        return { true, val };
     }
-    return QString();
+    return {};
+}
+
+// Read a single shell-style `KEY=value` field out of a config file, stripping
+// surrounding single or double quotes. ufw's config files (/etc/ufw/ufw.conf,
+// /etc/default/ufw) are world-readable sourced shell fragments, so this reads
+// the same state KDE's firewall module consults, no root required. Shared by
+// the Firewall and Action Center pages.
+inline ConfField readConfFieldStatus(const QString &path, const QString &key)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return {};
+
+    return parseConfFieldText(QString::fromUtf8(f.readAll()), key);
+}
+
+inline QString readConfField(const QString &path, const QString &key)
+{
+    return readConfFieldStatus(path, key).value;
 }

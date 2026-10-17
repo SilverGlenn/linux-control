@@ -2,6 +2,7 @@
 #include "IconHelper.h"
 #include "Win7Ui.h"
 #include "Branding.h"
+#include "../../operations/UpdateService.h"
 
 #include <QScrollArea>
 #include <QMessageBox>
@@ -21,19 +22,14 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QHeaderView>
-#include <QProcess>
 #include <QDateTime>
 #include <QLocale>
-#include <QSettings>
-#include <QDir>
-#include <QRegularExpression>
 
 QList<SidebarLink> LinuxUpdatePage::sidebarLinks()
 {
-    // "Check for updates" is handled specially by MainWindow (it triggers this
-    // page's own refresh rather than navigating away), so it carries no target.
+    // The typed callback shares the action catalog used by search and views.
     return {
-        Nav::plain("Check for updates"),
+        Nav::callback("Check for updates", CallbackId::CheckUpdates),
         Nav::plain("Change settings"),
         Nav::plain("View update history"),
         Nav::plain("Restore hidden updates"),
@@ -43,7 +39,8 @@ QList<SidebarLink> LinuxUpdatePage::sidebarLinks()
 
 QList<SidebarLink> LinuxUpdatePage::sidebarSeeAlso()
 {
-    return { Nav::to("Installed Updates", PageId::InstalledUpdates) };
+    return { Nav::to("Installed Updates", PageId::InstalledUpdates),
+             Nav::to("Ubuntu Package Preview", PageId::PackagePreview) };
 }
 
 LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
@@ -258,8 +255,6 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
 
     QLabel *recvRight = nullptr;
     makeInfoRow("You receive updates:", &recvRight);
-    recvRight->setText(
-        Branding::brand("For Linux and other products from pacman and the AUR"));
 
     contentV->addSpacing(16);
 
@@ -272,9 +267,8 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
         auto *h = new QHBoxLayout(fossBox);
         h->setContentsMargins(8, 10, 8, 10);
         auto *lbl = new QLabel(
-            "Find out more about free software from the AUR.  "
-            "<a href='#' style='color:#1F4E99;'>Click here for details.</a>");
-        lbl->setTextFormat(Qt::RichText);
+            "Find out more about free software from the Arch User Repository (AUR).");
+        lbl->setTextFormat(Qt::PlainText);
         lbl->setStyleSheet("border: none; background: transparent;");
         {
             QFont f = lbl->font();
@@ -300,9 +294,13 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
     anim->setEasingCurve(QEasingCurve::OutCubic);
     QTimer::singleShot(0, this, [anim]() { anim->start(); });
 
-    loadState();
-    updateInfoRows();
-    setIdleState();
+    auto *service = UpdateService::instance();
+    service->refreshAvailability();
+    recvRight->setText(service->state().pacmanAvailable
+        ? Branding::brand("For Linux and other products from pacman and the AUR")
+        : QStringLiteral("Package update checks require pacman (Arch-based distributions)."));
+    connect(service, &UpdateService::changed, this, &LinuxUpdatePage::syncFromService);
+    syncFromService();
     // No auto-check, user must click "Check for updates" in the sidebar.
 }
 
@@ -331,6 +329,10 @@ void LinuxUpdatePage::applyStatusBorder(const QString &leftColor, const QString 
 // then re-shows only the pieces it needs.
 void LinuxUpdatePage::resetStatusWidgets()
 {
+    m_subLabel->setTextFormat(Qt::PlainText);
+    m_subLabel2->setTextFormat(Qt::PlainText);
+    m_subLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+    m_subLabel2->setTextInteractionFlags(Qt::NoTextInteraction);
     m_subRowWidget->setMaximumHeight(QWIDGETSIZE_MAX);
     m_subRowWidget->show();
     m_subLabel->show();
@@ -372,6 +374,16 @@ void LinuxUpdatePage::setNoUpdatesState()
     m_subLabel->setText("There are no available updates for your computer.");
 }
 
+void LinuxUpdatePage::setCheckErrorState(const QString &message)
+{
+    applyStatusBorder("#CC3300");
+    resetStatusWidgets();
+    m_iconLabel->setPixmap(themeIcon({"dialog-error", "security-low"}).pixmap(48, 48));
+    m_titleLabel->setText("Update status unavailable");
+    m_subLabel->setText(message);
+    m_installBtn->setEnabled(false);
+}
+
 void LinuxUpdatePage::setUpdatesAvailableState()
 {
     applyStatusBorder("#D4A800");
@@ -393,7 +405,12 @@ void LinuxUpdatePage::setUpdatesAvailableState()
     } else {
         m_subLabel->hide();
     }
-    if (nOpt > 0) {
+    if (!m_aurCheckWarning.isEmpty()) {
+        m_subLabel2->setText(m_aurCheckWarning);
+        m_subLabel2->setTextFormat(Qt::PlainText);
+        m_subLabel2->setTextInteractionFlags(Qt::NoTextInteraction);
+        m_subLabel2->show();
+    } else if (nOpt > 0) {
         setLinkLabel(m_subLabel2,
                      QString("%1 optional update%2 available")
                          .arg(nOpt).arg(nOpt == 1 ? " is" : "s are"),
@@ -410,16 +427,17 @@ void LinuxUpdatePage::setUpdatesAvailableState()
     m_rightWidget->show();
     m_installBtn->setEnabled(true);
 
-    // Everything is selected by default; the select-updates page can narrow it.
-    m_selectedAurPkgs.clear();
-    m_selectedPkgNames.clear();
-    for (const auto &p : m_pkgs) {
-        m_selectedPkgNames << p.name;
-        if (p.aur) m_selectedAurPkgs << p.name;
+    int selectedImportant = 0, selectedOptional = 0;
+    for (const auto &pkg : m_pkgs) {
+        if (!m_selectedPkgNames.contains(pkg.name)) continue;
+        if (pkg.aur) ++selectedOptional; else ++selectedImportant;
     }
-    m_selectedCount = m_pkgs.size();
+    parts.clear();
+    if (selectedImportant) parts << QString("%1 important update%2").arg(selectedImportant).arg(selectedImportant == 1 ? "" : "s");
+    if (selectedOptional) parts << QString("%1 optional update%2").arg(selectedOptional).arg(selectedOptional == 1 ? "" : "s");
+    m_selectedLabel->setText(parts.isEmpty() ? "No updates selected" : parts.join(", ") + " selected");
+    m_installBtn->setEnabled(m_selectedCount > 0);
 
-    fetchPackageSizes();
 }
 
 void LinuxUpdatePage::setDownloadingState()
@@ -496,36 +514,13 @@ void LinuxUpdatePage::updateInfoRows()
         m_lastInstallVal->setText("Never");
     }
 
-    // Persist whenever the displayed stamps change so they survive navigating
-    // away (the page is destroyed/recreated) and app restarts.
-    saveState();
-}
-
-void LinuxUpdatePage::loadState()
-{
-    QSettings s;
-    s.beginGroup("LinuxUpdate");
-    m_lastCheck     = s.value("lastCheck").toDateTime();
-    m_lastInstall   = s.value("lastInstall").toDateTime();
-    m_everInstalled = s.value("everInstalled", false).toBool();
-    m_lastInstallOk = s.value("lastInstallOk", false).toBool();
-    s.endGroup();
-}
-
-void LinuxUpdatePage::saveState()
-{
-    QSettings s;
-    s.beginGroup("LinuxUpdate");
-    s.setValue("lastCheck",     m_lastCheck);
-    s.setValue("lastInstall",   m_lastInstall);
-    s.setValue("everInstalled", m_everInstalled);
-    s.setValue("lastInstallOk", m_lastInstallOk);
-    s.endGroup();
 }
 
 // Update list dialog
 void LinuxUpdatePage::setLinkLabel(QLabel *label, const QString &text, bool underline)
 {
+    label->setTextFormat(Qt::RichText);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
     label->setProperty("linkText", text);
     label->setText(QString("<a href='list' style='color:#1F4E99; text-decoration:%1;'>%2</a>")
                    .arg(underline ? "underline" : "none", text));
@@ -579,10 +574,7 @@ QWidget *LinuxUpdatePage::buildSelectView()
     for (const auto &p : m_pkgs) if (!p.aur) m_selPkgs << p;
     for (const auto &p : m_pkgs) if ( p.aur) m_selPkgs << p;
 
-    // Seed the checked set from the status view's current selection.
-    m_selChecked = QSet<QString>(m_selectedPkgNames.begin(), m_selectedPkgNames.end());
-    if (m_selChecked.isEmpty())
-        for (const auto &p : m_selPkgs) m_selChecked.insert(p.name);
+    m_selChecked = UpdateService::instance()->state().checkedNames;
 
     int nImp = 0, nOpt = 0;
     for (const auto &p : m_selPkgs) { if (p.aur) nOpt++; else nImp++; }
@@ -682,6 +674,7 @@ QWidget *LinuxUpdatePage::buildSelectView()
                 if (it->checkState(0) == Qt::Checked) m_selChecked.insert(name);
                 else                                  m_selChecked.remove(name);
             }
+            UpdateService::instance()->setCheckedNames(m_selChecked);
             updateSelectCount();
         });
 
@@ -787,6 +780,8 @@ QWidget *LinuxUpdatePage::buildSelectView()
         emit selectViewClosed();
     });
     connect(cancelBtn, &QPushButton::clicked, this, [this]() {
+        const auto &selected = UpdateService::instance()->state().selectedNames;
+        UpdateService::instance()->setCheckedNames(QSet<QString>(selected.begin(), selected.end()));
         emit selectViewClosed();
     });
 
@@ -873,469 +868,92 @@ void LinuxUpdatePage::updateSelectCount()
 
 void LinuxUpdatePage::applySelection()
 {
-    int selImp = 0, selOpt = 0;
-    m_selectedAurPkgs.clear();
-    m_selectedPkgNames.clear();
-    for (const auto &p : m_selPkgs) {
-        if (!m_selChecked.contains(p.name)) continue;
-        m_selectedPkgNames << p.name;
-        if (p.aur) { ++selOpt; m_selectedAurPkgs << p.name; }
-        else       { ++selImp; }
-    }
-    m_selectedCount = selImp + selOpt;
-
-    if (m_selectedCount > 0) {
-        QStringList parts;
-        if (selImp > 0) parts << QString("%1 important update%2").arg(selImp).arg(selImp == 1 ? "" : "s");
-        if (selOpt > 0) parts << QString("%1 optional update%2").arg(selOpt).arg(selOpt == 1 ? "" : "s");
-        m_selectedLabel->setText(parts.join(", ") + " selected");
-        m_installBtn->setEnabled(true);
-    } else {
-        m_selectedLabel->setText("No updates selected");
-        m_installBtn->setEnabled(false);
-    }
-}
-
-// Input validation//
-// Package names and versions are checked before they can reach a privileged
-// pacman/yay invocation, so a crafted "name old -> new" line can never smuggle
-// extra arguments into the command.
-
-// Arch Linux package names: [a-zA-Z0-9@._+-], must start with alphanumeric.
-static bool isValidPackageName(const QString &name)
-{
-    static const QRegularExpression re(R"(^[a-zA-Z0-9][a-zA-Z0-9@._+\-]*$)");
-    return !name.isEmpty() && re.match(name).hasMatch();
-}
-
-// Arch version strings: epoch:pkgver-pkgrel, characters [a-zA-Z0-9.:_+-~]
-static bool isValidVersion(const QString &ver)
-{
-    static const QRegularExpression re(R"(^[a-zA-Z0-9.:_+\-~]+$)");
-    return !ver.isEmpty() && re.match(ver).hasMatch();
-}
-
-// Package size fetch
-void LinuxUpdatePage::fetchPackageSizes()
-{
-    if (m_pkgs.isEmpty()) return;
-
-    QStringList args = { "-Si" };
-    for (const auto &pkg : m_pkgs)
-        args << pkg.name;
-
-    const QString sizeCmd = m_yayAvailable ? QString("yay") : QString("pacman");
-
-    auto *proc = new QProcess(this);
-    proc->setProcessChannelMode(QProcess::MergedChannels);
-
-    int nImpSz = 0, nOptSz = 0;
-    for (const auto &p : m_pkgs) { if (p.aur) nOptSz++; else nImpSz++; }
-    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this, proc, nImpSz, nOptSz](int, QProcess::ExitStatus) {
-        const QString out = QString::fromUtf8(proc->readAll());
-        proc->deleteLater();
-
-        // Parse each package block to capture per-package download sizes and a
-        // running total. Blocks are separated by a blank line in pacman -Si.
-        static const QRegularExpression nameRe(R"(Name\s*:\s*(\S+))");
-        static const QRegularExpression sizeRe(
-            R"(Download Size\s*:\s*([\d.]+)\s*(B|KiB|MiB|GiB))");
-        auto toKiB = [](double val, const QString &unit) {
-            if      (unit == "GiB") return val * 1024.0 * 1024.0;
-            else if (unit == "MiB") return val * 1024.0;
-            else if (unit == "B")   return val / 1024.0;
-            return val;   // KiB
-        };
-        auto human = [](double kib) {
-            return kib >= 1024.0 ? QString("%1 MB").arg(kib / 1024.0, 0, 'f', 1)
-                                 : QString("%1 KB").arg(qRound(kib));
-        };
-
-        double totalKiB = 0.0;
-        const QStringList blocks = out.split("\n\n", Qt::SkipEmptyParts);
-        for (const QString &block : blocks) {
-            auto sz = sizeRe.match(block);
-            if (!sz.hasMatch()) continue;
-            const double kib = toKiB(sz.captured(1).toDouble(), sz.captured(2));
-            totalKiB += kib;
-            auto nm = nameRe.match(block);
-            if (nm.hasMatch())
-                m_pkgSizes.insert(nm.captured(1), human(kib));
-        }
-
-        // If the select view is open, refresh it so the Size column fills in.
-        if (m_selTree && m_stack && m_stack->currentWidget() == m_selectView)
-            populateSelectTable();
-
-        QString sizeStr;
-        if (totalKiB > 0)
-            sizeStr = ", " + human(totalKiB);
-
-        QStringList parts;
-        if (nImpSz > 0) parts << QString("%1 important update%2").arg(nImpSz).arg(nImpSz == 1 ? "" : "s");
-        if (nOptSz > 0) parts << QString("%1 optional update%2").arg(nOptSz).arg(nOptSz == 1 ? "" : "s");
-        m_selectedLabel->setText(parts.join(", ") + " selected" + sizeStr);
-    });
-
-    proc->start(sizeCmd, args);
-}
-
-// Check for updates process
-void LinuxUpdatePage::parseUpdateList(const QByteArray &data, bool aur)
-{
-    static const QRegularExpression lineRe(R"(^(\S+)\s+(\S+)\s+->\s+(\S+)\s*$)");
-
-    for (const QString &line : QString::fromUtf8(data).split('\n')) {
-        auto m = lineRe.match(line.trimmed());
-        if (!m.hasMatch()) continue;
-
-        const QString name   = m.captured(1);
-        const QString oldVer = m.captured(2);
-        const QString newVer = m.captured(3);
-
-        // Validate all three fields before they can reach a privileged operation.
-        if (!isValidPackageName(name) || !isValidVersion(oldVer) || !isValidVersion(newVer))
-            continue;
-
-        m_pkgs.append({ name, oldVer, newVer, aur });
-    }
+    UpdateService::instance()->setSelection(m_selChecked);
 }
 
 void LinuxUpdatePage::checkForUpdates()
 {
-    if (m_proc) {
-        m_proc->kill();
-        m_proc->deleteLater();
-        m_proc = nullptr;
-    }
-    m_pkgs.clear();
-    setCheckingState();
-
-    m_proc = new QProcess(this);
-    m_proc->setProcessChannelMode(QProcess::MergedChannels);
-
-    connect(m_proc, &QProcess::errorOccurred, this, [this](QProcess::ProcessError err) {
-        if (err == QProcess::FailedToStart) {
-            m_proc->deleteLater();
-            m_proc = nullptr;
-            runFallbackCheck();
-        }
-    });
-    connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &LinuxUpdatePage::onCheckFinished);
-
-    m_proc->start("checkupdates", {});
+    UpdateService::instance()->checkForUpdates();
 }
 
-void LinuxUpdatePage::runFallbackCheck()
-{
-    // checkupdates is unavailable, so we must sync the DB ourselves.
-    // pacman -Sy writes to /var/lib/pacman, needs root via pkexec.
-    m_proc = new QProcess(this);
-    m_proc->setProcessChannelMode(QProcess::MergedChannels);
-    connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this](int exitCode, QProcess::ExitStatus) {
-        const QString errOut =
-            QString::fromUtf8(m_proc->readAllStandardError()).trimmed();
-        m_proc->deleteLater();
-        m_proc = nullptr;
-
-        if (exitCode != 0) {
-            m_lastCheck = QDateTime::currentDateTime();
-            updateInfoRows();
-            setNoUpdatesState();
-            if (!errOut.isEmpty())
-                QMessageBox::warning(this, "Update check failed",
-                    QString("Could not synchronize the package database:\n\n%1")
-                    .arg(errOut.toHtmlEscaped()));
-            return;
-        }
-
-        // DB is now fresh, query upgradeable packages (no root needed).
-        m_proc = new QProcess(this);
-        m_proc->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, [this](int, QProcess::ExitStatus) {
-            m_lastCheck = QDateTime::currentDateTime();
-            parseUpdateList(m_proc->readAll(), false);
-            m_proc->deleteLater();
-            m_proc = nullptr;
-            updateInfoRows();
-            runYayCheck();
-        });
-        m_proc->start("pacman", {"-Qu"});
-    });
-    m_proc->start("pkexec", {"pacman", "-Sy"});
-}
-
-void LinuxUpdatePage::runYayCheck()
-{
-    m_proc = new QProcess(this);
-    m_proc->setProcessChannelMode(QProcess::MergedChannels);
-    connect(m_proc, &QProcess::errorOccurred, this, [this](QProcess::ProcessError err) {
-        if (err != QProcess::FailedToStart) return;
-        m_yayAvailable = false;
-        m_proc->deleteLater();
-        m_proc = nullptr;
-        finishCheck();
-    });
-    connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this](int exitCode, QProcess::ExitStatus) {
-        m_yayAvailable = true;
-        QByteArray out = m_proc->readAll();
-        m_proc->deleteLater();
-        m_proc = nullptr;
-        if (exitCode == 0)
-            parseUpdateList(out, true);
-        finishCheck();
-    });
-    m_proc->start("yay", {"-Qua"});
-}
-
-void LinuxUpdatePage::finishCheck()
-{
-    if (m_pkgs.isEmpty()) setNoUpdatesState();
-    else setUpdatesAvailableState();
-}
-
-void LinuxUpdatePage::onCheckFinished(int exitCode, QProcess::ExitStatus)
-{
-    if (!m_proc) return;
-
-    m_lastCheck = QDateTime::currentDateTime();
-    QByteArray out = m_proc->readAll();
-    m_proc->deleteLater();
-    m_proc = nullptr;
-
-    // checkupdates exit 2 = up to date; exit 0 = updates found; exit 1 = error
-    parseUpdateList((exitCode == 2) ? QByteArray{} : out, false);
-
-    updateInfoRows();
-    runYayCheck();
-}
-
-// Install process
 void LinuxUpdatePage::installUpdates()
 {
-    if (m_proc) {
-        m_proc->kill();
-        m_proc->deleteLater();
-        m_proc = nullptr;
-    }
-
-    m_installBuf.clear();
-    m_inInstallPhase = false;
-    m_seenInstalledPkgs.clear();
-    m_seenDownloadedPkgs.clear();
-    m_installProgressCount = 0;
-    m_downloadProgressCount = 0;
-
-    // Split the current selection into repository (pacman) packages and AUR
-    // packages. Only the repo packages go to pacman here; the selected AUR
-    // packages are handled afterwards by startYayInstall().
-    QStringList repoPkgs;
-    int totalRepo = 0;
-    for (const auto &p : m_pkgs) {
-        if (p.aur) continue;
-        ++totalRepo;
-        if (m_selectedPkgNames.contains(p.name))
-            repoPkgs << p.name;
-    }
-
-    // Nothing from the repos is selected: skip pacman and go straight to the
-    // AUR step if any AUR packages were chosen, otherwise there is nothing to do.
-    if (repoPkgs.isEmpty()) {
-        if (!m_selectedAurPkgs.isEmpty() && m_yayAvailable) {
-            setDownloadingState();
-            startYayInstall();
-        } else {
-            setDoneState(true);
-        }
-        return;
-    }
-
-    setDownloadingState();
-
-    m_proc = new QProcess(this);
-    m_proc->setProcessChannelMode(QProcess::MergedChannels);
-    connect(m_proc, &QProcess::readyRead, this, &LinuxUpdatePage::onInstallReadyRead);
-    connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, &LinuxUpdatePage::onInstallFinished);
-
-    // When every repository update is selected, do a normal full upgrade
-    // (-Syu) -- the safest path that avoids a partial upgrade. When only a
-    // subset is selected, target just those packages with -S; the leading -y
-    // refreshes the sync database so the latest versions are installed.
-    QStringList pacArgs = { "pacman", "--color", "never" };
-    if (repoPkgs.size() == totalRepo) {
-        pacArgs << "-Syu" << "--noconfirm";
-    } else {
-        pacArgs << "-Sy" << "--noconfirm" << repoPkgs;
-    }
-    m_proc->start("pkexec", pacArgs);
+    const QString error = UpdateService::instance()->installUpdates();
+    if (!error.isEmpty())
+        QMessageBox::information(this, "Package updates", error);
 }
 
-void LinuxUpdatePage::onInstallReadyRead()
+void LinuxUpdatePage::syncFromService()
 {
-    m_installBuf += QString::fromUtf8(m_proc->readAll());
-
-    // pacman draws colored, in-place output: ANSI color codes plus cursor-move
-    // sequences for the parallel-download list (ParallelDownloads). Strip those
-    // escapes so the (n/N) counters and package names match reliably; without
-    // this the progress text never advances.
-    static const QRegularExpression ansiRe(R"(\x1B\[[0-9;?]*[ -/]*[@-~])");
-    QString clean = m_installBuf;
-    clean.remove(ansiRe);
-
-    if (!m_inInstallPhase &&
-        clean.contains(":: Processing package changes..."))
-    {
-        m_inInstallPhase = true;
-        setInstallingPhaseState();
-    }
-
-    if (m_inInstallPhase) {
-        const QString tail = clean.mid(
-            clean.indexOf(":: Processing package changes..."));
-
-        // Over a pipe pacman does not print the "(n/N)" progress-bar prefix --
-        // that is TTY-only. It prints the plain libalpm event messages instead,
-        // e.g. "upgrading vlc..." / "installing foo..." / "removing bar...", with
-        // no count. So match those and derive the count ourselves from how many
-        // of the selected packages have been reached.
-        static const QRegularExpression reInst(
-            R"((?:installing|upgrading|reinstalling|removing|downgrading)\s+(\S+?)\.\.\.)");
-
-        QString lastPkg;
-        QRegularExpressionMatchIterator instIt = reInst.globalMatch(tail);
-        while (instIt.hasNext()) {
-            QRegularExpressionMatch match = instIt.next();
-            const QString pkg = match.captured(1);
-            lastPkg = pkg;
-            if (m_selectedPkgNames.contains(pkg) && !m_seenInstalledPkgs.contains(pkg)) {
-                m_seenInstalledPkgs.insert(pkg);
-                ++m_installProgressCount;
-            }
-        }
-        if (!lastPkg.isEmpty() && m_selectedCount > 0) {
-            const int cur = qBound(1, m_installProgressCount, m_selectedCount);
-            m_progressBar->setRange(0, m_selectedCount);
-            m_progressBar->setValue(cur);
-            // Subtitle: count on the first line, the package currently being
-            // installed on the second (m_subLabel2).
-            m_subLabel->setText(QString("Installing update %1 of %2...")
-                .arg(cur).arg(m_selectedCount));
-            m_subLabel2->setText(lastPkg.toHtmlEscaped());
-            m_subLabel2->show();
-        }
-        return;
-    }
-
-    const int retrIdx = clean.indexOf(":: Retrieving packages...");
-    if (retrIdx < 0) return;
-
-    // With ParallelDownloads pacman redraws the download list in place, so there
-    // is no stable per-line "name size" format. Instead, count a selected
-    // package as downloading once its "name-<version>" filename first appears
-    // anywhere in the retrieving section. Sizes are not reported, so progress is
-    // expressed purely as the share of selected updates seen so far.
-    const QString retrSection = clean.mid(retrIdx);
-    for (const QString &name : m_selectedPkgNames) {
-        if (m_seenDownloadedPkgs.contains(name)) continue;
-        // Require a digit right after "name-" so a package name that is a prefix
-        // of another (e.g. "gcc" vs "gcc-libs") does not get miscounted.
-        const QString needle = name + QLatin1Char('-');
-        int idx = retrSection.indexOf(needle);
-        while (idx >= 0 &&
-               !(idx + needle.size() < retrSection.size() &&
-                 retrSection.at(idx + needle.size()).isDigit())) {
-            idx = retrSection.indexOf(needle, idx + 1);
-        }
-        if (idx >= 0) {
-            m_seenDownloadedPkgs.insert(name);
-            ++m_downloadProgressCount;
-        }
-    }
-
-    if (m_downloadProgressCount > 0 && m_selectedCount > 0) {
-        const int cur = qMin(m_downloadProgressCount, m_selectedCount);
-        const int pct = cur * 100 / m_selectedCount;
-        m_progressBar->setRange(0, m_selectedCount);
-        m_progressBar->setValue(cur);
-        m_subLabel->setText(QString("Downloading %1 update%2 (%3% complete)")
-            .arg(m_selectedCount).arg(m_selectedCount == 1 ? "" : "s").arg(pct));
-    }
-}
-
-void LinuxUpdatePage::onInstallFinished(int exitCode, QProcess::ExitStatus)
-{
-    bool pacmanOk = (exitCode == 0);
-
-    const QString errOut = m_proc
-        ? QString::fromUtf8(m_proc->readAllStandardError()).trimmed()
-        : QString();
-
-    m_proc->deleteLater();
-    m_proc = nullptr;
-
-    if (pacmanOk && !m_selectedAurPkgs.isEmpty() && m_yayAvailable) {
-        startYayInstall();
-        return;
-    }
-
-    m_lastInstall   = QDateTime::currentDateTime();
-    m_everInstalled = true;
-    m_lastInstallOk = pacmanOk;
+    const auto &state = UpdateService::instance()->state();
+    m_pkgs = state.packages;
+    m_pkgSizes = state.packageSizes;
+    m_selectedPkgNames = state.selectedNames;
+    m_selectedCount = state.selectedNames.size();
+    m_lastCheck = state.lastCheck;
+    m_lastInstall = state.lastInstall;
+    m_everInstalled = state.everInstalled;
+    m_lastInstallOk = state.lastInstallOk;
+    m_aurCheckWarning = state.aurWarning;
     updateInfoRows();
-    setDoneState(m_lastInstallOk);
-
-    if (!m_lastInstallOk && !errOut.isEmpty()) {
-        QMessageBox::warning(this, "Update failed",
-            QString("pacman reported an error:\n\n%1").arg(errOut.toHtmlEscaped()));
-    }
-}
-
-void LinuxUpdatePage::startYayInstall()
-{
-    // Remove stale build caches so git sources are re-cloned fresh
-    const QString yayCache = QDir::homePath() + "/.cache/yay/";
-    for (const QString &pkg : m_selectedAurPkgs)
-        QDir(yayCache + pkg).removeRecursively();
-
-    m_installBuf.clear();
-    m_inInstallPhase = false;
-
-    m_proc = new QProcess(this);
-    m_proc->setProcessChannelMode(QProcess::MergedChannels);
-    connect(m_proc, &QProcess::readyRead, this, &LinuxUpdatePage::onInstallReadyRead);
-    connect(m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this](int exitCode, QProcess::ExitStatus) {
-        // Drain any remaining output not yet consumed by onInstallReadyRead
-        m_installBuf += QString::fromUtf8(m_proc->readAll());
-        m_lastInstall   = QDateTime::currentDateTime();
-        m_everInstalled = true;
-        m_lastInstallOk = (exitCode == 0);
-        m_proc->deleteLater();
-        m_proc = nullptr;
-        updateInfoRows();
-        setDoneState(m_lastInstallOk);
-        if (!m_lastInstallOk) {
-            // Show the tail of yay output so the user can diagnose the failure
-            const QString tail = m_installBuf.length() > 2000
-                ? "..." + m_installBuf.right(2000) : m_installBuf;
-            QMessageBox::warning(this, "AUR update failed",
-                QString("yay reported an error:\n\n%1").arg(tail.toHtmlEscaped()));
+    using Phase = UpdateService::Phase;
+    switch (state.phase) {
+    case Phase::Idle: setIdleState(); break;
+    case Phase::Checking: setCheckingState(); break;
+    case Phase::Available: setUpdatesAvailableState(); break;
+    case Phase::UpToDate: setNoUpdatesState(); break;
+    case Phase::Error: setCheckErrorState(state.error); break;
+    case Phase::Incomplete:
+        applyStatusBorder("#D4A800");
+        resetStatusWidgets();
+        m_iconLabel->setPixmap(themeIcon({"dialog-warning", "security-medium"}).pixmap(48, 48));
+        m_titleLabel->setText("Update status incomplete");
+        m_subLabel->setText(state.aurWarning);
+        m_subLabel->setTextFormat(Qt::PlainText);
+        m_subLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+        m_installBtn->setEnabled(false);
+        break;
+    case Phase::Downloading:
+    case Phase::Installing: {
+        setDownloadingState();
+        const int count = state.phase == Phase::Installing ? state.installCount : state.downloadCount;
+        if (state.phase == Phase::Installing) {
+            setInstallingPhaseState();
+            m_subLabel->setText(QString("Installing update %1 of %2...").arg(count).arg(m_selectedCount));
+            if (!state.currentPackage.isEmpty()) {
+                m_subLabel2->setText(state.currentPackage);
+                m_subLabel2->setTextFormat(Qt::PlainText);
+                m_subLabel2->show();
+            }
+        } else if (count > 0 && m_selectedCount > 0) {
+            m_subLabel->setText(QString("Downloading %1 update%2 (%3% complete)")
+                .arg(m_selectedCount).arg(m_selectedCount == 1 ? "" : "s").arg(count * 100 / m_selectedCount));
         }
-    });
-    QStringList yayArgs = {"--noconfirm", "--sudo", "pkexec", "--cleanafter"};
-    if (m_selectedAurPkgs.isEmpty()) {
-        yayArgs.prepend("-Sua");
-    } else {
-        yayArgs.prepend("-S");
-        yayArgs << m_selectedAurPkgs;
+        if (count > 0 && m_selectedCount > 0) {
+            m_progressBar->setRange(0, m_selectedCount);
+            m_progressBar->setValue(qMin(count, m_selectedCount));
+        }
+        break;
     }
-    m_proc->start("yay", yayArgs);
+    case Phase::Done:
+        setDoneState(state.lastInstallOk);
+        if (!state.lastInstallOk && !state.error.isEmpty()) {
+            m_subLabel->setText(state.error);
+            m_subLabel->setTextFormat(Qt::PlainText);
+        } else if (state.lastInstallOk && !state.aurCheckSucceeded) {
+            m_subLabel->setText("Selected updates were installed. AUR update status remains unavailable; check for updates again.");
+        }
+        break;
+    }
+    if (m_selTree && m_stack->currentWidget() == m_selectView) {
+        // Rebuild the package list when a check finishes while selection is open.
+        m_selPkgs.clear();
+        for (const auto &pkg : m_pkgs) if (!pkg.aur) m_selPkgs << pkg;
+        for (const auto &pkg : m_pkgs) if (pkg.aur) m_selPkgs << pkg;
+        m_selChecked = state.checkedNames;
+        populateSelectTable();
+        updateSelectCount();
+    }
 }
 
 // Hover underline on link labels

@@ -1,7 +1,9 @@
 #include "InstalledUpdatesPage.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
+#include "operations/SharedLoad.h"
 
+#include <QCoreApplication>
 #include <QScrollArea>
 #include <QLabel>
 #include <QHBoxLayout>
@@ -17,6 +19,8 @@
 #include <QColor>
 #include <QRegularExpression>
 #include <QPushButton>
+#include <QStandardPaths>
+#include <QPointer>
 #include <algorithm>
 
 // Data gathering
@@ -57,13 +61,15 @@ static QString publisherForRepo(const QString &repo)
     return "Linux";
 }
 
-QList<InstalledUpdatesPage::UpdateInfo> InstalledUpdatesPage::gatherUpdates()
+InstalledUpdatesPage::LoadResult InstalledUpdatesPage::gatherUpdates()
 {
-    QList<UpdateInfo> result;
+    LoadResult result;
 
     QFile log("/var/log/pacman.log");
-    if (!log.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!log.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        result.error = QStringLiteral("The pacman update history is unavailable.");
         return result;
+    }
 
     const QHash<QString, QString> repos = repositoryMap();
 
@@ -83,7 +89,7 @@ QList<InstalledUpdatesPage::UpdateInfo> InstalledUpdatesPage::gatherUpdates()
         UpdateInfo u;
         u.name    = m.captured(2);
         u.version = m.captured(3);
-        u.repo    = repos.value(u.name, QStringLiteral("AUR"));
+        u.repo    = repos.value(u.name, QStringLiteral("Unknown repository"));
         u.publisher = publisherForRepo(u.repo);
 
         const QDate d = QDate::fromString(m.captured(1), "yyyy-MM-dd");
@@ -92,8 +98,20 @@ QList<InstalledUpdatesPage::UpdateInfo> InstalledUpdatesPage::gatherUpdates()
         latest.insert(u.name, u);
     }
 
-    result = latest.values();
+    result.updates = latest.values();
     return result;
+}
+
+SharedLoad<InstalledUpdatesPage::LoadResult> *
+InstalledUpdatesPage::sharedLoader()
+{
+    static QPointer<SharedLoad<LoadResult>> loader;
+    if (!loader) {
+        loader = new SharedLoad<LoadResult>(
+            QStringLiteral("Loading installed update history"),
+            QCoreApplication::instance());
+    }
+    return loader;
 }
 
 // Sidebar entries
@@ -128,7 +146,8 @@ InstalledUpdatesPage::InstalledUpdatesPage(QScrollArea *sidebar, QWidget *parent
     headerV->addWidget(Win7::pageTitle("Uninstall an update"));
     headerV->addSpacing(8);
     headerV->addWidget(Win7::label(
-        "To uninstall an update, select it from the list and then click Uninstall or Change."));
+        "Installed package upgrades are listed here when history is available. "
+        "Removing an individual update is not available on this page."));
     contentV->addLayout(headerV);
     contentV->addSpacing(12);
     contentV->addWidget(Win7::hSeparator());
@@ -154,8 +173,15 @@ InstalledUpdatesPage::InstalledUpdatesPage(QScrollArea *sidebar, QWidget *parent
     m_tree->setColumnWidth(1, 150);
     m_tree->setColumnWidth(2, 90);
 
-    // Placeholder shown until the worker thread finishes gathering (see below).
-    Win7::addTreePlaceholder(m_tree, "Searching for installed updates...");
+    // Don't present a missing package manager or unreadable history as an empty
+    // update list.
+    const bool pacmanAvailable = !QStandardPaths::findExecutable("pacman").isEmpty();
+    if (!pacmanAvailable) {
+        Win7::addTreePlaceholder(m_tree,
+            "Installed update history is unavailable: this page requires pacman.");
+    } else {
+        Win7::addTreePlaceholder(m_tree, "Searching for installed updates...");
+    }
     contentV->addWidget(m_tree, 1);
 
     // Status bar: item count
@@ -168,24 +194,35 @@ InstalledUpdatesPage::InstalledUpdatesPage(QScrollArea *sidebar, QWidget *parent
     statusH->addWidget(statusIcon);
 
     m_countLbl = Win7::label("0 items", 9, "#1F1F1F");
+    if (!pacmanAvailable)
+        m_countLbl->setText("History unavailable");
+    else if (!sharedLoader()->hasResult())
+        m_countLbl->setText("Searching...");
     statusH->addWidget(m_countLbl);
     statusH->addStretch(1);
     contentV->addWidget(statusBar);
 
-    // Navigate first, gather second: the package query shells out to pacman and
-    // can take a while, so run it on a worker thread and populate when it lands.
-    // The page is already on screen with the "Searching..." placeholder by then.
-    m_tree->setCursor(Qt::BusyCursor);
-    Win7::runAsync(this, &InstalledUpdatesPage::gatherUpdates,
-                   [this](const QList<UpdateInfo> &updates) {
-        populate(updates);
-    });
+    // A prior result is displayed immediately with a refresh notice; otherwise
+    // the page keeps its searching placeholder until the worker returns.
+    if (pacmanAvailable) {
+        m_tree->setCursor(Qt::BusyCursor);
+        sharedLoader()->subscribe(this, &InstalledUpdatesPage::gatherUpdates,
+            [this](const LoadResult &result, bool fresh) {
+                populate(result, fresh);
+            });
+    }
 }
 
-void InstalledUpdatesPage::populate(const QList<UpdateInfo> &updatesIn)
+void InstalledUpdatesPage::populate(const LoadResult &result, bool fresh)
 {
-    m_tree->setCursor(Qt::ArrowCursor);
+    m_tree->setCursor(fresh ? Qt::ArrowCursor : Qt::BusyCursor);
     m_tree->clear();   // drop the "Searching..." placeholder
+    if (!result.error.isEmpty()) {
+        Win7::addTreePlaceholder(m_tree, result.error);
+        m_countLbl->setText(fresh ? QStringLiteral("History unavailable")
+                                  : QStringLiteral("Refreshing saved history…"));
+        return;
+    }
 
     // Order repositories deterministically: official repos first, then CachyOS,
     // then AUR, then anything else alphabetically.
@@ -200,7 +237,7 @@ void InstalledUpdatesPage::populate(const QList<UpdateInfo> &updatesIn)
 
     QStringList repoOrder;
     QHash<QString, QList<UpdateInfo>> byRepo;
-    for (const UpdateInfo &u : updatesIn) {
+    for (const UpdateInfo &u : result.updates) {
         if (!byRepo.contains(u.repo)) repoOrder << u.repo;
         byRepo[u.repo].append(u);
     }
@@ -241,6 +278,11 @@ void InstalledUpdatesPage::populate(const QList<UpdateInfo> &updatesIn)
     }
     m_tree->expandAll();
 
-    m_countLbl->setText(QString("%1 item%2")
-                            .arg(totalItems).arg(totalItems == 1 ? "" : "s"));
+    if (fresh) {
+        m_countLbl->setText(QString("%1 item%2")
+                                .arg(totalItems).arg(totalItems == 1 ? "" : "s"));
+    } else {
+        m_countLbl->setText(QStringLiteral("Showing %1 saved item%2 while refreshing…")
+            .arg(totalItems).arg(totalItems == 1 ? "" : "s"));
+    }
 }

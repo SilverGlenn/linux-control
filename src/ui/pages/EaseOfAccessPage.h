@@ -12,10 +12,8 @@ class QVBoxLayout;
 //
 // No standalone accessibility apps (magnifier, narrator, on-screen keyboard) are
 // assumed to be installed, so, like the real Control Panel, whose entries open
-// sub-dialogs, every tool and setting here opens the matching KDE settings
-// module (kcm_access, kcm_kwin_effects for the screen magnifier, kcm_colors for
-// high contrast, kcm_mouse, kcm_cursortheme), which are always present with
-// Plasma.
+// sub-dialogs, supported tools open their matching KDE settings module.
+// Appearance links use the native Aero editor; broad theme editors are disabled.
 class EaseOfAccessPage : public QWidget {
     Q_OBJECT
 
@@ -24,6 +22,9 @@ public:
 
     static QList<SidebarLink> sidebarLinks();
     static QList<SidebarLink> sidebarSeeAlso();
+
+signals:
+    void navigationRequested(PageId page);
 
 private:
     // Append an icon + blue link that opens `cmd` when clicked.

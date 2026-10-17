@@ -5,10 +5,9 @@
 #include <QHash>
 
 #include "Categories.h"
+#include "ActionCatalog.h"
 
-class QLabel;
-class QVBoxLayout;
-class QEvent;
+class LinkLabel;
 
 class CategoryWidget : public QWidget {
     Q_OBJECT
@@ -16,17 +15,13 @@ class CategoryWidget : public QWidget {
 public:
     explicit CategoryWidget(const CategoryItem &item, QWidget *parent = nullptr);
 
-Q_SIGNALS:
-    void titleActivated(const QString &title);
-    void taskActivated(const QString &category, const QString &task);
+    void setTaskAvailable(ActionId action, bool available, const QString &reason = {});
 
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
+Q_SIGNALS:
+    void titleActivated(const QString &category);
+    void actionActivated(ActionId action);
 
 private:
-    QString  m_title;
-    QLabel  *m_titleLabel = nullptr;
-    // Task sub-links, mapped to their label text so a click can report which
-    // task was activated.
-    QHash<QLabel *, QString> m_taskLabels;
+    QString m_title;
+    QHash<LinkLabel *, ActionId> m_taskLabels;
 };

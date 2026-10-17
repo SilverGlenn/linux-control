@@ -36,18 +36,39 @@ enum class PageId {
     EaseOfAccess,
     DevicesPrinters,
     System,
+    Display,
+    WindowBehavior,
+    DesktopBackground,
+    ThemeComponents,
+    FontSettings,
+    AeroEffects,
+    PackagePreview,
+    NetworkConnections,
+    InputDevices,
+    Keyboard,
+    DefaultApps,
+    Shortcuts,
+    StandardShortcuts,
+    CustomShortcuts,
+    NightLight,
+    NightTime,
+    ScreenLock,
+    AeroLogin,
 };
+
+enum class CallbackId { None, CheckUpdates };
 
 // Where a sidebar link goes when it is clicked. A link can navigate to another
 // page (by id), return home, launch an external command, or open an in-app
 // applet dialog. `None` is a decorative link that renders but does nothing.
 struct LinkTarget {
-    enum Kind { None, Home, Page, Command, Applet };
+    enum Kind { None, Home, Page, Command, Applet, Callback };
 
     Kind        kind = None;
     PageId      page = PageId::None;   // used when kind == Page
     QStringList command;               // used when kind == Command
     QString     applet;                // used when kind == Applet
+    CallbackId  callback = CallbackId::None; // used when kind == Callback
 };
 
 // One entry in a page's left-nav sidebar: the text to show plus its target.
@@ -96,6 +117,15 @@ inline SidebarLink applet(const QString &text, QString id)
     LinkTarget t;
     t.kind   = LinkTarget::Applet;
     t.applet = std::move(id);
+    return { text, t };
+}
+
+// A link that invokes a typed application action.
+inline SidebarLink callback(const QString &text, CallbackId id)
+{
+    LinkTarget t;
+    t.kind = LinkTarget::Callback;
+    t.callback = id;
     return { text, t };
 }
 

@@ -4,62 +4,67 @@ const QList<DetailGroup> &appearanceAndPersonalizationGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "preferences-desktop-theme", "Personalization",
+            ActionId::Personalization,
             {
-                { "Change the theme",
-                  "Change desktop background",
-                  "Change window glass colors" },
-                { "Change sound effects",
-                  "Change screen saver" },
+                { ActionId::ChangeWindowColors,
+                  ActionId::ChangeDesktopBackground,
+                  ActionId::ChangeWindowGlassColors },
+                { ActionId::RestoreAeroDefaults },
+                { ActionId::ChangeSoundEffects,
+                  ActionId::ChangeScreenLockSettings, ActionId::AeroLogin },
             }
         },
         {
-            "preferences-desktop-display", "Display",
+            ActionId::Display,
             {
-                { "Make text and other items larger or smaller",
-                  "Adjust screen resolution" },
-                { "Connect to an external display" },
+                { ActionId::MakeTextAndOtherItemsLargerOrSmaller,
+                  ActionId::AdjustScreenResolution },
+                { ActionId::ConnectToAnExternalDisplay, ActionId::NightLight },
+            }
+        },
+        { ActionId::WindowBehavior, {} },
+        { ActionId::AeroEffects, {} },
+        { ActionId::ThemeComponents, {{ ActionId::ChangeDesktopIcons, ActionId::ChangeMousePointers,
+                                        ActionId::ChangeApplicationStyle }} },
+        {
+            ActionId::DesktopGadgets,
+            {
+                { ActionId::AddGadgetsToTheDesktop,
+                  ActionId::GetMoreGadgetsOnline,
+                  ActionId::UninstallAGadget },
+                { ActionId::RestoreDesktopGadgetsInstalledWithLinux },
             }
         },
         {
-            "gadgets", "Desktop Gadgets",
+            ActionId::TaskbarAndStartMenu,
             {
-                { "Add gadgets to the desktop",
-                  "Get more gadgets online",
-                  "Uninstall a gadget" },
-                { "Restore desktop gadgets installed with Linux" },
+                { ActionId::CustomizeTheStartMenu,
+                  ActionId::CustomizeIconsOnTheTaskbar },
+                { ActionId::ChangeThePictureOnTheStartMenu },
             }
         },
         {
-            "preferences-desktop-plasma-theme", "Taskbar and Start Menu",
+            ActionId::EaseOfAccessCenter,
             {
-                { "Customize the Start menu",
-                  "Customize icons on the taskbar" },
-                { "Change the picture on the Start menu" },
+                { ActionId::AccommodateLowVision,
+                  ActionId::UseScreenReader,
+                  ActionId::TurnOnEasyAccessKeys },
+                { ActionId::TurnHighContrastOnOrOff },
             }
         },
         {
-            "preferences-desktop-accessibility", "Ease of Access Center",
+            ActionId::FolderOptions,
             {
-                { "Accommodate low vision",
-                  "Use screen reader",
-                  "Turn on easy access keys" },
-                { "Turn High Contrast on or off" },
+                { ActionId::SpecifySingleOrDoubleClickToOpen,
+                  ActionId::ShowHiddenFilesAndFolders },
             }
         },
         {
-            "folder-templates", "Folder Options",
+            ActionId::Fonts,
             {
-                { "Specify single- or double-click to open",
-                  "Show hidden files and folders" },
-            }
-        },
-        {
-            "preferences-desktop-font-installer", "Fonts",
-            {
-                { "Preview, delete, or show and hide fonts",
-                  "Change Font Settings",
-                  "Adjust ClearType text" },
+                { ActionId::PreviewInstalledFonts,
+                  ActionId::ChangeFontSettings,
+                  ActionId::AdjustClearTypeText },
             }
         },
     };

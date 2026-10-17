@@ -7,6 +7,7 @@
 #include <QList>
 #include <QDate>
 #include <QSoundEffect>
+#include "packages/ProgramsService.h"
 
 class QScrollArea;
 class QTreeWidget;
@@ -26,42 +27,21 @@ class ProgramsFeaturesPage : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ProgramsFeaturesPage(QScrollArea *sidebar, QWidget *parent = nullptr);
+    explicit ProgramsFeaturesPage(QScrollArea *sidebar, QWidget *parent = nullptr,
+                                  ProgramsService *service = nullptr);
 
     // Left-nav entries shown by MainWindow's subpage sidebar.
     static QList<SidebarLink> sidebarLinks();
     static QList<SidebarLink> sidebarSeeAlso();
 
 private:
-    // One installed program (explicitly-installed package).
-    struct ProgramInfo {
-        QString name;          // package name, e.g. "7zip"
-        QString display;       // friendly name from its .desktop file, else name
-        QString iconName;      // .desktop Icon= (theme name or path); may be empty
-        QString version;       // version, e.g. "26.01-1.1"
-        QString publisher;     // developer/maintainer, e.g. "Valve Corporation"
-        QDate   installed;     // install date
-        qint64  sizeBytes = 0; // installed size in bytes
-    };
-
-    // Collect explicitly-installed packages from `pacman -Qei`. Runs on a worker
-    // thread (it shells out to pacman), so it must not touch the UI.
-    static QList<ProgramInfo> gatherPrograms();
-
-    // Replace each program's display name (and icon) with the friendly Name/Icon
-    // from its .desktop file, where it has one. Worker-thread only.
-    static void applyFriendlyNames(QList<ProgramInfo> &programs);
-
-    // Replace the Packager-derived publisher with the upstream developer from
-    // the AppStream catalog (repo packages) or the AUR maintainer from the AUR
-    // RPC (foreign packages), keeping the fallback where neither is known.
-    // Worker-thread only (shells out to pacman, gzip and curl).
-    static void applyPublishers(QList<ProgramInfo> &programs);
-
-    // Show the "Searching..." placeholder and (re)launch the worker-thread load.
+    using ProgramInfo = ProgramsService::ProgramInfo;
+    using LoadResult = ProgramsService::LoadResult;
     void startLoad();
+    void refreshFromService();
+
     // Fill the tree from gathered data, replacing the "Searching..." placeholder.
-    void populate(const QList<ProgramInfo> &programs);
+    void populate(const LoadResult &result);
 
     // Double-clicking a program opens a Windows-style Uninstall/Reinstall/Cancel
     // dialog; the chosen action shells out to pacman/yay.
@@ -71,5 +51,9 @@ private:
     QTreeWidget *m_tree     = nullptr;
     QLabel      *m_countLbl = nullptr;
     QLabel      *m_totalLbl = nullptr;
-    QSoundEffect m_dialogSound;   // played when the uninstall dialog opens
+    ProgramsService *m_service = nullptr;
+    QLabel *m_actionStatus = nullptr;
+    int m_inventoryRevision = -1;
+    bool m_showingLoading = false;
+    QSoundEffect *m_dialogSound = nullptr; // created only when a confirmation needs sound
 };

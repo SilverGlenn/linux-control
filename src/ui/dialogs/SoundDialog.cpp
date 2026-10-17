@@ -1,689 +1,635 @@
 #include "SoundDialog.h"
 #include "IconHelper.h"
-#include "Branding.h"
+#include "Win7Ui.h"
+#include "settings/AudioSettings.h"
 
-#include <QTabWidget>
-#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListWidget>
 #include <QPushButton>
-#include <QToolButton>
-#include <QMenu>
-#include <QScrollArea>
-#include <QFrame>
-#include <QCheckBox>
-#include <QRadioButton>
-#include <QButtonGroup>
-#include <QComboBox>
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
-#include <QDialogButtonBox>
-#include <QFont>
-#include <QProcess>
-#include <QProcessEnvironment>
-#include <QFile>
-#include <QMessageBox>
-#include <QSettings>
-#include <QMouseEvent>
-#include <QEvent>
-#include <QRegularExpression>
-#include <QPainter>
-#include <QPixmap>
-#include <QIcon>
-#include <QPolygonF>
+#include <QSignalBlocker>
+#include <QSpinBox>
+#include <QStandardItemModel>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <memory>
 
-// Helpers
 namespace {
-
-// Run a read-only helper under a C locale so pactl's field labels stay parseable.
-QString runTool(const QString &program, const QStringList &args)
+QString objectKey(const AudioObject &object)
 {
-    QProcess proc;
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QStringLiteral("LC_ALL"), QStringLiteral("C"));
-    proc.setProcessEnvironment(env);
-    proc.start(program, args);
-    if (!proc.waitForFinished(2500))
-        return QString();
-    return QString::fromUtf8(proc.readAllStandardOutput());
+    return QStringLiteral("%1/%2/%3").arg(int(object.kind)).arg(object.index).arg(object.identity);
 }
-
-// Pick a device glyph from the name/description.
-QIcon deviceIcon(const QString &label, bool sinks)
+QString audioDisplayName(const AudioObject &object)
 {
-    const QString n = label.toLower();
-    if (n.contains("head"))
-        return themeIcon({"audio-headphones", "audio-headset", "audio-speakers"});
-    if (!sinks || n.contains("mic"))
-        return themeIcon({"audio-input-microphone", "audio-headset",
-                          "audio-card"});
-    return themeIcon({"audio-speakers", "audio-card",
-                      "preferences-desktop-sound"});
+    return object.description.isEmpty() ? object.name : object.description;
 }
-
-// Compose the device glyph with the green "default" check badge, as Windows
-// overlays on the default device.
-QPixmap devicePixmap(const QIcon &icon, int size, bool isDefault)
+AudioRequest requestFor(const AudioObject &object, AudioAction action)
 {
-    QPixmap pm(size, size);
-    pm.fill(Qt::transparent);
-    QPainter p(&pm);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.drawPixmap(0, 0, icon.pixmap(size, size));
-
-    if (isDefault) {
-        const double b = size * 0.46;
-        const double x = size - b, y = size - b;
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor("#FFFFFF"));
-        p.drawEllipse(QRectF(x - 1, y - 1, b + 2, b + 2));
-        p.setBrush(QColor("#3FA535"));
-        p.drawEllipse(QRectF(x, y, b, b));
-
-        QPen wp(QColor("#FFFFFF"), qMax(1.4, b * 0.14));
-        wp.setCapStyle(Qt::RoundCap);
-        wp.setJoinStyle(Qt::RoundJoin);
-        p.setPen(wp);
-        p.setBrush(Qt::NoBrush);
-        QPolygonF check;
-        check << QPointF(x + b * 0.24, y + b * 0.52)
-              << QPointF(x + b * 0.42, y + b * 0.70)
-              << QPointF(x + b * 0.78, y + b * 0.28);
-        p.drawPolyline(check);
-    }
-    return pm;
+    AudioRequest request;
+    request.action = action;
+    request.kind = object.kind;
+    request.index = object.index;
+    request.identity = object.identity;
+    request.name = object.name;
+    return request;
 }
-
-} // namespace
-
-// Data gathering
-QList<SoundDialog::Device> SoundDialog::gatherDevices(bool sinks) const
+bool playbackKind(AudioObjectKind kind)
 {
-    QList<Device> out;
-    const QString text = runTool(QStringLiteral("pactl"),
-        { QStringLiteral("list"), sinks ? QStringLiteral("sinks")
-                                        : QStringLiteral("sources") });
-    if (text.isEmpty())
-        return out;
-
-    static const QRegularExpression volRe(QStringLiteral("(\\d+)%"));
-    Device cur;
-    QString curName;
-    bool in = false;
-
-    auto flush = [&]() {
-        // Skip monitor sources and the dummy sink; they aren't real devices.
-        if (in && !curName.endsWith(QLatin1String(".monitor"))
-            && curName != QLatin1String("auto_null"))
-            out << cur;
-    };
-
-    const QList<QStringView> lines = QStringView(text).split(u'\n');
-    for (const QStringView &raw : lines) {
-        const QStringView line = raw.trimmed();
-        if (line.startsWith(u"Sink #") || line.startsWith(u"Source #")) {
-            flush();
-            cur = Device();
-            curName.clear();
-            in = true;
-        } else if (line.startsWith(u"Name:")) {
-            curName = line.mid(5).trimmed().toString();
-            cur.name = curName;
-        } else if (line.startsWith(u"Description:")) {
-            cur.description = line.mid(12).trimmed().toString();
-        } else if (line.startsWith(u"Mute:")) {
-            cur.muted = (line.mid(5).trimmed() == u"yes");
-        } else if (line.startsWith(u"Volume:")) {
-            const auto m = volRe.match(line.toString());
-            if (m.hasMatch())
-                cur.volumePercent = m.captured(1).toInt();
-        } else if (line.startsWith(u"alsa.card_name = \"")) {
-            QString v = line.mid(18).toString();
-            if (v.endsWith(QLatin1Char('"')))
-                v.chop(1);
-            cur.cardName = v;
+    return kind == AudioObjectKind::Sink || kind == AudioObjectKind::SinkInput;
+}
+void nameControl(QWidget *widget, const QString &name, const QString &accessible)
+{
+    widget->setObjectName(name);
+    widget->setAccessibleName(accessible);
+}
+void noDefaultButton(QPushButton *button)
+{
+    button->setAutoDefault(false);
+    button->setDefault(false);
+}
+struct PropertyEditorState {
+    QString port, profile, cardIdentity;
+    QVector<quint32> channelVolumes;
+    QStringList channelNames;
+    bool initialized = false;
+};
+bool selectedChoiceAvailable(const QComboBox *combo)
+{
+    return combo->currentIndex() >= 0
+        && (combo->model()->flags(combo->model()->index(combo->currentIndex(), 0)) & Qt::ItemIsEnabled);
+}
+void populateChoices(QComboBox *combo, const QVector<AudioChoice> &choices, const QString &active)
+{
+    combo->clear();
+    for (const auto &choice : choices) {
+        QString text = choice.description.isEmpty() ? choice.name : choice.description;
+        if (!choice.availability.isEmpty())
+            text += QStringLiteral(" (%1)").arg(choice.availability);
+        combo->addItem(text, choice.name);
+        const auto availability = choice.availability.toLower();
+        if (availability == QStringLiteral("no") || availability == QStringLiteral("unavailable")
+            || availability == QStringLiteral("not available")) {
+            if (auto *model = qobject_cast<QStandardItemModel *>(combo->model()))
+                model->item(combo->count() - 1)->setEnabled(false);
         }
     }
-    flush();
-    return out;
+    combo->setCurrentIndex(combo->findData(active));
+}
 }
 
-QString SoundDialog::defaultDevice(bool sinks) const
-{
-    return runTool(QStringLiteral("pactl"),
-        { sinks ? QStringLiteral("get-default-sink")
-                : QStringLiteral("get-default-source") }).trimmed();
-}
-
-// Dialog
 SoundDialog::SoundDialog(QWidget *parent)
-    : QDialog(parent)
+    : SoundDialog(AudioSettings::instance(), parent)
+{
+}
+
+SoundDialog::SoundDialog(AudioSettings *settings, QWidget *parent)
+    : QDialog(parent), m_settings(settings)
 {
     setWindowTitle(QStringLiteral("Sound"));
-    setWindowIcon(themeIcon({"preferences-desktop-sound", "audio-card",
-                             "multimedia-volume-control"}));
+    setWindowIcon(themeIcon({"preferences-desktop-sound", "audio-card"}));
     setModal(true);
-    setStyleSheet("SoundDialog { background: #F0F0F0; }");
-
+    Win7::setPointSize(this, 9);
+    Win7::styleSettingsDialog(this);
+    setStyleSheet(styleSheet() + QStringLiteral(
+        " QTabWidget::pane { border: 1px solid #898C95; background: #FFFFFF; }"
+        " QTabBar::tab { color: #000000; background: #EAEAEA; border: 1px solid #898C95; padding: 5px 10px; }"
+        " QTabBar::tab:selected { background: #FFFFFF; border-bottom-color: #FFFFFF; }"
+        " QListWidget:focus { border: 1px solid #3C7FB1; }"
+        " QCheckBox { color: #000000; background: transparent; }"
+        " QCheckBox:disabled { color: #777777; }"));
     auto *root = new QVBoxLayout(this);
     root->setContentsMargins(9, 9, 9, 9);
     root->setSpacing(8);
-
     m_tabs = new QTabWidget;
-    m_tabs->addTab(buildDeviceTab(m_playback, true,
-        QStringLiteral("Select a playback device below to modify its settings:")),
-        QStringLiteral("Playback"));
-    m_tabs->addTab(buildDeviceTab(m_recording, false,
-        QStringLiteral("Select a recording device below to modify its settings:")),
-        QStringLiteral("Recording"));
-    m_tabs->addTab(buildSoundsTab(), QStringLiteral("Sounds"));
-    m_tabs->addTab(buildCommunicationsTab(), QStringLiteral("Communications"));
+    nameControl(m_tabs, QStringLiteral("soundTabs"), QStringLiteral("Sound settings categories"));
+    m_tabs->addTab(buildDeviceTab(m_playback, true), QStringLiteral("&Playback"));
+    m_tabs->addTab(buildDeviceTab(m_recording, false), QStringLiteral("&Recording"));
+    m_tabs->addTab(buildUnavailableTab(QStringLiteral(
+        "Sound schemes and program event assignments are unavailable. No event-sound provider is connected.")), QStringLiteral("&Sounds"));
+    m_tabs->addTab(buildUnavailableTab(QStringLiteral(
+        "Automatic volume adjustment during calls is unavailable. No communications-policy provider is connected.")), QStringLiteral("&Communications"));
+    m_tabs->addTab(buildApplicationsTab(), QStringLiteral("&Applications"));
     root->addWidget(m_tabs, 1);
-
-    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Ok
-                                         | QDialogButtonBox::Cancel
-                                         | QDialogButtonBox::Apply);
-    root->addWidget(buttons);
-    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    m_status = new QLabel;
+    nameControl(m_status, QStringLiteral("audioStatus"), QStringLiteral("Audio service status and action results"));
+    m_status->setTextFormat(Qt::PlainText);
+    m_status->setWordWrap(true);
+    m_status->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    root->addWidget(m_status);
+    auto *note = new QLabel(QStringLiteral("Changes take effect immediately. Closing Sound does not undo changes or cancel an audio job."));
+    note->setWordWrap(true);
+    root->addWidget(note);
+    auto *footer = new QHBoxLayout;
+    m_refresh = new QPushButton(QStringLiteral("Re&fresh"));
+    nameControl(m_refresh, QStringLiteral("audioRefresh"), QStringLiteral("Refresh audio devices and applications"));
+    noDefaultButton(m_refresh);
+    footer->addWidget(m_refresh);
+    footer->addStretch();
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    buttons->setObjectName(QStringLiteral("audioDialogButtons"));
+    buttons->button(QDialogButtonBox::Close)->setAccessibleName(QStringLiteral("Close Sound"));
+    noDefaultButton(buttons->button(QDialogButtonBox::Close));
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    // Meter only the device on the visible tab (and don't hold the mic open
-    // except while the Recording tab is shown).
-    connect(m_tabs, &QTabWidget::currentChanged,
-            this, [this](int) { updateMonitors(); });
-    updateMonitors();
-
-    setFixedSize(410, 446);
-}
-
-SoundDialog::~SoundDialog()
-{
-    stopMonitor(m_playback);
-    stopMonitor(m_recording);
+    footer->addWidget(buttons);
+    root->addLayout(footer);
+    connect(m_refresh, &QPushButton::clicked, m_settings, &AudioSettings::refresh);
+    connect(m_settings, &AudioSettings::stateChanged, this, &SoundDialog::updateView);
+    setMinimumSize(610, 540);
+    resize(640, 560);
+    updateView();
 }
 
 void SoundDialog::showTab(Tab tab)
 {
-    if (m_tabs)
-        m_tabs->setCurrentIndex(tab);
+    m_tabs->setCurrentIndex(int(tab));
 }
 
-// Playback / Recording tabs
-QWidget *SoundDialog::buildDeviceTab(DeviceList &dl, bool sinks,
-                                     const QString &prompt)
+QWidget *SoundDialog::buildUnavailableTab(const QString &text)
 {
-    dl.sinks = sinks;
-    dl.devices = gatherDevices(sinks);
-    dl.defaultName = defaultDevice(sinks);
-
     auto *page = new QWidget;
-    page->setObjectName("devPage");
-    page->setStyleSheet("#devPage { background: #FFFFFF; }");
-    auto *v = new QVBoxLayout(page);
-    v->setContentsMargins(14, 12, 14, 12);
-    v->setSpacing(8);
+    auto *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(16, 16, 16, 16);
+    auto *label = new QLabel(text);
+    label->setWordWrap(true);
+    label->setAccessibleName(text);
+    layout->addWidget(label);
+    layout->addStretch();
+    return page;
+}
 
-    auto *promptLabel = new QLabel(prompt);
+void SoundDialog::addVolumeEditor(QVBoxLayout *layout, ObjectEditor &editor, const QString &prefix)
+{
+    auto *row = new QHBoxLayout;
+    auto *label = new QLabel(QStringLiteral("&Volume:"));
+    editor.volume = new QSpinBox;
+    editor.volume->setRange(0, 150);
+    editor.volume->setSuffix(QStringLiteral("%"));
+    nameControl(editor.volume, prefix + QStringLiteral("Volume"), QStringLiteral("Selected %1 volume percent").arg(prefix));
+    label->setBuddy(editor.volume);
+    row->addWidget(label);
+    row->addWidget(editor.volume);
+    editor.setVolume = new QPushButton(QStringLiteral("Set volume &now"));
+    nameControl(editor.setVolume, prefix + QStringLiteral("SetVolume"), QStringLiteral("Set selected %1 volume now").arg(prefix));
+    noDefaultButton(editor.setVolume);
+    row->addWidget(editor.setVolume);
+    editor.mute = new QCheckBox(QStringLiteral("&Mute (immediate)"));
+    nameControl(editor.mute, prefix + QStringLiteral("Mute"), QStringLiteral("Mute selected %1 immediately").arg(prefix));
+    row->addWidget(editor.mute);
+    row->addStretch();
+    layout->addLayout(row);
+    connect(editor.setVolume, &QPushButton::clicked, this, [this, &editor] { setVolume(editor); });
+    connect(editor.mute, &QCheckBox::clicked, this, [this, &editor](bool checked) { setMute(editor, checked); });
+}
+
+QWidget *SoundDialog::buildDeviceTab(ObjectEditor &editor, bool playback)
+{
+    const QString prefix = playback ? QStringLiteral("playback") : QStringLiteral("recording");
+    auto *page = new QWidget;
+    auto *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(14, 12, 14, 12);
+    auto *prompt = new QLabel(playback ? QStringLiteral("Select a &playback device:") : QStringLiteral("Select a &recording device:"));
+    layout->addWidget(prompt);
+    editor.list = new QListWidget;
+    editor.list->setSelectionMode(QAbstractItemView::SingleSelection);
+    editor.list->setIconSize(QSize(32, 32));
+    editor.list->setSpacing(2);
+    nameControl(editor.list, prefix + QStringLiteral("Devices"), playback ? QStringLiteral("Playback devices") : QStringLiteral("Recording devices"));
+    prompt->setBuddy(editor.list);
+    layout->addWidget(editor.list, 1);
+    editor.details = new QLabel;
+    editor.details->setTextFormat(Qt::PlainText);
+    editor.details->setWordWrap(true);
+    nameControl(editor.details, prefix + QStringLiteral("Details"), QStringLiteral("Selected device details"));
+    layout->addWidget(editor.details);
+    addVolumeEditor(layout, editor, prefix);
+    auto *row = new QHBoxLayout;
+    row->addStretch();
+    editor.setDefault = new QPushButton(QStringLiteral("Set &default now"));
+    nameControl(editor.setDefault, prefix + QStringLiteral("SetDefault"), QStringLiteral("Set selected %1 device as default now").arg(prefix));
+    noDefaultButton(editor.setDefault);
+    row->addWidget(editor.setDefault);
+    editor.properties = new QPushButton(QStringLiteral("P&roperties"));
+    nameControl(editor.properties, prefix + QStringLiteral("Properties"), QStringLiteral("Selected %1 device properties").arg(prefix));
+    noDefaultButton(editor.properties);
+    row->addWidget(editor.properties);
+    layout->addLayout(row);
+    connect(editor.list, &QListWidget::currentRowChanged, this, [this, &editor, playback] {
+        editor.selectedId = editor.list->currentItem() ? editor.list->currentItem()->data(Qt::UserRole).toString() : QString();
+        updateEditor(editor, playback);
+    });
+    connect(editor.setDefault, &QPushButton::clicked, this, [this, &editor] { setDefault(editor); });
+    connect(editor.properties, &QPushButton::clicked, this, [this, &editor] { showProperties(editor); });
+    return page;
+}
+
+QWidget *SoundDialog::buildApplicationsTab()
+{
+    auto &editor = m_applications;
+    auto *page = new QWidget;
+    auto *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(14, 12, 14, 12);
+    auto *prompt = new QLabel(QStringLiteral("Select an active &application stream:"));
+    layout->addWidget(prompt);
+    editor.list = new QListWidget;
+    editor.list->setSelectionMode(QAbstractItemView::SingleSelection);
+    nameControl(editor.list, QStringLiteral("audioApplications"), QStringLiteral("Active playback and recording application streams"));
+    prompt->setBuddy(editor.list);
+    layout->addWidget(editor.list, 1);
+    editor.details = new QLabel;
+    editor.details->setTextFormat(Qt::PlainText);
+    editor.details->setWordWrap(true);
+    nameControl(editor.details, QStringLiteral("applicationDetails"), QStringLiteral("Selected application stream details"));
+    layout->addWidget(editor.details);
+    addVolumeEditor(layout, editor, QStringLiteral("application"));
+    auto *route = new QHBoxLayout;
+    auto *label = new QLabel(QStringLiteral("&Device:"));
+    editor.route = new QComboBox;
+    nameControl(editor.route, QStringLiteral("applicationDevice"), QStringLiteral("Target audio device for selected application stream"));
+    label->setBuddy(editor.route);
+    route->addWidget(label);
+    route->addWidget(editor.route, 1);
+    editor.setRoute = new QPushButton(QStringLiteral("&Move now"));
+    nameControl(editor.setRoute, QStringLiteral("applicationMove"), QStringLiteral("Move selected application stream to target device now"));
+    noDefaultButton(editor.setRoute);
+    route->addWidget(editor.setRoute);
+    layout->addLayout(route);
+    connect(editor.list, &QListWidget::currentRowChanged, this, [this, &editor] {
+        editor.selectedId = editor.list->currentItem() ? editor.list->currentItem()->data(Qt::UserRole).toString() : QString();
+        updateEditor(editor, true, true);
+    });
+    connect(editor.setRoute, &QPushButton::clicked, this, [this, &editor] { setRoute(editor); });
+    connect(editor.route, &QComboBox::currentIndexChanged, this, [this, &editor] {
+        const auto *object = selectedObject(editor);
+        editor.setRoute->setEnabled(object && !object->identity.isEmpty() && m_settings->snapshot().available
+            && m_settings->snapshot().writable && !m_settings->isBusy() && selectedChoiceAvailable(editor.route));
+    });
+    return page;
+}
+
+const AudioObject *SoundDialog::selectedObject(const ObjectEditor &editor) const
+{
+    const auto &snapshot = m_settings->snapshot();
+    for (const auto kind : { AudioObjectKind::Sink, AudioObjectKind::Source,
+                            AudioObjectKind::SinkInput, AudioObjectKind::SourceOutput })
+        for (const auto &object : snapshot.objects(kind))
+            if (objectKey(object) == editor.selectedId)
+                return &object;
+    return nullptr;
+}
+
+void SoundDialog::updateList(ObjectEditor &editor, int category)
+{
+    const QSignalBlocker block(editor.list);
+    editor.list->clear();
+    const auto &snapshot = m_settings->snapshot();
+    const auto kinds = category == 0 ? QVector<AudioObjectKind>{AudioObjectKind::Sink}
+        : category == 1 ? QVector<AudioObjectKind>{AudioObjectKind::Source}
+                        : QVector<AudioObjectKind>{AudioObjectKind::SinkInput, AudioObjectKind::SourceOutput};
+    int defaultRow = -1;
+    for (const auto kind : kinds) {
+        for (const auto &object : snapshot.objects(kind)) {
+            const bool isDefault = (kind == AudioObjectKind::Sink && snapshot.defaultSink == object.name)
+                || (kind == AudioObjectKind::Source && snapshot.defaultSource == object.name);
+            QString status = isDefault ? QStringLiteral("Default device · ") : QString();
+            if (category == 2)
+                status += playbackKind(kind) ? QStringLiteral("Playback · ") : QStringLiteral("Recording · ");
+            status += object.channelVolumes.isEmpty() ? QStringLiteral("Volume unavailable")
+                : QStringLiteral("%1% volume").arg(object.volumePercent());
+            status += object.mute ? QStringLiteral(" · Muted") : QStringLiteral(" · Not muted");
+            if (object.identity.isEmpty()) status += QStringLiteral(" · Read-only: lifetime identity unavailable");
+            auto *item = new QListWidgetItem(playbackKind(kind)
+                ? themeIcon({"audio-speakers", "audio-card"})
+                : themeIcon({"audio-input-microphone", "audio-card"}),
+                audioDisplayName(object) + QLatin1Char('\n') + status, editor.list);
+            item->setData(Qt::UserRole, objectKey(object));
+            item->setToolTip(object.name);
+            item->setData(Qt::AccessibleTextRole, audioDisplayName(object) + QStringLiteral(". ") + status);
+            item->setSizeHint(QSize(0, 58));
+            if (isDefault) defaultRow = editor.list->row(item);
+        }
+    }
+    if (editor.selectedId.isEmpty() && editor.list->count()) {
+        auto *initial = editor.list->item(defaultRow < 0 ? 0 : defaultRow);
+        editor.selectedId = initial->data(Qt::UserRole).toString();
+    }
+    for (int row = 0; row < editor.list->count(); ++row)
+        if (editor.list->item(row)->data(Qt::UserRole).toString() == editor.selectedId) {
+            editor.list->setCurrentRow(row);
+            break;
+        }
+    // Keep a disappeared selection's identity; never silently redirect an edit
+    // to a different device or a recycled stream index.
+    if (!selectedObject(editor)) editor.list->setCurrentRow(-1);
+}
+
+void SoundDialog::updateEditor(ObjectEditor &editor, bool playback, bool applications)
+{
+    const auto *object = selectedObject(editor);
+    const auto &snapshot = m_settings->snapshot();
+    const bool sameSelection = object && editor.renderedId == editor.selectedId;
+    const bool enabled = object && !object->identity.isEmpty() && snapshot.available && snapshot.writable && !m_settings->isBusy();
     {
-        QFont f = promptLabel->font();
-        f.setPointSize(9);
-        promptLabel->setFont(f);
+        const QSignalBlocker block(editor.mute);
+        editor.mute->setChecked(object && object->mute);
     }
-    v->addWidget(promptLabel);
+    if (!sameSelection || !object || editor.confirmedVolumes != object->channelVolumes)
+        editor.volume->setValue(object ? qBound(0, object->volumePercent(), 150) : 0);
+    editor.confirmedVolumes = object ? object->channelVolumes : QVector<quint32>();
+    editor.volume->setEnabled(enabled && object->volumeWritable && !object->channelVolumes.isEmpty());
+    editor.setVolume->setEnabled(editor.volume->isEnabled());
+    editor.mute->setEnabled(enabled && object->muteWritable);
+    if (!object) {
+        editor.details->setText(editor.selectedId.isEmpty()
+            ? (applications ? QStringLiteral("No active application streams were reported.")
+                            : QStringLiteral("No audio devices were reported."))
+            : QStringLiteral("The selected device or stream is no longer available. Select another item or refresh."));
+    } else {
+        editor.details->setText(audioDisplayName(*object) + QStringLiteral("\n") + object->name
+            + (object->identity.isEmpty() ? QStringLiteral("\nRead-only: the audio server did not report a stable lifetime identity.") : QString()));
+    }
+    if (!applications) {
+        const QString currentDefault = playback ? snapshot.defaultSink : snapshot.defaultSource;
+        editor.setDefault->setEnabled(enabled && object->name != currentDefault);
+        editor.properties->setEnabled(object && !object->identity.isEmpty() && snapshot.available);
+    } else {
+        const QSignalBlocker block(editor.route);
+        const QString draftRoute = editor.route->currentData().toString();
+        editor.route->clear();
+        QString confirmedRoute;
+        if (object) {
+            const auto &devices = snapshot.objects(playbackKind(object->kind)
+                ? AudioObjectKind::Sink : AudioObjectKind::Source);
+            QString actualRoute;
+            for (const auto &device : devices) {
+                editor.route->addItem(audioDisplayName(device), objectKey(device));
+                if (device.identity.isEmpty()) {
+                    if (auto *model = qobject_cast<QStandardItemModel *>(editor.route->model())) {
+                        auto *item = model->item(editor.route->count() - 1);
+                        item->setEnabled(false);
+                        item->setToolTip(QStringLiteral("Read-only: the destination lifetime identity is unavailable."));
+                    }
+                }
+                if (object->hasRoute && device.index == object->routeIndex)
+                    actualRoute = objectKey(device);
+            }
+            confirmedRoute = QStringLiteral("%1/%2/%3").arg(object->hasRoute ? 1 : 0).arg(object->routeIndex).arg(actualRoute);
+            const QString selectedRoute = sameSelection && editor.confirmedRoute == confirmedRoute ? draftRoute : actualRoute;
+            editor.route->setCurrentIndex(editor.route->findData(selectedRoute));
+        }
+        editor.confirmedRoute = confirmedRoute;
+        editor.route->setEnabled(enabled && editor.route->count() > 0);
+        editor.setRoute->setEnabled(editor.route->isEnabled() && selectedChoiceAvailable(editor.route));
+    }
+    editor.renderedId = object ? editor.selectedId : QString();
+}
 
-    // The bordered device list.
-    auto *scroll = new QScrollArea;
-    scroll->setWidgetResizable(true);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scroll->setStyleSheet(
-        "QScrollArea { border: 1px solid #A0A0A0; background: #FFFFFF; }");
-    auto *container = new QWidget;
-    container->setStyleSheet("background: #FFFFFF;");
-    dl.box = new QVBoxLayout(container);
-    dl.box->setContentsMargins(0, 0, 0, 0);
-    dl.box->setSpacing(0);
-    scroll->setWidget(container);
-    v->addWidget(scroll, 1);
+void SoundDialog::updateView()
+{
+    updateList(m_playback, 0);
+    updateList(m_recording, 1);
+    updateList(m_applications, 2);
+    updateEditor(m_playback, true);
+    updateEditor(m_recording, false);
+    updateEditor(m_applications, true, true);
+    const auto &snapshot = m_settings->snapshot();
+    const bool hasReportedObjects = !snapshot.sinks.isEmpty() || !snapshot.sources.isEmpty()
+        || !snapshot.sinkInputs.isEmpty() || !snapshot.sourceOutputs.isEmpty();
+    QString status;
+    if (m_settings->isBusy()) {
+        status = hasReportedObjects
+            ? QStringLiteral("Audio service busy. Showing the last confirmed values; changes are temporarily disabled.")
+            : QStringLiteral("Reading audio service information. Changes are temporarily disabled.");
+    } else if (!m_settings->errorText().isEmpty()) {
+        status = m_settings->errorText();
+        if (hasReportedObjects)
+            status += QStringLiteral(" Last reported device information may be stale. Refresh to verify it.");
+    } else if (!snapshot.available) {
+        status = QStringLiteral("Audio service unavailable.");
+    } else {
+        status = QStringLiteral("Audio service: %1. Values reflect the latest completed refresh.")
+            .arg(snapshot.serverName.isEmpty() ? QStringLiteral("connected") : snapshot.serverName);
+    }
+    if (!m_settings->supportText().isEmpty())
+        status += QLatin1Char(' ') + m_settings->supportText();
+    if (!m_settings->resultText().isEmpty())
+        status += QLatin1Char(' ') + m_settings->resultText();
+    m_status->setText(status);
+    m_refresh->setEnabled(!m_settings->isBusy());
+}
 
-    // Buttons: Configure | (stretch) | Set Default ▾ | Properties.
-    auto *btnRow = new QHBoxLayout;
-    btnRow->setContentsMargins(0, 0, 0, 0);
-    btnRow->setSpacing(8);
-
-    dl.configureBtn = new QPushButton(QStringLiteral("Configure"));
-    dl.configureBtn->setCursor(Qt::PointingHandCursor);
-    btnRow->addWidget(dl.configureBtn);
-    btnRow->addStretch(1);
-
-    dl.setDefaultBtn = new QToolButton;
-    dl.setDefaultBtn->setText(QStringLiteral("Set Default"));
-    dl.setDefaultBtn->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    dl.setDefaultBtn->setPopupMode(QToolButton::MenuButtonPopup);
-    dl.setDefaultBtn->setCursor(Qt::PointingHandCursor);
-    auto *menu = new QMenu(dl.setDefaultBtn);
-    menu->addAction(QStringLiteral("Default Device"),
-                    this, [this, &dl]() { applyDefault(dl); });
-    menu->addAction(QStringLiteral("Default Communication Device"),
-                    this, [this, &dl]() { applyDefault(dl); });
-    dl.setDefaultBtn->setMenu(menu);
-    connect(dl.setDefaultBtn, &QToolButton::clicked,
-            this, [this, &dl]() { applyDefault(dl); });
-    btnRow->addWidget(dl.setDefaultBtn);
-
-    dl.propertiesBtn = new QPushButton(QStringLiteral("Properties"));
-    dl.propertiesBtn->setCursor(Qt::PointingHandCursor);
-    connect(dl.propertiesBtn, &QPushButton::clicked, this, [this, &dl]() {
-        if (dl.selected < 0 || dl.selected >= dl.devices.size())
+void SoundDialog::setVolume(ObjectEditor &editor)
+{
+    if (const auto *object = selectedObject(editor); object && !object->identity.isEmpty()) {
+        auto request = requestFor(*object, AudioAction::SetVolume);
+        request.volumePercent = editor.volume->value();
+        m_settings->requestChange(request);
+    }
+}
+void SoundDialog::setMute(ObjectEditor &editor, bool mute)
+{
+    if (const auto *object = selectedObject(editor); object && !object->identity.isEmpty()) {
+        auto request = requestFor(*object, AudioAction::SetMute);
+        request.mute = mute;
+        m_settings->requestChange(request);
+    }
+}
+void SoundDialog::setDefault(ObjectEditor &editor)
+{
+    if (const auto *object = selectedObject(editor); object && !object->identity.isEmpty())
+        m_settings->requestChange(requestFor(*object, AudioAction::SetDefault));
+}
+void SoundDialog::setRoute(ObjectEditor &editor)
+{
+    const auto *object = selectedObject(editor);
+    if (!object || object->identity.isEmpty()) return;
+    const QString target = editor.route->currentData().toString();
+    const auto &devices = m_settings->snapshot().objects(playbackKind(object->kind)
+        ? AudioObjectKind::Sink : AudioObjectKind::Source);
+    for (const auto &device : devices)
+        if (objectKey(device) == target && !device.identity.isEmpty()) {
+            auto request = requestFor(*object, AudioAction::MoveStream);
+            request.destinationIndex = device.index;
+            request.destinationIdentity = device.identity;
+            m_settings->requestChange(request);
             return;
-        const Device &d = dl.devices[dl.selected];
-        QMessageBox::information(this, QStringLiteral("%1 Properties")
-                                     .arg(d.description),
-            QStringLiteral("%1\n%2\n\nVolume: %3%%4")
-                .arg(d.description)
-                .arg(d.cardName.isEmpty() ? QStringLiteral("Audio Device")
-                                          : d.cardName)
-                .arg(d.volumePercent)
-                .arg(d.muted ? QStringLiteral("  (muted)") : QString()));
-    });
-    btnRow->addWidget(dl.propertiesBtn);
-
-    v->addLayout(btnRow);
-
-    rebuildRows(dl);
-
-    // Pre-select the default device (or the first one).
-    int initial = 0;
-    for (int i = 0; i < dl.devices.size(); ++i)
-        if (dl.devices[i].name == dl.defaultName)
-            initial = i;
-    if (!dl.devices.isEmpty())
-        selectRow(dl, initial);
-    else {
-        dl.setDefaultBtn->setEnabled(false);
-        dl.propertiesBtn->setEnabled(false);
-        dl.configureBtn->setEnabled(false);
-    }
-
-    return page;
-}
-
-void SoundDialog::rebuildRows(DeviceList &dl)
-{
-    // The old meter widget is about to be deleted, so stop the capture feeding
-    // it first; callers restart it via updateMonitors once rows are rebuilt.
-    stopMonitor(dl);
-    dl.activeMeter = nullptr;
-
-    // Fully rebuild: clear the list (rows + trailing stretch), then re-add.
-    while (QLayoutItem *item = dl.box->takeAt(0)) {
-        if (QWidget *w = item->widget())
-            w->deleteLater();
-        delete item;
-    }
-    dl.rows.clear();
-    dl.rowToIndex.clear();
-
-    if (dl.devices.isEmpty()) {
-        auto *empty = new QLabel(dl.sinks
-            ? QStringLiteral("No playback devices were found.")
-            : QStringLiteral("No recording devices were found."));
-        empty->setStyleSheet("color: #555555; padding: 14px;");
-        dl.box->addWidget(empty);
-        dl.box->addStretch(1);
-        return;
-    }
-
-    for (int i = 0; i < dl.devices.size(); ++i) {
-        const Device &d = dl.devices[i];
-        const bool isDefault = (d.name == dl.defaultName);
-
-        auto *row = new QWidget;
-        row->setObjectName("devRow");
-        row->setAutoFillBackground(true);
-        row->setCursor(Qt::PointingHandCursor);
-        auto *h = new QHBoxLayout(row);
-        h->setContentsMargins(8, 7, 8, 7);
-        h->setSpacing(10);
-
-        auto *icon = new QLabel;
-        icon->setFixedSize(44, 44);
-        icon->setPixmap(devicePixmap(
-            deviceIcon(d.description + ' ' + d.name, dl.sinks), 44, isDefault));
-        icon->setStyleSheet("background: transparent;");
-        h->addWidget(icon, 0, Qt::AlignVCenter);
-
-        auto *textCol = new QVBoxLayout;
-        textCol->setContentsMargins(0, 0, 0, 0);
-        textCol->setSpacing(0);
-
-        auto *name = new QLabel(d.description.isEmpty() ? d.name : d.description);
-        {
-            QFont f = name->font();
-            f.setPointSize(9);
-            f.setBold(true);
-            name->setFont(f);
         }
-        name->setStyleSheet("color: #000000; background: transparent;");
-        textCol->addWidget(name);
-
-        QString cardLine = d.cardName;
-        if (cardLine.isEmpty() || cardLine == d.description)
-            cardLine = QStringLiteral("Audio Device");
-        auto *card = new QLabel(cardLine);
-        { QFont f = card->font(); f.setPointSize(9); card->setFont(f); }
-        card->setStyleSheet("color: #333333; background: transparent;");
-        textCol->addWidget(card);
-
-        auto *status = new QLabel(isDefault ? QStringLiteral("Default Device")
-                                            : QStringLiteral("Ready"));
-        { QFont f = status->font(); f.setPointSize(9); status->setFont(f); }
-        status->setStyleSheet("color: #333333; background: transparent;");
-        textCol->addWidget(status);
-
-        h->addLayout(textCol, 1);
-
-        auto *meter = new LevelMeter;
-        h->addWidget(meter, 0, Qt::AlignVCenter);
-        if (isDefault)
-            dl.activeMeter = meter;   // the device whose level we capture live
-
-        row->installEventFilter(this);
-        dl.rowToIndex.insert(row, i);
-        dl.rows << row;
-        dl.box->addWidget(row);
-    }
-    dl.box->addStretch(1);
 }
 
-void SoundDialog::selectRow(DeviceList &dl, int index)
+void SoundDialog::showProperties(ObjectEditor &editor)
 {
-    if (index < 0 || index >= dl.devices.size())
-        return;
-    dl.selected = index;
-
-    for (auto it = dl.rowToIndex.constBegin(); it != dl.rowToIndex.constEnd();
-         ++it) {
-        auto *w = qobject_cast<QWidget *>(const_cast<QObject *>(it.key()));
-        if (!w)
-            continue;
-        const bool sel = (it.value() == index);
-        w->setStyleSheet(sel
-            ? "#devRow { background: #CDE6FF; border: 1px solid #7DA2CE; }"
-            : "#devRow { background: transparent; border: 1px solid transparent; }");
-    }
-
-    dl.propertiesBtn->setEnabled(true);
-    dl.configureBtn->setEnabled(true);
-    dl.setDefaultBtn->setEnabled(dl.devices[index].name != dl.defaultName);
-}
-
-void SoundDialog::applyDefault(DeviceList &dl)
-{
-    if (dl.selected < 0 || dl.selected >= dl.devices.size())
-        return;
-    runTool(QStringLiteral("pactl"),
-            { dl.sinks ? QStringLiteral("set-default-sink")
-                       : QStringLiteral("set-default-source"),
-              dl.devices[dl.selected].name });
-
-    dl.defaultName = defaultDevice(dl.sinks);
-    rebuildRows(dl);
-    selectRow(dl, dl.selected);
-    updateMonitors();   // the meter now belongs to the new default device
-}
-
-// Live level metering
-void SoundDialog::startMonitor(DeviceList &dl)
-{
-    if (dl.monitorProc || !dl.activeMeter || dl.defaultName.isEmpty())
-        return;
-
-    // Capture the sink's monitor (playback) or the source itself (recording) as
-    // mono s16le and drive the meter from each chunk's peak amplitude.
-    const QString dev = dl.sinks ? dl.defaultName + QStringLiteral(".monitor")
-                                 : dl.defaultName;
-    auto *proc = new QProcess(this);
-    dl.monitorProc = proc;
-    LevelMeter *meter = dl.activeMeter;
-    connect(proc, &QProcess::readyReadStandardOutput, meter, [proc, meter]() {
-        const QByteArray data = proc->readAllStandardOutput();
-        const int count = data.size() / 2;
-        const auto *samples =
-            reinterpret_cast<const qint16 *>(data.constData());
-        int peak = 0;
+    const auto *selected = selectedObject(editor);
+    if (!selected || selected->identity.isEmpty()) return;
+    const QString identity = objectKey(*selected);
+    const auto kind = selected->kind;
+    const quint32 index = selected->index;
+    auto *dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setObjectName(QStringLiteral("audioDeviceProperties"));
+    dialog->setWindowTitle(QStringLiteral("%1 Properties").arg(audioDisplayName(*selected)));
+    dialog->setWindowModality(Qt::NonModal);
+    Win7::styleSettingsDialog(dialog);
+    auto *layout = new QVBoxLayout(dialog);
+    auto *status = new QLabel;
+    status->setObjectName(QStringLiteral("audioPropertiesStatus"));
+    status->setTextFormat(Qt::PlainText);
+    status->setWordWrap(true);
+    layout->addWidget(status);
+    auto *portRow = new QHBoxLayout;
+    auto *port = new QComboBox;
+    nameControl(port, QStringLiteral("audioPort"), QStringLiteral("Device port"));
+    auto *portLabel = new QLabel(QStringLiteral("&Port:"));
+    portLabel->setBuddy(port);
+    portRow->addWidget(portLabel);
+    portRow->addWidget(port, 1);
+    auto *setPort = new QPushButton(QStringLiteral("Change port &now"));
+    nameControl(setPort, QStringLiteral("audioSetPort"), QStringLiteral("Change selected device port now"));
+    noDefaultButton(setPort);
+    portRow->addWidget(setPort);
+    layout->addLayout(portRow);
+    auto *profileRow = new QHBoxLayout;
+    auto *profile = new QComboBox;
+    nameControl(profile, QStringLiteral("audioProfile"), QStringLiteral("Audio card profile"));
+    auto *profileLabel = new QLabel(QStringLiteral("Card pro&file:"));
+    profileLabel->setBuddy(profile);
+    profileRow->addWidget(profileLabel);
+    profileRow->addWidget(profile, 1);
+    auto *setProfile = new QPushButton(QStringLiteral("Change profile no&w"));
+    nameControl(setProfile, QStringLiteral("audioSetProfile"), QStringLiteral("Change audio card profile now"));
+    noDefaultButton(setProfile);
+    profileRow->addWidget(setProfile);
+    layout->addLayout(profileRow);
+    auto *warning = new QLabel(QStringLiteral("Port and profile changes take effect immediately. A profile change can replace playback and recording devices."));
+    warning->setWordWrap(true);
+    layout->addWidget(warning);
+    auto *levelsTitle = new QLabel(QStringLiteral("Channel levels (balance):"));
+    layout->addWidget(levelsTitle);
+    auto *levels = new QFormLayout;
+    layout->addLayout(levels);
+    auto *setLevels = new QPushButton(QStringLiteral("Set channel &levels now"));
+    nameControl(setLevels, QStringLiteral("audioSetChannelLevels"), QStringLiteral("Set device channel levels and balance now"));
+    noDefaultButton(setLevels);
+    layout->addWidget(setLevels, 0, Qt::AlignRight);
+    auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    noDefaultButton(buttons->button(QDialogButtonBox::Close));
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    auto channelControls = std::make_shared<QVector<QSpinBox *>>();
+    auto confirmed = std::make_shared<PropertyEditorState>();
+    const auto currentObject = [this, kind, index, identity]() -> const AudioObject * {
+        const auto *object = m_settings->snapshot().object(kind, index);
+        return object && objectKey(*object) == identity ? object : nullptr;
+    };
+    const auto update = [this, dialog, status, port, setPort, profile, setProfile,
+                         levels, setLevels, channelControls, currentObject, confirmed] {
+        const auto *object = currentObject();
+        const auto &snapshot = m_settings->snapshot();
+        const bool enabled = object && !object->identity.isEmpty() && snapshot.available && snapshot.writable && !m_settings->isBusy();
+        status->setText(object ? audioDisplayName(*object)
+            : QStringLiteral("This device is no longer available. Close Properties and select another device."));
+        if (m_settings->isBusy()) status->setText(status->text() + QStringLiteral("\nAudio service busy. Showing the last confirmed values."));
+        if (!snapshot.available) status->setText(status->text() + QStringLiteral("\nAudio service unavailable."));
+        if (!m_settings->errorText().isEmpty()) status->setText(status->text() + QLatin1Char('\n') + m_settings->errorText());
+        if (!m_settings->resultText().isEmpty()) status->setText(status->text() + QLatin1Char('\n') + m_settings->resultText());
+        if (!m_settings->supportText().isEmpty()) status->setText(status->text() + QLatin1Char('\n') + m_settings->supportText());
+        const QSignalBlocker blockPort(port), blockProfile(profile);
+        if (object) {
+            const QString selectedPort = confirmed->initialized && confirmed->port == object->activePort
+                ? port->currentData().toString() : object->activePort;
+            populateChoices(port, object->ports, selectedPort);
+        } else port->clear();
+        port->setToolTip(port->count() ? QStringLiteral("Select a reported device port, then choose Change port now.")
+            : QStringLiteral("No selectable ports were reported for this device."));
+        port->setEnabled(enabled && port->count() > 0);
+        setPort->setEnabled(port->isEnabled() && selectedChoiceAvailable(port));
+        const auto *card = object && object->hasCard ? snapshot.object(AudioObjectKind::Card, object->cardIndex) : nullptr;
+        if (card) {
+            const QString selectedProfile = confirmed->initialized && confirmed->cardIdentity == objectKey(*card)
+                && confirmed->profile == card->activeProfile ? profile->currentData().toString() : card->activeProfile;
+            populateChoices(profile, card->profiles, selectedProfile);
+        } else profile->clear();
+        profile->setToolTip(profile->count() ? QStringLiteral("Select a reported sound-card profile, then choose Change profile now.")
+            : QStringLiteral("No selectable sound-card profiles were reported for this device."));
+        profile->setEnabled(enabled && card && !card->identity.isEmpty() && profile->count() > 0);
+        if (card && card->identity.isEmpty()) {
+            profile->setToolTip(QStringLiteral("Read-only: the sound card lifetime identity is unavailable."));
+            status->setText(status->text() + QStringLiteral("\nCard profiles are read-only: the sound card lifetime identity is unavailable."));
+        }
+        setProfile->setEnabled(profile->isEnabled() && selectedChoiceAvailable(profile));
+        const int count = object ? object->channelVolumes.size() : 0;
+        const bool layoutChanged = object && confirmed->channelNames != object->channelNames;
+        const bool valuesChanged = !confirmed->initialized || !object || confirmed->channelVolumes != object->channelVolumes;
+        if (channelControls->size() != count || layoutChanged) {
+            while (levels->rowCount()) levels->removeRow(0);
+            channelControls->clear();
+            for (int i = 0; i < count; ++i) {
+                auto *spin = new QSpinBox(dialog);
+                spin->setRange(0, 150);
+                spin->setSuffix(QStringLiteral("%"));
+                QString channel = object->channelNames.value(i, QStringLiteral("Channel %1").arg(i + 1));
+                nameControl(spin, QStringLiteral("audioChannel%1").arg(i), channel + QStringLiteral(" volume percent"));
+                auto *label = new QLabel(channel + QLatin1Char(':'));
+                label->setBuddy(spin);
+                levels->addRow(label, spin);
+                channelControls->append(spin);
+            }
+        }
         for (int i = 0; i < count; ++i) {
-            const int a = qAbs(int(samples[i]));
-            if (a > peak)
-                peak = a;
+            if (valuesChanged || layoutChanged)
+                (*channelControls)[i]->setValue(qRound(object->channelVolumes[i] * 100.0 / AudioTypes::NormalVolume));
+            (*channelControls)[i]->setEnabled(enabled && object->volumeWritable);
         }
-        meter->setLevel(peak * 100 / 32768);
+        setLevels->setEnabled(enabled && object->volumeWritable && count > 0);
+        confirmed->initialized = object != nullptr;
+        confirmed->port = object ? object->activePort : QString();
+        confirmed->cardIdentity = card ? objectKey(*card) : QString();
+        confirmed->profile = card ? card->activeProfile : QString();
+        confirmed->channelVolumes = object ? object->channelVolumes : QVector<quint32>();
+        confirmed->channelNames = object ? object->channelNames : QStringList();
+    };
+    connect(port, &QComboBox::currentIndexChanged, dialog, [this, currentObject, port, setPort] {
+        const auto *object = currentObject();
+        setPort->setEnabled(object && !object->identity.isEmpty() && m_settings->snapshot().available && m_settings->snapshot().writable
+            && !m_settings->isBusy() && selectedChoiceAvailable(port));
     });
-    proc->start(QStringLiteral("parec"),
-                { QStringLiteral("--format=s16le"), QStringLiteral("--channels=1"),
-                  QStringLiteral("--rate=22050"), QStringLiteral("--latency-msec=60"),
-                  QStringLiteral("-d"), dev });
-}
-
-void SoundDialog::stopMonitor(DeviceList &dl)
-{
-    if (!dl.monitorProc)
-        return;
-    dl.monitorProc->kill();
-    dl.monitorProc->deleteLater();
-    dl.monitorProc = nullptr;
-    if (dl.activeMeter)
-        dl.activeMeter->setLevel(0);
-}
-
-void SoundDialog::updateMonitors()
-{
-    const int cur = m_tabs->currentIndex();
-    if (cur == TabPlayback)  startMonitor(m_playback);  else stopMonitor(m_playback);
-    if (cur == TabRecording) startMonitor(m_recording); else stopMonitor(m_recording);
-}
-
-// Sounds tab
-QWidget *SoundDialog::buildSoundsTab()
-{
-    auto *page = new QWidget;
-    page->setObjectName("sndPage");
-    page->setStyleSheet("#sndPage { background: #FFFFFF; }");
-    auto *v = new QVBoxLayout(page);
-    v->setContentsMargins(14, 14, 14, 12);
-    v->setSpacing(6);
-
-    QSettings s;
-
-    auto para = [&](const QString &t) {
-        auto *l = new QLabel(t);
-        QFont f = l->font();
-        f.setPointSize(9);
-        l->setFont(f);
-        l->setWordWrap(true);
-        v->addWidget(l);
-        return l;
-    };
-
-    para(Branding::brand("A sound theme is a set of sounds applied to events in "
-                         "Linux. You can select an existing scheme or save one "
-                         "you have modified."));
-
-    auto *schemeLabel = new QLabel(QStringLiteral("Sound Scheme:"));
-    { QFont f = schemeLabel->font(); f.setPointSize(9); schemeLabel->setFont(f); }
-    v->addWidget(schemeLabel);
-
-    auto *schemeRow = new QHBoxLayout;
-    schemeRow->setSpacing(8);
-    auto *scheme = new QComboBox;
-    scheme->addItems({ Branding::brand("Linux Default"),
-                       QStringLiteral("No Sounds") });
-    scheme->setCurrentIndex(
-        s.value(QStringLiteral("sound/scheme"), 0).toInt());
-    scheme->setObjectName(QStringLiteral("soundScheme"));
-    schemeRow->addWidget(scheme, 1);
-    auto *saveAs = new QPushButton(QStringLiteral("Save As…"));
-    schemeRow->addWidget(saveAs);
-    auto *del = new QPushButton(QStringLiteral("Delete"));
-    del->setEnabled(false);
-    schemeRow->addWidget(del);
-    v->addLayout(schemeRow);
-    v->addSpacing(2);
-
-    para(QStringLiteral("To change sounds, click a program event in the "
-                        "following list and then select a sound to apply. You "
-                        "can save the changes as a new sound scheme."));
-
-    auto *eventsLabel = new QLabel(QStringLiteral("Program Events:"));
-    { QFont f = eventsLabel->font(); f.setPointSize(9); eventsLabel->setFont(f); }
-    v->addWidget(eventsLabel);
-
-    auto *tree = new QTreeWidget;
-    tree->setHeaderHidden(true);
-    tree->setRootIsDecorated(true);
-    tree->setStyleSheet("QTreeWidget { border: 1px solid #A0A0A0; }");
-    auto *rootItem = new QTreeWidgetItem(tree, { Branding::os() });
-    rootItem->setIcon(0, themeIcon({"computer", "start-here"}));
-    const QStringList events = {
-        "Asterisk", "Close Program", "Critical Battery Alarm", "Critical Stop",
-        "Default Beep", "Desktop Mail Notification", "Device Connect",
-        "Device Disconnect", "Device Failed to Connect", "Empty Recycle Bin",
-        "Exclamation", "Low Battery Alarm", "New Fax Sound",
-        "Notification", "System Notification", "Windows Logoff",
-    };
-    const QIcon evIcon = themeIcon({"audio-volume-high", "audio-speakers"});
-    for (const QString &e : events) {
-        auto *it = new QTreeWidgetItem(rootItem, { e });
-        it->setIcon(0, evIcon);
-    }
-    rootItem->setExpanded(true);
-    v->addWidget(tree, 1);
-
-    auto *startup = new QCheckBox(Branding::brand("Play Linux Startup sound"));
-    { QFont f = startup->font(); f.setPointSize(9); startup->setFont(f); }
-    startup->setChecked(
-        s.value(QStringLiteral("sound/startupSound"), true).toBool());
-    startup->setObjectName(QStringLiteral("startupSound"));
-    v->addWidget(startup);
-
-    auto *soundsLabel = new QLabel(QStringLiteral("Sounds:"));
-    { QFont f = soundsLabel->font(); f.setPointSize(9); soundsLabel->setFont(f); }
-    v->addWidget(soundsLabel);
-
-    auto *soundsRow = new QHBoxLayout;
-    soundsRow->setSpacing(8);
-    auto *soundsCombo = new QComboBox;
-    soundsCombo->addItem(QStringLiteral("(None)"));
-    soundsRow->addWidget(soundsCombo, 1);
-    auto *test = new QPushButton(QStringLiteral("Test"));
-    test->setIcon(themeIcon({"media-playback-start"}));
-    connect(test, &QPushButton::clicked, this, []() {
-        // Best-effort preview of a system sound.
-        for (const char *f : { "/usr/share/sounds/freedesktop/stereo/bell.oga",
-                               "/usr/share/sounds/freedesktop/stereo/message.oga",
-                               "/usr/share/sounds/alsa/Front_Center.wav" }) {
-            if (QFile::exists(QString::fromLatin1(f))) {
-                QProcess::startDetached(QStringLiteral("paplay"),
-                                        { QString::fromLatin1(f) });
-                break;
-            }
+    connect(profile, &QComboBox::currentIndexChanged, dialog, [this, currentObject, profile, setProfile] {
+        const auto *object = currentObject();
+        const auto *card = object && object->hasCard
+            ? m_settings->snapshot().object(AudioObjectKind::Card, object->cardIndex) : nullptr;
+        setProfile->setEnabled(object && !object->identity.isEmpty() && card && !card->identity.isEmpty()
+            && m_settings->snapshot().available && m_settings->snapshot().writable
+            && !m_settings->isBusy() && selectedChoiceAvailable(profile));
+    });
+    connect(m_settings, &AudioSettings::stateChanged, dialog, update);
+    connect(setPort, &QPushButton::clicked, dialog, [this, currentObject, port] {
+        if (const auto *object = currentObject(); object && !object->identity.isEmpty()) {
+            auto request = requestFor(*object, AudioAction::SetPort);
+            request.choice = port->currentData().toString();
+            m_settings->requestChange(request);
         }
     });
-    soundsRow->addWidget(test);
-    auto *browse = new QPushButton(QStringLiteral("Browse…"));
-    soundsRow->addWidget(browse);
-    v->addLayout(soundsRow);
-
-    // Persist the cosmetic choices when the dialog is accepted.
-    connect(this, &QDialog::accepted, this, [scheme, startup]() {
-        QSettings st;
-        st.setValue(QStringLiteral("sound/scheme"), scheme->currentIndex());
-        st.setValue(QStringLiteral("sound/startupSound"), startup->isChecked());
-    });
-
-    return page;
-}
-
-// Communications tab
-QWidget *SoundDialog::buildCommunicationsTab()
-{
-    auto *page = new QWidget;
-    page->setObjectName("commPage");
-    page->setStyleSheet("#commPage { background: #FFFFFF; }");
-    auto *v = new QVBoxLayout(page);
-    v->setContentsMargins(16, 16, 16, 12);
-    v->setSpacing(0);
-
-    auto *top = new QHBoxLayout;
-    top->setSpacing(12);
-    auto *icon = new QLabel;
-    icon->setFixedSize(32, 32);
-    icon->setPixmap(themeIcon({"call-start", "phone", "audio-input-microphone"})
-                        .pixmap(32, 32));
-    icon->setStyleSheet("background: transparent;");
-    top->addWidget(icon, 0, Qt::AlignTop);
-    auto *intro = new QLabel(Branding::brand(
-        "Linux can automatically adjust the volume of different sounds when you "
-        "are using your PC to place or receive telephone calls."));
-    { QFont f = intro->font(); f.setPointSize(9); intro->setFont(f); }
-    intro->setWordWrap(true);
-    top->addWidget(intro, 1);
-    v->addLayout(top);
-    v->addSpacing(16);
-
-    auto *prompt = new QLabel(
-        Branding::brand("When Linux detects communications activity:"));
-    { QFont f = prompt->font(); f.setPointSize(9); prompt->setFont(f); }
-    v->addWidget(prompt);
-    v->addSpacing(8);
-
-    auto *group = new QButtonGroup(this);
-    const QStringList options = {
-        QStringLiteral("Mute all other sounds"),
-        QStringLiteral("Reduce the volume of other sounds by 80%"),
-        QStringLiteral("Reduce the volume of other sounds by 50%"),
-        QStringLiteral("Do nothing"),
-    };
-    QSettings s;
-    const int chosen = s.value(QStringLiteral("sound/communications"), 1).toInt();
-    for (int i = 0; i < options.size(); ++i) {
-        auto *r = new QRadioButton(options[i]);
-        { QFont f = r->font(); f.setPointSize(9); r->setFont(f); }
-        r->setChecked(i == chosen);
-        group->addButton(r, i);
-        auto *row = new QHBoxLayout;
-        row->setContentsMargins(14, 0, 0, 0);
-        row->addWidget(r);
-        v->addLayout(row);
-        v->addSpacing(6);
-    }
-
-    connect(this, &QDialog::accepted, this, [group]() {
-        QSettings st;
-        st.setValue(QStringLiteral("sound/communications"), group->checkedId());
-    });
-
-    v->addStretch(1);
-    return page;
-}
-
-// Row selection
-bool SoundDialog::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::MouseButtonPress
-        || event->type() == QEvent::MouseButtonDblClick) {
-        auto *me = static_cast<QMouseEvent *>(event);
-        if (me->button() != Qt::LeftButton)
-            return QDialog::eventFilter(watched, event);
-
-        for (DeviceList *dl : { &m_playback, &m_recording }) {
-            auto it = dl->rowToIndex.constFind(watched);
-            if (it != dl->rowToIndex.constEnd()) {
-                selectRow(*dl, it.value());
-                if (event->type() == QEvent::MouseButtonDblClick)
-                    applyDefault(*dl);
-                return true;
-            }
+    connect(setProfile, &QPushButton::clicked, dialog, [this, currentObject, profile] {
+        const auto *object = currentObject();
+        const auto *card = object && object->hasCard
+            ? m_settings->snapshot().object(AudioObjectKind::Card, object->cardIndex) : nullptr;
+        if (object && !object->identity.isEmpty() && card && !card->identity.isEmpty()) {
+            auto request = requestFor(*card, AudioAction::SetProfile);
+            request.choice = profile->currentData().toString();
+            m_settings->requestChange(request);
         }
-    }
-    return QDialog::eventFilter(watched, event);
+    });
+    connect(setLevels, &QPushButton::clicked, dialog, [this, currentObject, channelControls] {
+        if (const auto *object = currentObject(); object && !object->identity.isEmpty()) {
+            auto request = requestFor(*object, AudioAction::SetChannelVolumes);
+            for (const auto *spin : *channelControls)
+                request.channelVolumes.append(quint32(qRound(spin->value() * AudioTypes::NormalVolume / 100.0)));
+            m_settings->requestChange(request);
+        }
+    });
+    update();
+    dialog->setMinimumWidth(570);
+    dialog->show();
 }

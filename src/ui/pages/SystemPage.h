@@ -33,9 +33,6 @@ signals:
     // new branding takes effect.
     void brandingChanged();
 
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
 private:
     // Live system facts, collected once in the constructor.
     struct SysInfo {

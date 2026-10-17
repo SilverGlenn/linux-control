@@ -1,0 +1,1449 @@
+{
+  "audit_date": "2026-10-16",
+  "source_commit": "280a1bd",
+  "source_worktree_note": "Existing uncommitted CMakeLists.txt dependency/RPATH changes were present and preserved.",
+  "target": {
+    "os": "Ubuntu 26.04.1 LTS",
+    "session": "KDE Wayland",
+    "plasma_workspace": "6.6.6",
+    "systemsettings": "6.6.5",
+    "kde_frameworks_config_and_kcmutils": "6.24.0",
+    "qt_core": "6.10.2",
+    "packagekit_installed": true,
+    "pacman_on_path": false,
+    "chrony_installed": true,
+    "systemd_timesyncd_installed": false
+  },
+  "counts": {
+    "kcmshell6_listed": 105,
+    "systemsettings_namespaces": 83,
+    "kinfocenter_namespace": 20,
+    "top_level_information_plugins": 2,
+    "additional_desktop_module": 1,
+    "total_mapped_module_ids": 106,
+    "nested_compiled_configuration_plugins": 26,
+    "external_kde_module_ids_referenced_by_source": 19,
+    "groups": {
+      "accessibility": 1,
+      "accounts": 3,
+      "applications": 4,
+      "audio": 2,
+      "devices": 6,
+      "display": 4,
+      "fonts": 2,
+      "information": 22,
+      "input": 11,
+      "landing": 1,
+      "locking": 1,
+      "network": 7,
+      "notifications": 3,
+      "power": 2,
+      "privacy": 2,
+      "regional": 3,
+      "search": 4,
+      "startup": 7,
+      "system": 3,
+      "themes": 8,
+      "workspace": 10
+    }
+  },
+  "interpretation": [
+    "Discovery and source implementation were audited; no real settings mutation was exercised.",
+    "Coverage statuses describe existing source paths, not complete module or per-control parity.",
+    "External routes count as access to KDE, not completion of the final Win7 UI.",
+    "Plugin namespaces and module counts do not measure unique settings or UI technology.",
+    "Nested plugin files are an observed starting set, not a complete census of QML/script-provided settings."
+  ],
+  "modules": [
+    {
+      "id": "kcm_about-distro",
+      "description": "Information About This System",
+      "plugins": [
+        "kcm_about-distro.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "System page reads OS and hardware facts; optional Windows branding alters presentation.",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_access",
+      "description": "Configure Accessibility Options",
+      "plugins": [
+        "systemsettings/kcm_access.so"
+      ],
+      "group": "accessibility",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_activities",
+      "description": "Activities help you to focus on a specific task",
+      "plugins": [
+        "systemsettings/kcm_activities.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_aeroshellsddm",
+      "description": "Manage AeroShell SDDM theme settings",
+      "plugins": [
+        "systemsettings/kcm_aeroshellsddm.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_animations",
+      "description": "Configure animation speed and style",
+      "plugins": [
+        "systemsettings/kcm_animations.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_audio_information",
+      "description": "Audio Device Information",
+      "plugins": [
+        "kinfocenter/kcm_audio_information.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_audiocd",
+      "description": "Audiocd IO Worker Configuration",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_audiocd.so"
+      ],
+      "group": "audio",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_autostart",
+      "description": "Automatically Started Applications",
+      "plugins": [
+        "systemsettings/kcm_autostart.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_baloofile",
+      "description": "Configure File Search",
+      "plugins": [
+        "systemsettings/kcm_baloofile.so"
+      ],
+      "group": "search",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_block_devices",
+      "description": "Block Devices",
+      "plugins": [
+        "kinfocenter/kcm_block_devices.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_bluetooth",
+      "description": "Manage Bluetooth devices",
+      "plugins": [
+        "systemsettings/kcm_bluetooth.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "Device scan and external pairing wizard only."
+    },
+    {
+      "id": "kcm_bolt",
+      "description": "Thunderbolt Device Management",
+      "plugins": [
+        "systemsettings/kcm_bolt.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_cellular_network",
+      "description": "Management of cellular networks",
+      "plugins": [
+        "systemsettings/kcm_cellular_network.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_clock",
+      "description": "Date and Time",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_clock.so"
+      ],
+      "group": "regional",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "partial_native",
+      "coverage_note": "Changes time/timezone/NTP; timesyncd-specific server handling does not match installed chrony."
+    },
+    {
+      "id": "kcm_colors",
+      "description": "Choose color scheme",
+      "plugins": [
+        "systemsettings/kcm_colors.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "partial_native",
+      "coverage_note": "Enumerates and applies color schemes only; broader color/global-theme controls absent."
+    },
+    {
+      "id": "kcm_componentchooser",
+      "description": "Choose default Applications",
+      "plugins": [
+        "systemsettings/kcm_componentchooser.so"
+      ],
+      "group": "applications",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_cpu",
+      "description": "Advanced CPU Information",
+      "plugins": [
+        "kinfocenter/kcm_cpu.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_cursortheme",
+      "description": "Choose mouse cursor theme",
+      "plugins": [
+        "systemsettings/kcm_cursortheme.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_desktoppaths",
+      "description": "Location for Personal Files",
+      "plugins": [
+        "systemsettings/kcm_desktoppaths.so"
+      ],
+      "group": "applications",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_desktoptheme",
+      "description": "Choose Plasma style",
+      "plugins": [
+        "systemsettings/kcm_desktoptheme.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_device_automounter",
+      "description": "Configure automatic mounting of disks and volumes",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_device_automounter.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_disks",
+      "description": "Storage device health monitoring",
+      "plugins": [
+        "kinfocenter/kcm_disks.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_edid",
+      "description": "Extended Display Identification Data",
+      "plugins": [
+        "kinfocenter/kcm_edid.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_egl",
+      "description": "EGL information",
+      "plugins": [
+        "kinfocenter/kcm_egl.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_energyinfo",
+      "description": "Energy Consumption Statistics",
+      "plugins": [
+        "kcm_energyinfo.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_feedback",
+      "description": "Configure user feedback settings",
+      "plugins": [
+        "systemsettings/kcm_feedback.so"
+      ],
+      "group": "privacy",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_filetypes",
+      "description": "Configure file associations",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_filetypes.so"
+      ],
+      "group": "applications",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_firewall",
+      "description": "Control your network rules",
+      "plugins": [
+        "systemsettings/kcm_firewall.so"
+      ],
+      "group": "system",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "Reads ufw files; no rules editor or firewall enable/disable implementation."
+    },
+    {
+      "id": "kcm_firmware_security",
+      "description": "Firmware Security Information",
+      "plugins": [
+        "kinfocenter/kcm_firmware_security.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_fontinst",
+      "description": "Install, manage and preview fonts",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_fontinst.so"
+      ],
+      "group": "fonts",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "Enumerates installed font families and launches external preview; no font management."
+    },
+    {
+      "id": "kcm_fonts",
+      "description": "Configure user interface fonts",
+      "plugins": [
+        "systemsettings/kcm_fonts.so"
+      ],
+      "group": "fonts",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_gamecontroller",
+      "description": "Test and Configure Game Controllers",
+      "plugins": [
+        "systemsettings/kcm_gamecontroller.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_glx",
+      "description": "GLX information",
+      "plugins": [
+        "kinfocenter/kcm_glx.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_icons",
+      "description": "Choose icon theme",
+      "plugins": [
+        "systemsettings/kcm_icons.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_interrupts",
+      "description": "Interrupt information",
+      "plugins": [
+        "kinfocenter/kcm_interrupts.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_kaccounts",
+      "description": "Configure your internet accounts such as Google, Live, Owncloud",
+      "plugins": [
+        "systemsettings/kcm_kaccounts.so"
+      ],
+      "group": "accounts",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kamera",
+      "description": "Configure Kamera",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kamera.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kded",
+      "description": "Configure background services",
+      "plugins": [
+        "systemsettings/kcm_kded.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_keyboard",
+      "description": "Keyboard Hardware and Layout",
+      "plugins": [
+        "systemsettings/kcm_keyboard.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_keys",
+      "description": "Configure Keyboard Shortcuts",
+      "plugins": [
+        "systemsettings/kcm_keys.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kgamma",
+      "description": "A monitor calibration tool",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kgamma.so"
+      ],
+      "group": "display",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_krunnersettings",
+      "description": "KRunner Settings",
+      "plugins": [
+        "desktop/kcm_krunnersettings.so"
+      ],
+      "discovery": "plugin file and desktop launcher; absent from kcmshell6 --list",
+      "group": "search",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kscreen",
+      "description": "Manage and configure monitors and displays",
+      "plugins": [
+        "systemsettings/kcm_kscreen.so"
+      ],
+      "group": "display",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_kup",
+      "description": "Configure backup plans",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kup.so"
+      ],
+      "group": "system",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwallet5",
+      "description": "KDE Wallet Configuration",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kwallet5.so"
+      ],
+      "group": "accounts",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_kwin_effects",
+      "description": "Configure compositor settings for desktop effects",
+      "plugins": [
+        "systemsettings/kcm_kwin_effects.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_kwin_scripts",
+      "description": "Manage KWin scripts",
+      "plugins": [
+        "systemsettings/kcm_kwin_scripts.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwin_virtualdesktops",
+      "description": "Configure navigation, number and layout of virtual desktops",
+      "plugins": [
+        "systemsettings/kcm_kwin_virtualdesktops.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwindecoration",
+      "description": "Configure window titlebars and borders",
+      "plugins": [
+        "systemsettings/kcm_kwindecoration.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwinoptions",
+      "description": "Configure window actions and behavior",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kwinoptions.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwinrules",
+      "description": "Individual Window Behavior",
+      "plugins": [
+        "systemsettings/kcm_kwinrules.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwinscreenedges",
+      "description": "Configure active screen corners and edges",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kwinscreenedges.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwinsupportinfo",
+      "description": "KWin Support information",
+      "plugins": [
+        "kinfocenter/kcm_kwinsupportinfo.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_kwintabbox",
+      "description": "Navigation Through Windows",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kwintabbox.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwintouchscreen",
+      "description": "Configure touch screen swipe gestures",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_kwintouchscreen.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_kwinxwayland",
+      "description": "Select which keys will be globally available to legacy X11 apps",
+      "plugins": [
+        "systemsettings/kcm_kwinxwayland.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_landingpage",
+      "description": "Landing page with some basic settings",
+      "plugins": [
+        "systemsettings/kcm_landingpage.so"
+      ],
+      "group": "landing",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "KDE landing-page layout is replaced by the Win7 home; underlying quick settings must still be mapped."
+    },
+    {
+      "id": "kcm_lookandfeel",
+      "description": "Choose global look and feel",
+      "plugins": [
+        "systemsettings/kcm_lookandfeel.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_memory",
+      "description": "Memory Information",
+      "plugins": [
+        "kinfocenter/kcm_memory.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_mobile_hotspot",
+      "description": "Wi-Fi Hotspot",
+      "plugins": [
+        "systemsettings/kcm_mobile_hotspot.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Alternative frontend; map unique capabilities to desktop pages rather than duplicate the screen."
+    },
+    {
+      "id": "kcm_mobile_power",
+      "description": "Configure power management settings",
+      "plugins": [
+        "systemsettings/kcm_mobile_power.so"
+      ],
+      "group": "power",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "coverage_note": "Existing PPD profile selector does not implement PowerDevil policy configuration.",
+      "scope_note": "Alternative frontend; map unique capabilities to desktop pages rather than duplicate the screen."
+    },
+    {
+      "id": "kcm_mobile_wifi",
+      "description": "Wireless network setting",
+      "plugins": [
+        "systemsettings/kcm_mobile_wifi.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Alternative frontend; map unique capabilities to desktop pages rather than duplicate the screen."
+    },
+    {
+      "id": "kcm_mobile_wired",
+      "description": "Wired network settings",
+      "plugins": [
+        "systemsettings/kcm_mobile_wired.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Alternative frontend; map unique capabilities to desktop pages rather than duplicate the screen."
+    },
+    {
+      "id": "kcm_mouse",
+      "description": "Mouse Controls",
+      "plugins": [
+        "systemsettings/kcm_mouse.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_netpref",
+      "description": "Configure generic network preferences",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_netpref.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_network",
+      "description": "Network interface information",
+      "plugins": [
+        "kinfocenter/kcm_network.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_networkmanagement",
+      "description": "Edit network connections",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_networkmanagement.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "Simplified default IPv4 route overview; editing opens an external KDE module."
+    },
+    {
+      "id": "kcm_nightlight",
+      "description": "Adjust screen color temperature based on time",
+      "plugins": [
+        "systemsettings/kcm_nightlight.so"
+      ],
+      "group": "display",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_nighttime",
+      "description": "Configure the day-night cycle times",
+      "plugins": [
+        "systemsettings/kcm_nighttime.so"
+      ],
+      "group": "display",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_notificationhelper",
+      "description": "Control the notifications for system helpers",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_notificationhelper.so"
+      ],
+      "group": "notifications",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_notifications",
+      "description": "Event Notifications and Actions",
+      "plugins": [
+        "systemsettings/kcm_notifications.so"
+      ],
+      "group": "notifications",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_opencl",
+      "description": "OpenCL API information",
+      "plugins": [
+        "kinfocenter/kcm_opencl.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_pci",
+      "description": "PCI information",
+      "plugins": [
+        "kinfocenter/kcm_pci.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_plasmakeyboard",
+      "description": "Configuration for Plasma Keyboard",
+      "plugins": [
+        "systemsettings/kcm_plasmakeyboard.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_plasmasearch",
+      "description": "Configure search settings",
+      "plugins": [
+        "systemsettings/kcm_plasmasearch.so"
+      ],
+      "group": "search",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_plymouth",
+      "description": "Choose Plymouth boot splash screen",
+      "plugins": [
+        "systemsettings/kcm_plymouth.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_powerdevilprofilesconfig",
+      "description": "Power Management",
+      "plugins": [
+        "systemsettings/kcm_powerdevilprofilesconfig.so"
+      ],
+      "group": "power",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "coverage_note": "Existing PPD profile selector does not implement PowerDevil policy configuration."
+    },
+    {
+      "id": "kcm_printer_manager",
+      "description": "Configure your printers",
+      "plugins": [
+        "systemsettings/kcm_printer_manager.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "CUPS listing plus external printer setup; no complete printer management."
+    },
+    {
+      "id": "kcm_proxy",
+      "description": "Configure the proxy servers used",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_proxy.so"
+      ],
+      "group": "network",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_pulseaudio",
+      "description": "Configure audio devices and volume",
+      "plugins": [
+        "systemsettings/kcm_pulseaudio.so"
+      ],
+      "group": "audio",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "partial_native",
+      "coverage_note": "Enumerates devices, changes default sink/source, displays meters; full audio configuration absent."
+    },
+    {
+      "id": "kcm_qtquicksettings",
+      "description": "No description available",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_qtquicksettings.so"
+      ],
+      "group": "applications",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_recentFiles",
+      "description": "Manage your file activity history preferences",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_recentFiles.so"
+      ],
+      "group": "privacy",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_regionandlang",
+      "description": "Language Setting, Numeric, Currency and Time Formats",
+      "plugins": [
+        "systemsettings/kcm_regionandlang.so"
+      ],
+      "group": "regional",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_samba",
+      "description": "Samba status monitor",
+      "plugins": [
+        "kinfocenter/kcm_samba.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_screenlocker",
+      "description": "Configure screen locking",
+      "plugins": [
+        "systemsettings/kcm_screenlocker.so"
+      ],
+      "group": "locking",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_sddm",
+      "description": "Configure Login Manager",
+      "plugins": [
+        "systemsettings/kcm_sddm.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_sensors",
+      "description": "Sensors",
+      "plugins": [
+        "kinfocenter/kcm_sensors.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_smserver",
+      "description": "Desktop Session Login and Logout",
+      "plugins": [
+        "systemsettings/kcm_smserver.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_solid_actions",
+      "description": "Manage actions available to the user when connecting new devices",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_solid_actions.so"
+      ],
+      "group": "devices",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_soundtheme",
+      "description": "Select a Sound Theme for Notifications",
+      "plugins": [
+        "systemsettings/kcm_soundtheme.so"
+      ],
+      "group": "notifications",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_splashscreen",
+      "description": "Choose splash screen theme",
+      "plugins": [
+        "systemsettings/kcm_splashscreen.so"
+      ],
+      "group": "startup",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_style",
+      "description": "Configure application style and behavior",
+      "plugins": [
+        "systemsettings/kcm_style.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_tablet",
+      "description": "Configure drawing tablets and pens",
+      "plugins": [
+        "systemsettings/kcm_tablet.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_touchpad",
+      "description": "Touchpad settings",
+      "plugins": [
+        "systemsettings/kcm_touchpad.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_touchscreen",
+      "description": "No description available",
+      "plugins": [
+        "systemsettings/kcm_touchscreen.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_updates",
+      "description": "Configure software update behavior",
+      "plugins": [
+        "systemsettings/kcm_updates.so"
+      ],
+      "group": "system",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_usb",
+      "description": "USB devices attached to this computer",
+      "plugins": [
+        "kinfocenter/kcm_usb.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_users",
+      "description": "Manage user accounts",
+      "plugins": [
+        "systemsettings/kcm_users.so"
+      ],
+      "group": "accounts",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "read_only_or_external_setup",
+      "coverage_note": "Reads current user and avatar; editing opens an external KDE module."
+    },
+    {
+      "id": "kcm_virtualkeyboard",
+      "description": "Select which virtual keyboard to use",
+      "plugins": [
+        "systemsettings/kcm_virtualkeyboard.so"
+      ],
+      "group": "input",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_vulkan",
+      "description": "Vulkan graphics API information",
+      "plugins": [
+        "kinfocenter/kcm_vulkan.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_wallpaper",
+      "description": "Configure the wallpaper",
+      "plugins": [
+        "systemsettings/kcm_wallpaper.so"
+      ],
+      "group": "themes",
+      "external_kde_route_in_source": true,
+      "runtime_mutation_verified": false,
+      "coverage_status": "external_kde_route_only"
+    },
+    {
+      "id": "kcm_wayland",
+      "description": "Information about the Wayland Compositor",
+      "plugins": [
+        "kinfocenter/kcm_wayland.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcm_webshortcuts",
+      "description": "Configure Web search keywords",
+      "plugins": [
+        "systemsettings_qwidgets/kcm_webshortcuts.so"
+      ],
+      "group": "search",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_workspace",
+      "description": "Configure general workspace behavior",
+      "plugins": [
+        "systemsettings/kcm_workspace.so"
+      ],
+      "group": "workspace",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    },
+    {
+      "id": "kcm_xserver",
+      "description": "X-Server information",
+      "plugins": [
+        "kinfocenter/kcm_xserver.so"
+      ],
+      "group": "information",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "scope_note": "Information surface; classify separately from writable System Settings parity."
+    },
+    {
+      "id": "kcmspellchecking",
+      "description": "Spell Checker Dictionaries and Options",
+      "plugins": [
+        "systemsettings_qwidgets/kcmspellchecking.so"
+      ],
+      "group": "regional",
+      "external_kde_route_in_source": false,
+      "runtime_mutation_verified": false,
+      "coverage_status": "no_equivalent_native_controls_identified"
+    }
+  ],
+  "nested_configuration_plugins": [
+    {
+      "id": "kcm_kwin4_genericscripted",
+      "plugin": "kwin/effects/configs/kcm_kwin4_genericscripted.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_aeroglassblur_config",
+      "plugin": "kwin/effects/configs/kwin_aeroglassblur_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_aeroglide_config",
+      "plugin": "kwin/effects/configs/kwin_aeroglide_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_blur_config",
+      "plugin": "kwin/effects/configs/kwin_blur_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_cube_config",
+      "plugin": "kwin/effects/configs/kwin_cube_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_diminactive_config",
+      "plugin": "kwin/effects/configs/kwin_diminactive_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_glide_config",
+      "plugin": "kwin/effects/configs/kwin_glide_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_hidecursor_config",
+      "plugin": "kwin/effects/configs/kwin_hidecursor_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_magiclamp_config",
+      "plugin": "kwin/effects/configs/kwin_magiclamp_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_mouseclick_config",
+      "plugin": "kwin/effects/configs/kwin_mouseclick_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_mousemark_config",
+      "plugin": "kwin/effects/configs/kwin_mousemark_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_overview_config",
+      "plugin": "kwin/effects/configs/kwin_overview_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_slide_config",
+      "plugin": "kwin/effects/configs/kwin_slide_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_thumbnailaside_config",
+      "plugin": "kwin/effects/configs/kwin_thumbnailaside_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_tileseditor_config",
+      "plugin": "kwin/effects/configs/kwin_tileseditor_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_trackmouse_config",
+      "plugin": "kwin/effects/configs/kwin_trackmouse_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_windowview_config",
+      "plugin": "kwin/effects/configs/kwin_windowview_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kwin_wobblywindows_config",
+      "plugin": "kwin/effects/configs/kwin_wobblywindows_config.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_auroraedecoration",
+      "plugin": "org.kde.kdecoration3.kcm/kcm_auroraedecoration.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_breezedecoration",
+      "plugin": "org.kde.kdecoration3.kcm/kcm_breezedecoration.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_oxygendecoration",
+      "plugin": "org.kde.kdecoration3.kcm/kcm_oxygendecoration.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_smoddecoration",
+      "plugin": "org.kde.kdecoration3.kcm/kcm_smoddecoration.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_krunner_charrunner",
+      "plugin": "kf6/krunner/kcms/kcm_krunner_charrunner.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_krunner_dictionary",
+      "plugin": "kf6/krunner/kcms/kcm_krunner_dictionary.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_krunner_kill",
+      "plugin": "kf6/krunner/kcms/kcm_krunner_kill.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    },
+    {
+      "id": "kcm_krunner_spellcheck",
+      "plugin": "kf6/krunner/kcms/kcm_krunner_spellcheck.so",
+      "coverage_status": "no_equivalent_native_controls_identified",
+      "runtime_mutation_verified": false,
+      "scope_note": "Installed configuration plugin; enumerate its actual controls in milestone 0. A compiled plugin is not a list of schema-addressable settings."
+    }
+  ]
+}

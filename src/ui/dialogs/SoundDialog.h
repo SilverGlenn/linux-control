@@ -2,86 +2,61 @@
 
 #include <QDialog>
 #include <QString>
-#include <QStringList>
-#include <QList>
-#include <QHash>
+#include <QVector>
 
-#include "LevelMeter.h"
-
+class AudioSettings;
+struct AudioObject;
+class QCheckBox;
+class QLabel;
+class QListWidget;
+class QPushButton;
+class QSpinBox;
+class QComboBox;
 class QTabWidget;
 class QVBoxLayout;
-class QScrollArea;
-class QPushButton;
-class QToolButton;
-class QProcess;
 
-// A clone of the Windows 7 "Sound" dialog (Playback / Recording / Sounds /
-// Communications tabs), backed directly by the system, no KDE modules.
-//
-//   * Playback and Recording list the real PulseAudio/PipeWire sinks and
-//     sources (`pactl list …`), mark the default, and "Set Default" writes
-//     `pactl set-default-sink/-source`, what the volume applets do, no
-//     privileges needed.
-//   * Communications (call-ducking) and Sounds (a Windows event-sound scheme)
-//     have no direct Linux equivalent, so those tabs mirror the UI and persist
-//     their choices locally.
+// A native Windows 7 audio view. All reads and immediate changes belong to the
+// application-owned AudioSettings session, so closing a view cannot cancel a job.
 class SoundDialog : public QDialog {
     Q_OBJECT
-
 public:
     explicit SoundDialog(QWidget *parent = nullptr);
-    ~SoundDialog() override;
-
+    explicit SoundDialog(AudioSettings *settings, QWidget *parent = nullptr);
     enum Tab { TabPlayback = 0, TabRecording = 1,
-               TabSounds = 2, TabCommunications = 3 };
+               TabSounds = 2, TabCommunications = 3, TabApplications = 4 };
     void showTab(Tab tab);
 
-protected:
-    // Row clicks select a device in the Playback/Recording lists.
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
 private:
-    struct Device {
-        QString name;          // pactl node name (the id used to set the default)
-        QString description;   // e.g. "Speakers"
-        QString cardName;      // e.g. "High Definition Audio Device"
-        int     volumePercent = 0;
-        bool    muted = false;
+    struct ObjectEditor {
+        QListWidget *list = nullptr;
+        QLabel *details = nullptr;
+        QSpinBox *volume = nullptr;
+        QPushButton *setVolume = nullptr;
+        QCheckBox *mute = nullptr;
+        QPushButton *setDefault = nullptr;
+        QPushButton *properties = nullptr;
+        QComboBox *route = nullptr;
+        QPushButton *setRoute = nullptr;
+        QString selectedId, renderedId, confirmedRoute;
+        QVector<quint32> confirmedVolumes;
     };
+    QWidget *buildDeviceTab(ObjectEditor &editor, bool playback);
+    QWidget *buildApplicationsTab();
+    QWidget *buildUnavailableTab(const QString &text);
+    void addVolumeEditor(QVBoxLayout *layout, ObjectEditor &editor, const QString &prefix);
+    void updateView();
+    void updateList(ObjectEditor &editor, int category);
+    void updateEditor(ObjectEditor &editor, bool playback, bool applications = false);
+    const AudioObject *selectedObject(const ObjectEditor &editor) const;
+    void showProperties(ObjectEditor &editor);
+    void setVolume(ObjectEditor &editor);
+    void setMute(ObjectEditor &editor, bool mute);
+    void setDefault(ObjectEditor &editor);
+    void setRoute(ObjectEditor &editor);
 
-    // Everything backing one device list (Playback = sinks, Recording = sources).
-    struct DeviceList {
-        bool                  sinks = true;
-        QVBoxLayout          *box = nullptr;      // holds the row widgets
-        QList<Device>         devices;
-        QString               defaultName;
-        int                   selected = -1;
-        QList<QWidget *>      rows;
-        QHash<QObject *, int> rowToIndex;
-        QToolButton          *setDefaultBtn = nullptr;
-        QPushButton          *configureBtn = nullptr;
-        QPushButton          *propertiesBtn = nullptr;
-        LevelMeter           *activeMeter = nullptr;   // the default device's meter
-        QProcess             *monitorProc = nullptr;   // live parec capture
-    };
-
-    QList<Device> gatherDevices(bool sinks) const;
-    QString       defaultDevice(bool sinks) const;
-
-    QWidget *buildDeviceTab(DeviceList &dl, bool sinks, const QString &prompt);
-    QWidget *buildSoundsTab();
-    QWidget *buildCommunicationsTab();
-
-    void rebuildRows(DeviceList &dl);
-    void selectRow(DeviceList &dl, int index);
-    void applyDefault(DeviceList &dl);
-
-    // Live level metering of the default device via parec on its monitor/source.
-    void startMonitor(DeviceList &dl);
-    void stopMonitor(DeviceList &dl);
-    void updateMonitors();   // start/stop to match the visible tab
-
+    AudioSettings *m_settings = nullptr;
     QTabWidget *m_tabs = nullptr;
-    DeviceList  m_playback;
-    DeviceList  m_recording;
+    QLabel *m_status = nullptr;
+    QPushButton *m_refresh = nullptr;
+    ObjectEditor m_playback, m_recording, m_applications;
 };

@@ -6,7 +6,9 @@
 
 #include "SysfsScanner.h"
 #include "DeviceUtils.h"
+#include "operations/SharedLoad.h"
 
+#include <QCoreApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -19,6 +21,7 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QPointer>
 
 namespace {
 
@@ -60,6 +63,18 @@ DevicesAndPrintersPage::ScanResult DevicesAndPrintersPage::runScan() {
     r.categories = scanDevices();
     r.printers   = scanPrinters();
     return r;
+}
+
+SharedLoad<DevicesAndPrintersPage::ScanResult> *
+DevicesAndPrintersPage::sharedLoader()
+{
+    static QPointer<SharedLoad<ScanResult>> loader;
+    if (!loader) {
+        loader = new SharedLoad<ScanResult>(
+            QStringLiteral("Scanning devices and printers"),
+            QCoreApplication::instance());
+    }
+    return loader;
 }
 
 DevicesAndPrintersPage::DevicesAndPrintersPage(QWidget *parent)
@@ -117,12 +132,12 @@ DevicesAndPrintersPage::DevicesAndPrintersPage(QWidget *parent)
         list->setGridSize(kTileSize);
         list->setSpacing(6);
         list->setWordWrap(true);
-        list->setFocusPolicy(Qt::NoFocus);
+        list->setFocusPolicy(Qt::StrongFocus);
         list->setFrameShape(QFrame::NoFrame);
         list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         list->setSelectionMode(QAbstractItemView::SingleSelection);
         list->setStyleSheet(
-            "QListWidget { background: #FFFFFF; outline: none; }"
+            "QListWidget { background: #FFFFFF; }"
             "QListWidget::item { color: #000000; padding: 3px; border-radius: 3px; }"
             "QListWidget::item:selected {"
             " background: #CDE6F7; border: 1px solid #A6D2F0; color: #000000; }"
@@ -134,6 +149,7 @@ DevicesAndPrintersPage::DevicesAndPrintersPage(QWidget *parent)
     m_devicesHeader = makeHeader("Devices");
     contentV->addWidget(m_devicesHeader);
     m_devicesList = makeList();
+    m_devicesList->setAccessibleName(QStringLiteral("Devices"));
     contentV->addWidget(m_devicesList, 1);
 
     contentV->addSpacing(6);
@@ -141,6 +157,7 @@ DevicesAndPrintersPage::DevicesAndPrintersPage(QWidget *parent)
     m_printersHeader = makeHeader("Printers and Faxes");
     contentV->addWidget(m_printersHeader);
     m_printersList = makeList();
+    m_printersList->setAccessibleName(QStringLiteral("Printers and Faxes"));
     m_printersList->setFixedHeight(kTileSize.height() + 24);
     contentV->addWidget(m_printersList);
 
@@ -200,18 +217,19 @@ DevicesAndPrintersPage::DevicesAndPrintersPage(QWidget *parent)
         }
     };
     connect(m_devicesList,  &QListWidget::itemActivated,     this, openFromItem);
-    connect(m_devicesList,  &QListWidget::itemDoubleClicked, this, openFromItem);
     connect(m_printersList, &QListWidget::itemActivated,     this, openFromItem);
-    connect(m_printersList, &QListWidget::itemDoubleClicked, this, openFromItem);
 
     updateDetails(nullptr);
 
-    // ---- Kick off the background scan -----------------------------------
-    Win7::runAsync(this, &DevicesAndPrintersPage::runScan,
-                   [this](const ScanResult &result) { populate(result); });
+    // Show the last scan immediately when returning, then refresh it in the
+    // background. SharedLoad also joins a scan that another page already owns.
+    sharedLoader()->subscribe(this, &DevicesAndPrintersPage::runScan,
+        [this](const ScanResult &result, bool fresh) {
+            populate(result, fresh);
+        });
 }
 
-void DevicesAndPrintersPage::populate(const ScanResult &result) {
+void DevicesAndPrintersPage::populate(const ScanResult &result, bool fresh) {
     // ---- Curate hardware into the "Devices" group -----------------------
     m_devices.clear();
 
@@ -282,7 +300,13 @@ void DevicesAndPrintersPage::populate(const ScanResult &result) {
     m_printersHeader->setText(
         QString("Printers and Faxes (%1)").arg(m_printers.size()));
 
-    m_statusLabel->hide();
+    if (fresh) {
+        m_statusLabel->hide();
+    } else {
+        m_statusLabel->setText(
+            QStringLiteral("Showing the previous scan while checking current hardware…"));
+        m_statusLabel->show();
+    }
     updateDetails(nullptr);
 }
 

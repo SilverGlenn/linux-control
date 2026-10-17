@@ -3,6 +3,7 @@ Name=Control Panel
 Comment=Adjust your computer's settings
 Exec=control
 Icon=preferences-system
+X-Geoclue-Reason=Preview sunrise and sunset times for a location requested by the user
 Terminal=false
 Type=Application
 Categories=Qt;KDE;Settings;

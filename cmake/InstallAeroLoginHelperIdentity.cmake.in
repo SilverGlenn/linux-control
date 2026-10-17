@@ -1,0 +1,16 @@
+set(_aeroLibexec "@CMAKE_INSTALL_LIBEXECDIR@")
+set(_aeroData "@CMAKE_INSTALL_DATADIR@")
+foreach(_directory _aeroLibexec _aeroData)
+    if(NOT IS_ABSOLUTE "${${_directory}}")
+        set(${_directory} "${CMAKE_INSTALL_PREFIX}/${${_directory}}")
+    endif()
+endforeach()
+set(HELPER "$ENV{DESTDIR}${_aeroLibexec}/controlpanel-aero-login-helper")
+set(POLICY "$ENV{DESTDIR}${_aeroData}/polkit-1/actions/org.linuxcontrol.aerologin.policy")
+set(_aeroIdentityPath "@CMAKE_CURRENT_BINARY_DIR@/aero-login-install-identity")
+file(MAKE_DIRECTORY "${_aeroIdentityPath}")
+set(OUTPUT "${_aeroIdentityPath}/aero-login-helper.json")
+include("@CMAKE_CURRENT_SOURCE_DIR@/cmake/GenerateAeroLoginHelperIdentity.cmake")
+file(INSTALL DESTINATION "${_aeroData}/linux-control" TYPE FILE
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    FILES "${OUTPUT}")

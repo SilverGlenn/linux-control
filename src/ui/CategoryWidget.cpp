@@ -1,17 +1,13 @@
 #include "CategoryWidget.h"
 #include "IconHelper.h"
 #include "Branding.h"
+#include "LinkLabel.h"
+#include "ActionCatalog.h"
 
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QIcon>
-#include <QPixmap>
 #include <QFont>
-#include <QCursor>
-#include <QStyle>
-#include <QEvent>
-#include <QMouseEvent>
 
 CategoryWidget::CategoryWidget(const CategoryItem &item, QWidget *parent)
     : QWidget(parent)
@@ -37,7 +33,7 @@ CategoryWidget::CategoryWidget(const CategoryItem &item, QWidget *parent)
     textBlock->setContentsMargins(0, 0, 0, 0);
 
     // Display the branded wording; m_title stays canonical for routing.
-    auto *titleLabel = new QLabel(Branding::brand(item.title));
+    auto *titleLabel = new LinkLabel(Branding::brand(item.title));
     QFont titleFont = titleLabel->font();
     titleFont.setPointSize(11);
     titleLabel->setFont(titleFont);
@@ -46,48 +42,39 @@ CategoryWidget::CategoryWidget(const CategoryItem &item, QWidget *parent)
         "QLabel { color: #1E7B1E; }"
         "QLabel:hover { color: #145214; }"
     );
-    titleLabel->installEventFilter(this);
-    m_titleLabel = titleLabel;
+    connect(titleLabel, &LinkLabel::clicked, this, [this] {
+        emit titleActivated(m_title);
+    });
     textBlock->addWidget(titleLabel);
 
-    for (const QString &task : item.tasks) {
-        auto *taskLabel = new QLabel(Branding::brand(task));
-        QFont taskFont = taskLabel->font();
-        taskFont.setPointSize(9);
-        taskLabel->setFont(taskFont);
-        taskLabel->setCursor(Qt::PointingHandCursor);
-        taskLabel->setStyleSheet(
-            "QLabel { color: #1F4E99; }"
-            "QLabel:hover { color: #0033AA; }"
-        );
-        taskLabel->installEventFilter(this);
-        m_taskLabels.insert(taskLabel, task);
+    for (ActionId actionId : item.tasks) {
+        const auto &action = ActionCatalog::get(actionId);
+        auto *taskLabel = new LinkLabel(Branding::brand(action.title));
+        taskLabel->setAccessibleDescription(Branding::brand(action.description));
+        m_taskLabels.insert(taskLabel, actionId);
+        connect(taskLabel, &LinkLabel::clicked, this, [this, actionId] {
+            emit actionActivated(actionId);
+        });
         textBlock->addWidget(taskLabel);
+        const auto availability = ActionCatalog::availability(actionId);
+        setTaskAvailable(actionId, availability.available, availability.reason);
     }
 
     root->addLayout(textBlock, 1);
     setLayout(root);
 }
 
-bool CategoryWidget::eventFilter(QObject *watched, QEvent *event)
+void CategoryWidget::setTaskAvailable(ActionId action, bool available, const QString &reason)
 {
-    if (auto *label = qobject_cast<QLabel *>(watched)) {
-        if (event->type() == QEvent::Enter || event->type() == QEvent::Leave) {
-            QFont font = label->font();
-            font.setUnderline(event->type() == QEvent::Enter);
-            label->setFont(font);
-        } else if (event->type() == QEvent::MouseButtonRelease) {
-            auto *me = static_cast<QMouseEvent *>(event);
-            if (me->button() == Qt::LeftButton) {
-                if (label == m_titleLabel) {
-                    Q_EMIT titleActivated(m_title);
-                } else {
-                    auto it = m_taskLabels.constFind(label);
-                    if (it != m_taskLabels.constEnd())
-                        Q_EMIT taskActivated(m_title, it.value());
-                }
-            }
-        }
+    for (auto it = m_taskLabels.constBegin(); it != m_taskLabels.constEnd(); ++it) {
+        if (it.value() != action)
+            continue;
+        auto *label = it.key();
+        label->setEnabled(available);
+        const QString unavailableReason = reason.isEmpty()
+            ? QStringLiteral("This setting is not available in Control Panel yet.") : reason;
+        label->setToolTip(available ? QString() : unavailableReason);
+        label->setAccessibleDescription(available
+            ? Branding::brand(ActionCatalog::get(action).description) : unavailableReason);
     }
-    return QWidget::eventFilter(watched, event);
 }

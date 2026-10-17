@@ -6,21 +6,20 @@
 #include "PageId.h"
 
 class QScrollArea;
+class QLineEdit;
+class QLabel;
+class QPushButton;
+class AccountSettings;
+class SettingsSession;
 
-// The "User Accounts" detail page (User Accounts and Family Safety), a
-// Control-Panel rendering of the Windows 7 User Accounts main screen.
-//
-// The account is read from the local passwd database (`getpwuid`) and the
-// caller's group membership (`getgrouplist`): membership of wheel/sudo maps to
-// the "Administrator" account type. The picture is the user's real avatar
-// (~/.face or the AccountsService icon). Every editing action hands off to KDE's
-// user-manager module (`kcm_users`), which already prompts for the credentials
-// needed to change a password, name, picture or account type.
+// Native current-user display-name editor; its persistent session owns authorization and readback.
 class UserAccountsPage : public QWidget {
     Q_OBJECT
 
 public:
     explicit UserAccountsPage(QScrollArea *sidebar, QWidget *parent = nullptr);
+    UserAccountsPage(QScrollArea *sidebar, AccountSettings *session, QWidget *parent = nullptr);
+    SettingsSession *settingsSession() const;
 
     static QList<SidebarLink> sidebarLinks();
     static QList<SidebarLink> sidebarSeeAlso();
@@ -33,4 +32,13 @@ private:
         QString picturePath;   // avatar image path, empty if none found
     };
     static Account gatherAccount();
+    void updateState();
+    AccountSettings *m_session;
+    QLineEdit *m_name;
+    QLabel *m_status;
+    QLabel *m_summaryName;
+    QLabel *m_identity;
+    QPushButton *m_apply;
+    QPushButton *m_revert;
+    QPushButton *m_cancel;
 };

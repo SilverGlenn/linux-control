@@ -4,30 +4,30 @@ const QList<DetailGroup> &programsGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "application-vnd.debian.binary-package", "Programs and Features",
+            ActionId::ProgramsAndFeatures,
             {
-                { "Uninstall a program",
-                  "Turn Linux features on or off",
-                  "View installed updates" },
-                { "Run programs made for previous versions of Linux",
-                  "How to install a program" },
+                { ActionId::UninstallAProgram,
+                  ActionId::TurnLinuxFeaturesOnOrOff,
+                  ActionId::ViewInstalledUpdates },
+                { ActionId::RunProgramsMadeForPreviousVersionsOfLinux,
+                  ActionId::HowToInstallAProgram },
             }
         },
         {
-            "preferences-desktop-default-applications", "Default Programs",
+            ActionId::DefaultPrograms,
             {
-                { "Change default settings for media or devices" },
-                { "Make a file type always open in a specific program",
-                  "Set your default programs" },
+                { ActionId::ChangeDefaultSettingsForMediaOrDevices },
+                { ActionId::MakeAFileTypeAlwaysOpenInASpecificProgram,
+                  ActionId::SetYourDefaultPrograms },
             }
         },
         {
-            "gadgets", "Desktop Gadgets",
+            ActionId::DesktopGadgets,
             {
-                { "Add gadgets to the desktop",
-                  "Get more gadgets online",
-                  "Uninstall a gadget" },
-                { "Restore desktop gadgets installed with Linux" },
+                { ActionId::AddGadgetsToTheDesktop,
+                  ActionId::GetMoreGadgetsOnline,
+                  ActionId::UninstallAGadget },
+                { ActionId::RestoreDesktopGadgetsInstalledWithLinux },
             }
         },
     };

@@ -14,6 +14,11 @@ struct Entry {
 const QList<Entry> &table()
 {
     static const QList<Entry> kEntries = {
+        { PageId::CustomShortcuts, QStringLiteral("Hardware and Sound/Custom Keyboard Shortcuts") },
+        { PageId::StandardShortcuts, QStringLiteral("Hardware and Sound/Application Shortcuts") },
+        { PageId::Shortcuts, QStringLiteral("Hardware and Sound/Keyboard Shortcuts") },
+        { PageId::Keyboard, QStringLiteral("Hardware and Sound/Keyboard") },
+        { PageId::DefaultApps, QStringLiteral("Programs/Default Programs") },
         { PageId::LinuxUpdate,      QStringLiteral("System and Security/Linux Update") },
         { PageId::SelectUpdates,
           QStringLiteral("System and Security/Linux Update/Select updates to install") },
@@ -22,6 +27,7 @@ const QList<Entry> &table()
           QStringLiteral("Programs/Programs and Features/Installed Updates") },
         { PageId::NetworkSharing,
           QStringLiteral("Network and Internet/Network and Sharing Center") },
+        { PageId::NetworkConnections, QStringLiteral("Network and Internet/Network Connections") },
         { PageId::Firewall,         QStringLiteral("System and Security/Linux Firewall") },
         { PageId::ActionCenter,     QStringLiteral("System and Security/Action Center") },
         { PageId::PowerOptions,     QStringLiteral("System and Security/Power Options") },
@@ -35,6 +41,18 @@ const QList<Entry> &table()
         { PageId::EaseOfAccess,     QStringLiteral("Ease of Access/Ease of Access Center") },
         { PageId::DevicesPrinters,  QStringLiteral("Hardware and Sound/Devices and Printers") },
         { PageId::System,           QStringLiteral("System and Security/System") },
+        { PageId::NightLight, QStringLiteral("Hardware and Sound/Night Light") },
+        { PageId::ScreenLock, QStringLiteral("Appearance and Personalization/Screen Locking") },
+        { PageId::AeroLogin, QStringLiteral("Appearance and Personalization/Aero Login and Lock Appearance") },
+        { PageId::NightTime, QStringLiteral("Hardware and Sound/Day and Night") },
+        { PageId::Display,          QStringLiteral("Hardware and Sound/Screen Resolution") },
+        { PageId::WindowBehavior,   QStringLiteral("Appearance and Personalization/Window Behavior") },
+        { PageId::DesktopBackground, QStringLiteral("Appearance and Personalization/Desktop Background") },
+        { PageId::ThemeComponents,  QStringLiteral("Appearance and Personalization/Appearance Components") },
+        { PageId::FontSettings,     QStringLiteral("Appearance and Personalization/Font Settings") },
+        { PageId::AeroEffects,      QStringLiteral("Appearance and Personalization/Aero Effects") },
+        { PageId::PackagePreview,   QStringLiteral("Programs/Ubuntu Package Preview") },
+        { PageId::InputDevices,     QStringLiteral("Hardware and Sound/Mouse and Touchpad") },
     };
     return kEntries;
 }

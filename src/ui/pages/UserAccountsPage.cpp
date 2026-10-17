@@ -1,5 +1,5 @@
 #include "UserAccountsPage.h"
-#include "Commands.h"
+#include "settings/AccountSettings.h"
 #include "LinkLabel.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
@@ -14,6 +14,10 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QPainterPath>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFormLayout>
+#include <QSignalBlocker>
 
 #include <pwd.h>
 #include <grp.h>
@@ -44,7 +48,7 @@ UserAccountsPage::Account UserAccountsPage::gatherAccount()
                         const QString name = QString::fromLocal8Bit(gr->gr_name);
                         if (name == QLatin1String("wheel")
                             || name == QLatin1String("sudo")) {
-                            a.accountType = QStringLiteral("Administrator");
+                            a.accountType = QStringLiteral("Member of sudo or wheel group");
                             break;
                         }
                     }
@@ -56,8 +60,10 @@ UserAccountsPage::Account UserAccountsPage::gatherAccount()
         a.userName = QString::fromLocal8Bit(qgetenv("USER"));
     if (a.fullName.isEmpty())
         a.fullName = a.userName;
-    if (a.accountType.isEmpty())
-        a.accountType = QStringLiteral("Standard user");
+    if (uid == 0)
+        a.accountType = QStringLiteral("Administrator (root)");
+    else if (a.accountType.isEmpty())
+        a.accountType = QStringLiteral("No sudo or wheel group membership detected");
 
     // The account picture: user dotfiles first, then the AccountsService icon
     // that KDE/GDM login screens use.
@@ -81,8 +87,8 @@ UserAccountsPage::Account UserAccountsPage::gatherAccount()
 QList<SidebarLink> UserAccountsPage::sidebarLinks()
 {
     return {
-        Nav::command("Manage another account", kcm("kcm_users")),
-        Nav::command("Change User Account Control settings", kcm("kcm_users")),
+        Nav::plain("Manage another account"),
+        Nav::plain("Change User Account Control settings"),
     };
 }
 
@@ -90,7 +96,7 @@ QList<SidebarLink> UserAccountsPage::sidebarSeeAlso()
 {
     return {
         Nav::plain("Parental Controls"),
-        Nav::command("Credential Manager", kcm("kcm_kwallet5")),
+        Nav::plain("Credential Manager"),
     };
 }
 
@@ -127,7 +133,10 @@ static QPixmap avatarPixmap(const QString &path, int size)
 
 // Page
 UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, QWidget *parent)
-    : QWidget(parent)
+    : UserAccountsPage(sidebar, AccountSettings::instance(), parent) {}
+
+UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, AccountSettings *session, QWidget *parent)
+    : QWidget(parent), m_session(session)
 {
     const Account acct = gatherAccount();
 
@@ -135,6 +144,11 @@ UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, QWidget *parent)
     // the window blank on the right rather than stretching to fill it.
     auto *contentV = Win7::pageScaffold(this, sidebar, /*bottomMargin=*/20,
                                         /*fixedWidth=*/700);
+    Win7::styleSettingsControls(this);
+    setStyleSheet(styleSheet() + QStringLiteral(
+        " QLineEdit { color: #000000; background: #FFFFFF; border: 1px solid #ABADB3; padding: 4px 6px; }"
+        " QLineEdit:focus { border-color: #3C7FB1; }"
+        " QLineEdit:disabled { color: #777777; background: #F0F0F0; }"));
 
     // Page title.
     contentV->addWidget(Win7::pageTitle("Make changes to your user account"));
@@ -149,23 +163,15 @@ UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, QWidget *parent)
     tasks->setContentsMargins(0, 0, 0, 0);
     tasks->setSpacing(12);
 
-    // All of these edits are handled by KDE's user manager, which prompts for
-    // authorization itself.
-    auto addTask = [&](const QString &text) {
+    auto *changeName = new LinkLabel("Change your display name");
+    tasks->addWidget(changeName, 0, Qt::AlignLeft);
+    for (const QString &text : {QStringLiteral("Change your password"), QStringLiteral("Change your picture"),
+                                QStringLiteral("Change your account type"), QStringLiteral("Manage another account")}) {
         auto *link = new LinkLabel(text);
-        QObject::connect(link, &LinkLabel::clicked, this, [this]() {
-            launchDetached(this, { "kcmshell6", "kcm_users" });
-        });
+        link->setEnabled(false);
+        link->setToolTip("This page currently supports your own display name. Other account changes are unavailable here.");
         tasks->addWidget(link, 0, Qt::AlignLeft);
-    };
-
-    addTask("Change your password");
-    addTask("Change your picture");
-    addTask("Change your account name");
-    addTask("Change your account type");
-    addTask("Manage another account");
-    addTask("Change User Account Control settings");
-
+    }
     tasks->addStretch(1);
     body->addLayout(tasks, 0);
 
@@ -183,9 +189,10 @@ UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, QWidget *parent)
     auto *summary = new QVBoxLayout;
     summary->setContentsMargins(0, 2, 0, 0);
     summary->setSpacing(2);
-    summary->addWidget(Win7::label(acct.fullName, 11, "#1A3C7A"));
+    m_summaryName = Win7::label(acct.fullName, 11, "#1A3C7A");
+    summary->addWidget(m_summaryName);
     summary->addWidget(Win7::label(acct.accountType));
-    summary->addWidget(Win7::label("Password protected"));
+    summary->addWidget(Win7::label("Password status unavailable", 9, "#777777"));
     summary->addStretch(1);
     card->addLayout(summary, 0);
 
@@ -193,5 +200,73 @@ UserAccountsPage::UserAccountsPage(QScrollArea *sidebar, QWidget *parent)
     body->addStretch(1);
 
     contentV->addLayout(body);
+    contentV->addSpacing(24);
+    contentV->addWidget(Win7::label("Change your display name", 11, "#1A3C7A"));
+    contentV->addSpacing(10);
+    auto *explanation = Win7::label("This name identifies your account in the desktop. Your login name and user ID stay the same. Apply may ask you to authorize the change.", 9, "#555555");
+    explanation->setWordWrap(true);
+    contentV->addWidget(explanation);
+    contentV->addSpacing(10);
+    auto *form = new QFormLayout;
+    m_name = new QLineEdit;
+    m_name->setObjectName("accountDisplayName");
+    m_name->setAccessibleName("Display name");
+    m_name->setMaxLength(256);
+    auto *nameLabel = Win7::label("&Display name:"); nameLabel->setBuddy(m_name);
+    form->addRow(nameLabel, m_name);
+    m_identity = Win7::label(acct.userName + QStringLiteral("  ·  UID %1").arg(::getuid()));
+    m_identity->setObjectName("accountIdentity");
+    m_identity->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    form->addRow(Win7::label("Current account:"), m_identity);
+    contentV->addLayout(form);
+    contentV->addSpacing(12);
+    m_status = Win7::label("Reading your current account…", 9, "#555555");
+    m_status->setObjectName("accountStatus");
+    m_status->setWordWrap(true);
+    contentV->addWidget(m_status);
+    contentV->addSpacing(12);
+    auto *buttons = new QHBoxLayout;
+    m_apply = new QPushButton("&Apply");
+    m_apply->setObjectName("accountApply");
+    m_apply->setIcon(themeIcon({"security-high", "dialog-password"}));
+    m_revert = new QPushButton("&Revert");
+    m_revert->setObjectName("accountRevert");
+    m_revert->setToolTip("Discard your staged name and read the current account again.");
+    m_cancel = new QPushButton("Cancel &pending change");
+    m_cancel->setObjectName("accountCancel");
+    buttons->addWidget(m_apply); buttons->addWidget(m_revert); buttons->addWidget(m_cancel); buttons->addStretch();
+    contentV->addLayout(buttons);
     contentV->addStretch(1);
+    connect(changeName, &LinkLabel::clicked, m_name, [this] { m_name->setFocus(); m_name->selectAll(); });
+    connect(m_name, &QLineEdit::textEdited, session, &AccountSettings::selectName);
+    connect(m_apply, &QPushButton::clicked, session, &AccountSettings::apply);
+    connect(m_revert, &QPushButton::clicked, session, &AccountSettings::revert);
+    connect(m_cancel, &QPushButton::clicked, session, &AccountSettings::cancel);
+    connect(session, &AccountSettings::stateChanged, this, &UserAccountsPage::updateState);
+    updateState();
+}
+SettingsSession *UserAccountsPage::settingsSession() const { return m_session; }
+void UserAccountsPage::updateState()
+{
+    const QSignalBlocker blocker(m_name);
+    if (m_name->text() != m_session->stagedName()) m_name->setText(m_session->stagedName());
+    const auto account = m_session->account();
+    if (m_session->isReady()) {
+        m_summaryName->setText(account.realName.isEmpty() ? account.userName : account.realName);
+        m_identity->setText(account.userName + QStringLiteral("  ·  UID %1").arg(account.uid));
+    }
+    m_name->setEnabled(!m_session->isBusy() && m_session->canApply());
+    m_apply->setEnabled(!m_session->isBusy() && m_session->canApply() && m_session->isDirty()
+                        && !m_session->hasConflict() && AccountSettings::validName(m_session->stagedName()));
+    m_revert->setEnabled(!m_session->isBusy());
+    m_cancel->setEnabled(m_session->canCancel());
+    m_cancel->setToolTip(m_session->canCancel() ? "Cancel before an account change is sent."
+                        : "A request already sent to AccountsService cannot be canceled here.");
+    QString status = m_session->errorText();
+    if (status.isEmpty()) status = m_session->resultText();
+    if (status.isEmpty()) status = m_session->isBusy() ? "Working with AccountsService…"
+        : !m_session->canApply() ? m_session->unavailableReason()
+        : m_session->isDirty() ? "Your display name is staged. Select Apply to save it."
+        : "Only your current account's display name can be changed here.";
+    m_status->setText(status);
 }

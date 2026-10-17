@@ -15,42 +15,42 @@ const QList<CategoryItem> &homeCategories()
         {
             "dialog-password",
             "System and Security",
-            { "Review your computer's status", "Back up your computer", "Find and fix problems" }
+            { ActionId::ReviewYourComputersStatus, ActionId::BackUpYourComputer, ActionId::FindAndFixProblems }
         },
         {
             "system-users",
             "User Accounts and Family Safety",
-            { "Add or remove user accounts", "Set up parental controls for any user" }
+            { ActionId::AddOrRemoveUserAccounts, ActionId::SetUpParentalControlsForAnyUser }
         },
         {
             "folder-network",
             "Network and Internet",
-            { "View network status and tasks", "Choose homegroup and sharing options" }
+            { ActionId::ViewNetworkStatusAndTasks, ActionId::ChooseHomegroupAndSharingOptions }
         },
         {
             "preferences-desktop-theme-global",
             "Appearance and Personalization",
-            { "Change the theme", "Change desktop background", "Adjust screen resolution" }
+            { ActionId::ChangeWindowColors, ActionId::ChangeDesktopBackground, ActionId::AdjustScreenResolution }
         },
         {
             "input_devices_settings",
             "Hardware and Sound",
-            { "View devices and printers", "Add a device" }
+            { ActionId::ViewDevicesAndPrinters, ActionId::AddADevice }
         },
         {
             "preferences-desktop-locale",
             "Clock, Language, and Region",
-            { "Change keyboards or other input methods", "Change display language" }
+            { ActionId::ChangeKeyboardsOrOtherInputMethods, ActionId::ChangeDisplayLanguage }
         },
         {
             "application-vnd.debian.binary-package",
             "Programs",
-            { "Uninstall a program" }
+            { ActionId::UninstallAProgram }
         },
         {
             "preferences-desktop-accessibility",
             "Ease of Access",
-            { "Let Linux suggest settings", "Optimize visual display" }
+            { ActionId::LetLinuxSuggestSettings, ActionId::OptimizeVisualDisplay }
         },
     };
     return items;

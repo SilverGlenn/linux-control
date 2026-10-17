@@ -4,46 +4,50 @@ const QList<DetailGroup> &hardwareAndSoundGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "preferences-desktop-peripherals", "Devices and Printers",
+            ActionId::DevicesAndPrinters,
             {
-                { "Add a device",
-                  "Add a printer",
-                  "Mouse",
-                  "Device Manager" },
+                { ActionId::AddADevice,
+                  ActionId::AddAPrinter,
+                  ActionId::Mouse,
+                  ActionId::Keyboard,
+                  ActionId::DeviceManager },
+                { ActionId::Touchpad, ActionId::KeyboardShortcuts, ActionId::StandardShortcuts, ActionId::CustomShortcuts },
             }
         },
         {
-            "exec", "AutoPlay",
+            ActionId::AutoPlay,
             {
-                { "Change default settings for media or devices",
-                  "Play CDs or other media automatically" },
+                { ActionId::ChangeDefaultSettingsForMediaOrDevices,
+                  ActionId::PlayCDsOrOtherMediaAutomatically },
             }
         },
         {
-            "preferences-desktop-sound", "Sound",
+            ActionId::Sound,
             {
-                { "Adjust system volume",
-                  "Change system sounds",
-                  "Manage audio devices" },
+                { ActionId::AdjustSystemVolume,
+                  ActionId::ChangeSystemSounds,
+                  ActionId::ManageAudioDevices },
+                { ActionId::ApplicationVolume, ActionId::RecordingDevices },
             }
         },
         {
-            "preferences-system-power-management", "Power Options",
+            ActionId::PowerOptions,
             {
-                { "Change power-saving settings",
-                  "Change what the power buttons do" },
-                { "Require a password when the computer wakes",
-                  "Change when the computer sleeps" },
-                { "Choose a power plan" },
+                { ActionId::ChangePowerSavingSettings,
+                  ActionId::ChangeWhatThePowerButtonsDo },
+                { ActionId::RequireAPasswordWhenTheComputerWakes,
+                  ActionId::ChangeWhenTheComputerSleeps },
+                { ActionId::ChooseAPowerPlan },
             }
         },
         {
-            "preferences-desktop-display", "Display",
+            ActionId::Display,
             {
-                { "Make text and other items larger or smaller",
-                  "Adjust screen resolution" },
-                { "Connect to an external display",
-                  "How to correct monitor flicker (refresh rate)" },
+                { ActionId::MakeTextAndOtherItemsLargerOrSmaller,
+                  ActionId::AdjustScreenResolution },
+                { ActionId::NightLight, ActionId::NightTime },
+                { ActionId::ConnectToAnExternalDisplay,
+                  ActionId::HowToCorrectMonitorFlickerRefreshRate },
             }
         },
     };

@@ -2,6 +2,7 @@
 #include "Commands.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
+#include "LinkLabel.h"
 #include "Branding.h"
 #include "dialogs/LinverConfigDialog.h"
 #include "perf/WeiBenchmark.h"
@@ -216,29 +217,6 @@ SystemPage::SysInfo SystemPage::gatherInfo()
     return s;
 }
 
-// Clicking the "Rating" value navigates to the Linux Experience Index page;
-// clicking the distributor logo opens the branding-configuration dialog.
-bool SystemPage::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == QEvent::MouseButtonRelease) {
-        auto *me = static_cast<QMouseEvent *>(event);
-        if (me->button() == Qt::LeftButton) {
-            if (watched == m_ratingLabel) {
-                emit performanceRequested();
-                return true;
-            }
-            if (watched == m_logoLabel) {
-                const SysInfo info = gatherInfo();
-                LinverConfigDialog dlg(info.editionShort, this);
-                if (dlg.exec() == QDialog::Accepted)
-                    emit brandingChanged();
-                return true;
-            }
-        }
-    }
-    return QWidget::eventFilter(watched, event);
-}
-
 // Sidebar
 QList<SidebarLink> SystemPage::sidebarLinks()
 {
@@ -274,14 +252,15 @@ QLabel *SystemPage::addInfoRow(QGridLayout *grid, int row,
     lbl->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     grid->addWidget(lbl, row, 0, Qt::AlignLeft | Qt::AlignTop);
 
-    auto *val = new QLabel(value);
+    QLabel *val = valueIsLink ? new LinkLabel(value) : new QLabel(value);
     {
         QFont f = val->font();
         f.setPointSize(9);
         val->setFont(f);
     }
     val->setWordWrap(true);
-    val->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    if (!valueIsLink)
+        val->setTextInteractionFlags(Qt::TextSelectableByMouse);
     if (valueIsLink) {
         val->setCursor(Qt::PointingHandCursor);
         val->setStyleSheet(
@@ -371,7 +350,8 @@ SystemPage::SystemPage(QScrollArea *sidebar, QWidget *parent)
 
     // Distro logo (or the fake Windows flag), mirroring the big edition badge in
     // the reference. Clicking it opens the "Linver configuration" dialog.
-    m_logoLabel = new QLabel;
+    m_logoLabel = new LinkLabel(QString());
+    m_logoLabel->setAccessibleName(QStringLiteral("Configure branding"));
     m_logoLabel->setFixedSize(96, 96);
     m_logoLabel->setStyleSheet("background: transparent;");
     m_logoLabel->setCursor(Qt::PointingHandCursor);
@@ -386,7 +366,12 @@ SystemPage::SystemPage(QScrollArea *sidebar, QWidget *parent)
                                            "computer", "preferences-system" })
                                    .pixmap(96, 96));
     }
-    m_logoLabel->installEventFilter(this);
+    connect(static_cast<LinkLabel *>(m_logoLabel), &LinkLabel::clicked, this, [this] {
+        const SysInfo info = gatherInfo();
+        LinverConfigDialog dlg(info.editionShort, this);
+        if (dlg.exec() == QDialog::Accepted)
+            emit brandingChanged();
+    });
     editionRow->addWidget(m_logoLabel, 0, Qt::AlignTop);
 
     contentV->addLayout(editionRow);
@@ -412,7 +397,8 @@ SystemPage::SystemPage(QScrollArea *sidebar, QWidget *parent)
         : Branding::brand("Linux Experience Index is not available");
     m_ratingLabel = addInfoRow(sysGrid, r++, "Rating:", ratingText,
                                QString(), /*valueIsLink=*/true);
-    m_ratingLabel->installEventFilter(this);
+    connect(static_cast<LinkLabel *>(m_ratingLabel), &LinkLabel::clicked,
+            this, &SystemPage::performanceRequested);
     addInfoRow(sysGrid, r++, "Processor:", info.processor, info.clock);
     addInfoRow(sysGrid, r++, "Installed memory (RAM):", info.memory);
     addInfoRow(sysGrid, r++, "System type:", info.systemType);

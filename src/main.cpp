@@ -5,6 +5,8 @@
 #include <QTimer>
 #include "MainWindow.h"
 #include "IconHelper.h"
+#include "ApplicationStyleGuard.h"
+#include "settings/AeroThemeContract.h"
 #include <AeroQt/stylesheet.h>
 
 // AeroQt's application stylesheet skins QScrollBar with the Win7 look. We want
@@ -93,9 +95,9 @@ int main(int argc, char *argv[]) {
     app.setOrganizationName("controlpanel");
     app.setApplicationName("controlpanel");
     // No setApplicationDisplayName: Qt appends it to every window/dialog title.
+    new ApplicationStyleGuard(&app, [](QApplication *application) { Aero::registerStylesheet(application); },
+        AeroThemeContract::identities().value(QStringLiteral("iconTheme")).toString());
     app.setWindowIcon(themeIcon({"preferences-system"}));
-
-    Aero::registerStylesheet(&app);
     new ScrollBarUnstyler(&app);   // native scroll bars; owned by the app
 
     MainWindow w;

@@ -4,20 +4,20 @@ const QList<DetailGroup> &easeOfAccessGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "preferences-desktop-accessibility", "Ease of Access Center",
+            ActionId::EaseOfAccessCenter,
             {
-                { "Let Linux suggest settings",
-                  "Optimize visual display",
-                  "Replace sounds with visual cues" },
-                { "Change how your mouse works",
-                  "Change how your keyboard works" },
+                { ActionId::LetLinuxSuggestSettings,
+                  ActionId::OptimizeVisualDisplay,
+                  ActionId::ReplaceSoundsWithVisualCues },
+                { ActionId::ChangeHowYourMouseWorks,
+                  ActionId::ChangeHowYourKeyboardWorks },
             }
         },
         {
-            "audio-input-microphone", "Speech Recognition",
+            ActionId::SpeechRecognition,
             {
-                { "Start speech recognition",
-                  "Set up a microphone" },
+                { ActionId::StartSpeechRecognition,
+                  ActionId::SetUpAMicrophone },
             }
         },
     };

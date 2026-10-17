@@ -10,6 +10,7 @@
 
 class QListWidget;
 class QLabel;
+template <typename T> class SharedLoad;
 
 // The Windows-7 "Devices and Printers" shell folder, recreated as a Control
 // Panel page. Unlike the other detail pages it has no left navigation pane,
@@ -32,8 +33,9 @@ private:
         QVector<Printer>        printers;
     };
     static ScanResult runScan();
+    static SharedLoad<ScanResult> *sharedLoader();
 
-    void populate(const ScanResult &result);
+    void populate(const ScanResult &result, bool fresh);
     void addTiles(QListWidget *list, const QVector<ShellDevice> &items,
                   bool printers);
     void updateDetails(const ShellDevice *dev);

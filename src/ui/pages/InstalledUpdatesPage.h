@@ -10,6 +10,7 @@
 class QScrollArea;
 class QTreeWidget;
 class QLabel;
+template <typename T> class SharedLoad;
 
 // The "Installed Updates" detail page, a Linux-flavoured take on the Windows 7
 // "Programs and Features > Installed Updates" (Uninstall an update) screen.
@@ -38,14 +39,20 @@ private:
         QString date;       // install date, e.g. "6/11/2026"
     };
 
+    struct LoadResult {
+        QList<UpdateInfo> updates;
+        QString error;
+    };
+
     // Collect the latest upgrade per package from /var/log/pacman.log. Runs on a
     // worker thread (it shells out to pacman), so it must not touch the UI.
-    static QList<UpdateInfo> gatherUpdates();
+    static LoadResult gatherUpdates();
+    static SharedLoad<LoadResult> *sharedLoader();
     // pkg -> repo map built from `pacman -Sl`; absent packages are foreign (AUR).
     static QHash<QString, QString> repositoryMap();
 
     // Fill the tree from gathered data, replacing the "Searching..." placeholder.
-    void populate(const QList<UpdateInfo> &updates);
+    void populate(const LoadResult &result, bool fresh);
 
     QTreeWidget *m_tree     = nullptr;
     QLabel      *m_countLbl = nullptr;

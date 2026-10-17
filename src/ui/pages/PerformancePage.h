@@ -8,15 +8,14 @@
 class QScrollArea;
 class QLabel;
 class QPushButton;
-class QDialog;
 class QProgressBar;
 class QFrame;
 
 // "Performance Information and Tools", the Linux Experience Index screen, a
 // faithful take on the Windows 7 WEI page. Shows the five component subscores,
 // the base score (the minimum subscore) in a glossy badge, and a "Rate this
-// computer" action that runs the live benchmark engine behind a modal progress
-// dialog. A details view exposes the raw measured metrics for calibration.
+// computer" action that runs the app-owned benchmark engine. Inline progress
+// stays attached to the page while users navigate between sections.
 class PerformancePage : public QWidget {
     Q_OBJECT
 public:
@@ -25,12 +24,10 @@ public:
     static QList<SidebarLink> sidebarLinks();
     static QList<SidebarLink> sidebarSeeAlso();
 
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
 private:
     void populate(const WeiResult &r);
     void applyState(bool rated);
+    void refreshBenchmarkState();
     void onRateClicked();
 
     WeiBenchmark    *m_bench = nullptr;
@@ -38,6 +35,9 @@ private:
 
     QFrame          *m_banner      = nullptr;   // yellow "not yet established" bar
     QPushButton     *m_rateBtn     = nullptr;   // lives in the banner (unrated)
+    QFrame          *m_progressPanel = nullptr;
+    QLabel          *m_progressTitle = nullptr;
+    QProgressBar    *m_progressBar = nullptr;
 
     QLabel          *m_subHeader   = nullptr;   // "Subscore"  column header
     QLabel          *m_baseHeader  = nullptr;   // "Base score" column header
@@ -55,8 +55,4 @@ private:
     QLabel          *m_scoresCurrent = nullptr; // "Your scores are current / Last update…"
     QLabel          *m_rerunLink   = nullptr;   // "Re-run the assessment" (rated)
 
-    QDialog         *m_dlg      = nullptr;   // "Assessing…" progress window
-    QLabel          *m_dlgTitle = nullptr;   // bold phase title in the header band
-    QProgressBar    *m_dlgBar   = nullptr;
-    bool             m_canceled = false;
 };

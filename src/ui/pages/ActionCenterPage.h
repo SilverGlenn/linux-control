@@ -13,11 +13,9 @@ class QVBoxLayout;
 //
 // Like the Windows original it groups status into two collapsible sections,
 // Security and Maintenance, each a stack of "item / state / description" rows
-// with the state ("On"/"Off"/"OK"/…) right-aligned. The rows that map to a real
-// Linux facility are filled from live state read the same cheap, root-free way
-// the other pages use (ufw config for the firewall, an antivirus binary probe,
-// the polkit authority for UAC); the remaining rows mirror Windows' wording with
-// plausible fixed values, as there is no Linux equivalent to query.
+// with the state right-aligned. Rows report only what the app can verify; other
+// Windows-era concepts are marked unmonitored rather than assigned plausible
+// looking status values.
 class ActionCenterPage : public QWidget {
     Q_OBJECT
 
@@ -29,12 +27,14 @@ public:
     static QList<SidebarLink> sidebarSeeAlso();
 
 private:
-    // Live facts backing the Security rows, gathered once in the constructor.
+    // Facts backing the Security rows, gathered once in the constructor.
     struct AcInfo {
-        bool    firewallOn = false;   // ufw.conf ENABLED=yes
-        bool    avPresent  = false;   // an on-demand scanner (ClamAV) is installed
-        QString avName;               // display name of that scanner
-        bool    uacOn      = false;   // a polkit authority is on the bus
+        QString firewallState;
+        QString firewallDescription;
+        bool    avPresent = false;    // scanner executable exists; runtime state is unverified
+        QString avName;
+        bool    polkitKnown = false;
+        bool    polkitAvailable = false; // authority registered; policy coverage unverified
     };
 
     static AcInfo gatherInfo();
@@ -50,13 +50,6 @@ private:
                             const QString &state,
                             const QString &description,
                             const QString &link = QString());
-
-    // The yellow-accent "action needed" alert (the Set up backup box), with a
-    // right-aligned push button and a blue link beneath.
-    QWidget *buildAlertBox(const QString &title,
-                           const QString &description,
-                           const QString &buttonText,
-                           const QString &link);
 
     // The bottom "If you don't see your problem listed" icon + text pair.
     QWidget *buildBottomTask(std::initializer_list<const char *> iconNames,

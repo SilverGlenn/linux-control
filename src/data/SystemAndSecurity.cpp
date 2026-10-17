@@ -4,69 +4,69 @@ const QList<DetailGroup> &systemAndSecurityGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "software-update-available", "Action Center",
+            ActionId::ActionCenter,
             {
-                { "Review your computer's status and resolve issues" },
-                { "Change User Account Control settings",
-                  "Troubleshoot common computer problems" },
-                { "Restore your computer to an earlier time" },
+                { ActionId::ReviewYourComputersStatusAndResolveIssues },
+                { ActionId::ChangeUserAccountControlSettings,
+                  ActionId::TroubleshootCommonComputerProblems },
+                { ActionId::RestoreYourComputerToAnEarlierTime },
             }
         },
         {
-            "preferences-security-firewall", "Linux Firewall",
+            ActionId::LinuxFirewall,
             {
-                { "Check firewall status",
-                  "Allow a program through Linux Firewall" },
+                { ActionId::CheckFirewallStatus,
+                  ActionId::AllowAProgramThroughLinuxFirewall },
             }
         },
         {
-            "redhat-system_tools", "System",
+            ActionId::System,
             {
-                { "View amount of RAM and processor speed",
-                  "Check the Linux Experience Index" },
-                { "Allow remote access",
-                  "See the name of this computer",
-                  "Device Manager" },
+                { ActionId::ViewAmountOfRAMAndProcessorSpeed,
+                  ActionId::CheckTheLinuxExperienceIndex },
+                { ActionId::AllowRemoteAccess,
+                  ActionId::SeeTheNameOfThisComputer,
+                  ActionId::DeviceManager },
             }
         },
         {
-            "system-software-update", "Linux Update",
+            ActionId::LinuxUpdate,
             {
-                { "Turn automatic updating on or off",
-                  "Check for updates",
-                  "View installed updates" },
+                { ActionId::TurnAutomaticUpdatingOnOrOff,
+                  ActionId::CheckForUpdates,
+                  ActionId::ViewInstalledUpdates },
             }
         },
         {
-            "preferences-system-power-management", "Power Options",
+            ActionId::PowerOptions,
             {
-                { "Require a password when the computer wakes",
-                  "Change what the power buttons do" },
-                { "Change when the computer sleeps" },
+                { ActionId::RequireAPasswordWhenTheComputerWakes,
+                  ActionId::ChangeWhatThePowerButtonsDo },
+                { ActionId::ChangeWhenTheComputerSleeps, ActionId::ChangeWhenTheDisplayTurnsOff },
             }
         },
         {
-            "preferences-system-backup", "Backup and Restore",
+            ActionId::BackupAndRestore,
             {
-                { "Back up your computer",
-                  "Restore files from backup" },
+                { ActionId::BackUpYourComputer,
+                  ActionId::RestoreFilesFromBackup },
             }
         },
         {
-            "drive-harddisk-encrypted", "BitLocker Drive Encryption",
+            ActionId::BitLockerDriveEncryption,
             {
-                { "Protect your computer by encrypting data on your disk",
-                  "Manage BitLocker" },
+                { ActionId::ProtectYourComputerByEncryptingDataOnYourDisk,
+                  ActionId::ManageBitLocker },
             }
         },
         {
-            "preferences-desktop-activities", "Administrative Tools",
+            ActionId::AdministrativeTools,
             {
-                { "Free up disk space",
-                  "Defragment your hard drive" },
-                { "Create and format hard disk partitions",
-                  "View event logs",
-                  "Schedule tasks" },
+                { ActionId::FreeUpDiskSpace,
+                  ActionId::DefragmentYourHardDrive },
+                { ActionId::CreateAndFormatHardDiskPartitions,
+                  ActionId::ViewEventLogs,
+                  ActionId::ScheduleTasks },
             }
         },
     };

@@ -1,12 +1,12 @@
 #include "PerformancePage.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
+#include "LinkLabel.h"
 #include "Branding.h"
 
 #include <QScrollArea>
 #include <QLabel>
 #include <QPushButton>
-#include <QDialog>
 #include <QProgressBar>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -51,7 +51,7 @@ QList<SidebarLink> PerformancePage::sidebarSeeAlso()
 PerformancePage::PerformancePage(QScrollArea *sidebar, QWidget *parent)
     : QWidget(parent)
 {
-    m_bench = new WeiBenchmark(this);
+    m_bench = WeiBenchmark::instance();
 
     auto *v = Win7::pageScaffold(this, sidebar, /*bottomMargin=*/20,
                                  /*fixedWidth=*/-1, /*topMargin=*/16);
@@ -91,6 +91,26 @@ PerformancePage::PerformancePage(QScrollArea *sidebar, QWidget *parent)
     connect(m_rateBtn, &QPushButton::clicked, this, &PerformancePage::onRateClicked);
     bn->addWidget(m_rateBtn, 0, Qt::AlignVCenter);
     v->addWidget(m_banner);
+
+    m_progressPanel = new QFrame;
+    m_progressPanel->setObjectName(QStringLiteral("weiProgressPanel"));
+    m_progressPanel->setStyleSheet(
+        "#weiProgressPanel { background: #F4F7FB; border: 1px solid #C7D6EC; }");
+    auto *progressLayout = new QVBoxLayout(m_progressPanel);
+    progressLayout->setContentsMargins(10, 8, 10, 8);
+    progressLayout->setSpacing(6);
+    m_progressTitle = new QLabel;
+    m_progressTitle->setObjectName(QStringLiteral("weiProgressTitle"));
+    { QFont f = m_progressTitle->font(); f.setPointSize(9); f.setBold(true);
+      m_progressTitle->setFont(f); }
+    m_progressTitle->setStyleSheet("color: #1A1A1A; background: transparent;");
+    progressLayout->addWidget(m_progressTitle);
+    m_progressBar = new QProgressBar;
+    m_progressBar->setObjectName(QStringLiteral("weiProgressBar"));
+    m_progressBar->setRange(0, 100);
+    progressLayout->addWidget(m_progressBar);
+    m_progressPanel->hide();
+    v->addWidget(m_progressPanel);
     v->addSpacing(14);
 
     // Score table: one grid carries everything so rows line up. Columns:
@@ -179,6 +199,7 @@ PerformancePage::PerformancePage(QScrollArea *sidebar, QWidget *parent)
     auto *badgeLay = new QVBoxLayout(m_badge);
     badgeLay->setContentsMargins(0, 0, 0, 0);
     m_baseBig = new QLabel("-");
+    m_baseBig->setObjectName(QStringLiteral("weiBaseScore"));
     { QFont f = m_baseBig->font(); f.setPointSize(30); f.setBold(true); m_baseBig->setFont(f); }
     m_baseBig->setStyleSheet("color: #FFFFFF; background: transparent; border: none;");
     m_baseBig->setAlignment(Qt::AlignCenter);
@@ -245,12 +266,14 @@ PerformancePage::PerformancePage(QScrollArea *sidebar, QWidget *parent)
                                      "print-preview" }).pixmap(28, 28));
     printerIc->setStyleSheet("background: transparent;");
     vph->addWidget(printerIc, 0, Qt::AlignTop);
-    m_detailToggle = new QLabel(
+    m_detailToggle = new LinkLabel(
         "View and print detailed performance and\nsystem information");
     { QFont f = m_detailToggle->font(); f.setPointSize(9); m_detailToggle->setFont(f); }
     m_detailToggle->setStyleSheet(linkStyle);
     m_detailToggle->setCursor(Qt::PointingHandCursor);
-    m_detailToggle->installEventFilter(this);
+    connect(static_cast<LinkLabel *>(m_detailToggle), &LinkLabel::clicked, this, [this] {
+        m_detailWrap->setVisible(!m_detailWrap->isVisible());
+    });
     vph->addWidget(m_detailToggle, 0, Qt::AlignTop);
     helpRow->addWidget(vpWrap, 0, Qt::AlignTop);
 
@@ -312,57 +335,53 @@ PerformancePage::PerformancePage(QScrollArea *sidebar, QWidget *parent)
                                    "system-run" }).pixmap(16, 16));
     rerunIc->setStyleSheet("background: transparent;");
     bottomRow->addWidget(rerunIc, 0, Qt::AlignVCenter);
-    m_rerunLink = new QLabel("Re-run the assessment");
+    m_rerunLink = new LinkLabel("Re-run the assessment");
     { QFont f = m_rerunLink->font(); f.setPointSize(9); m_rerunLink->setFont(f); }
     m_rerunLink->setStyleSheet(linkStyle);
     m_rerunLink->setCursor(Qt::PointingHandCursor);
-    m_rerunLink->installEventFilter(this);
+    connect(static_cast<LinkLabel *>(m_rerunLink), &LinkLabel::clicked,
+            this, &PerformancePage::onRateClicked);
     bottomRow->addWidget(m_rerunLink, 0, Qt::AlignVCenter);
     v->addLayout(bottomRow);
 
     v->addStretch(1);
 
-    // Engine wiring
-    connect(m_bench, &WeiBenchmark::progress, this,
-        [this](int pct, const QString &phase) {
-            if (!m_dlg) return;
-            if (m_dlgBar)   m_dlgBar->setValue(pct);
-            if (m_dlgTitle) m_dlgTitle->setText(phase);
-        });
+    // Engine wiring. A new page reads the same retained state below, while
+    // these connections keep a currently visible page live.
+    connect(m_bench, &WeiBenchmark::stateChanged,
+            this, &PerformancePage::refreshBenchmarkState);
     connect(m_bench, &WeiBenchmark::finished, this,
         [this](const WeiResult &r) {
-            if (m_dlg) { m_dlg->close(); m_dlg->deleteLater();
-                         m_dlg = nullptr; m_dlgBar = nullptr; m_dlgTitle = nullptr; }
-            if (m_canceled) return;
             m_result = r;
             populate(r);
             applyState(/*rated=*/true);
+            refreshBenchmarkState();
         });
 
     // Show any previously cached assessment.
-    m_result = WeiResult::load();
+    m_result = m_bench->result();
     if (m_result.valid) {
         populate(m_result);
         applyState(/*rated=*/true);
     } else {
         applyState(/*rated=*/false);
     }
+    refreshBenchmarkState();
 }
 
-// Clicks: the detail link toggles raw metrics; the re-run link starts a run.
-bool PerformancePage::eventFilter(QObject *watched, QEvent *event)
+void PerformancePage::refreshBenchmarkState()
 {
-    if (event->type() == QEvent::MouseButtonRelease) {
-        if (watched == m_detailToggle) {
-            m_detailWrap->setVisible(!m_detailWrap->isVisible());
-            return true;
-        }
-        if (watched == m_rerunLink) {
-            onRateClicked();
-            return true;
-        }
-    }
-    return QWidget::eventFilter(watched, event);
+    if (!m_bench)
+        return;
+    const bool running = m_bench->isRunning();
+    m_progressPanel->setVisible(running);
+    m_rateBtn->setEnabled(!running);
+    m_rerunLink->setEnabled(!running);
+    m_detailToggle->setEnabled(!running);
+    if (running)
+        m_detailWrap->hide();
+    m_progressTitle->setText(m_bench->phaseText());
+    m_progressBar->setValue(m_bench->percent());
 }
 
 // Switch between the unrated (yellow banner) and rated (badge + scores) views.
@@ -437,83 +456,8 @@ void PerformancePage::populate(const WeiResult &r)
 
 void PerformancePage::onRateClicked()
 {
-    if (m_bench->isRunning())
+    if (!m_bench || m_bench->isRunning())
         return;
-    m_canceled = false;
-
-    // Custom modal dialog mirroring WinSAT's "Assessing…" window: a bold,
-    // left-aligned phase title on its own shaded header band, the running-time
-    // note below, a plain (textless) green bar, then a right-aligned Cancel.
-    m_dlg = new QDialog(this);
-    m_dlg->setWindowTitle(Branding::brand("Linux Experience Index"));
-    m_dlg->setModal(true);
-    m_dlg->setFixedWidth(400);
-
-    auto *outer = new QVBoxLayout(m_dlg);
-    outer->setContentsMargins(0, 0, 0, 0);
-    outer->setSpacing(0);
-
-    // Header band with the bold phase title.
-    auto *header = new QFrame;
-    header->setObjectName("dlgHeader");
-    header->setStyleSheet(
-        "#dlgHeader { background: #EDEDED; border-bottom: 1px solid #CFCFCF; }");
-    auto *hl = new QVBoxLayout(header);
-    hl->setContentsMargins(16, 11, 16, 11);
-    hl->setSpacing(0);
-    m_dlgTitle = new QLabel("Assessing system performance");
-    { QFont f = m_dlgTitle->font(); f.setPointSize(10); f.setBold(true);
-      m_dlgTitle->setFont(f); }
-    m_dlgTitle->setStyleSheet("color: #1A1A1A; background: transparent;");
-    m_dlgTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    hl->addWidget(m_dlgTitle);
-    outer->addWidget(header);
-
-    // Body: note text, progress bar, Cancel.
-    auto *body = new QWidget;
-    auto *bl = new QVBoxLayout(body);
-    bl->setContentsMargins(16, 12, 16, 12);
-    bl->setSpacing(10);
-
-    auto *note = new QLabel(
-        "This might take a few minutes. Your screen might flash during the "
-        "rating.");
-    { QFont f = note->font(); f.setPointSize(9); note->setFont(f); }
-    note->setWordWrap(true);
-    note->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    note->setStyleSheet("color: #1A1A1A; background: transparent;");
-    bl->addWidget(note);
-
-    // Plain Qt progress bar, no custom styling.
-    m_dlgBar = new QProgressBar;
-    m_dlgBar->setRange(0, 100);
-    m_dlgBar->setValue(0);
-    bl->addWidget(m_dlgBar);
-
-    outer->addWidget(body);
-
-    // Footer panel (slightly darker Win7 command area) holding Cancel
-    auto *footer = new QFrame;
-    footer->setObjectName("dlgFooter");
-    footer->setStyleSheet(
-        "#dlgFooter { background: #F0F0F0; border-top: 1px solid #DFDFDF; }");
-    auto *footH = new QHBoxLayout(footer);
-    footH->setContentsMargins(12, 8, 12, 8);
-    footH->setSpacing(8);
-    footH->addStretch(1);
-    auto *cancel = new QPushButton("Cancel");
-    cancel->setMinimumWidth(75);
-    cancel->setCursor(Qt::PointingHandCursor);
-    footH->addWidget(cancel);
-    outer->addWidget(footer);
-
-    auto onCancel = [this]() {
-        m_canceled = true;
-        if (m_dlg) m_dlg->close();
-    };
-    connect(cancel, &QPushButton::clicked, this, onCancel);
-    connect(m_dlg, &QDialog::rejected, this, onCancel);
-
-    m_dlg->show();
     m_bench->run();
+    refreshBenchmarkState();
 }

@@ -1,0 +1,24 @@
+NOTE: This is only a simulation!
+      apt-get needs root privileges for real execution.
+      Keep also in mind that locking is deactivated,
+      so don't depend on the relevance to the real current situation!
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+The following upgrades have been deferred due to phasing:
+  python3-distupgrade snapd ubuntu-release-upgrader-core
+  ubuntu-release-upgrader-qt
+The following packages will be upgraded:
+  chatgpt libwireplumber-0.5-0 tzdata tzdata-legacy wireplumber
+5 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.
+Inst tzdata [2026c-0ubuntu0.26.04.1] (2026e-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates [all])
+Inst tzdata-legacy [2026c-0ubuntu0.26.04.1] (2026e-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates [all])
+Inst chatgpt [26.1007.71326] (26.1013.31256 stable [amd64])
+Inst wireplumber [0.5.13-1ubuntu1] (0.5.13-1ubuntu1.1 Ubuntu:26.04/resolute-updates [amd64]) []
+Inst libwireplumber-0.5-0 [0.5.13-1ubuntu1] (0.5.13-1ubuntu1.1 Ubuntu:26.04/resolute-updates [amd64])
+Conf tzdata (2026e-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates [all])
+Conf tzdata-legacy (2026e-0ubuntu0.26.04.1 Ubuntu:26.04/resolute-updates [all])
+Conf chatgpt (26.1013.31256 stable [amd64])
+Conf wireplumber (0.5.13-1ubuntu1.1 Ubuntu:26.04/resolute-updates [amd64])
+Conf libwireplumber-0.5-0 (0.5.13-1ubuntu1.1 Ubuntu:26.04/resolute-updates [amd64])

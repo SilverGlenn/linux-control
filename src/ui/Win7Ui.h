@@ -23,6 +23,9 @@
 
 #include "IconHelper.h"
 
+#include <QAbstractButton>
+#include <QFocusEvent>
+#include <QKeyEvent>
 #include <QFrame>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
@@ -44,6 +47,43 @@
 #include <utility>
 
 namespace Win7 {
+
+// Explicit focus cues remain visible even when a stylesheet replaces Qt's style.
+inline void paintFocus(QWidget *widget, QPainter &painter)
+{
+    if (!widget->hasFocus() || !widget->isEnabled())
+        return;
+    painter.save();
+    painter.setPen(QPen(QColor("#1F4E99"), 1, Qt::DotLine));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(widget->rect().adjusted(1, 1, -2, -2));
+    painter.restore();
+}
+
+class FocusWidget : public QWidget {
+public:
+    explicit FocusWidget(QWidget *parent = nullptr) : QWidget(parent)
+    {
+        setFocusPolicy(Qt::StrongFocus);
+    }
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        QWidget::paintEvent(event);
+        QPainter painter(this);
+        paintFocus(this, painter);
+    }
+    void focusInEvent(QFocusEvent *event) override
+    {
+        QWidget::focusInEvent(event);
+        update();
+    }
+    void focusOutEvent(QFocusEvent *event) override
+    {
+        QWidget::focusOutEvent(event);
+        update();
+    }
+};
 
 // ---- Typography -----------------------------------------------------------
 
@@ -93,7 +133,43 @@ inline QLabel *bodyLabel(const QString &text, bool link = false)
     return l;
 }
 
+// Native settings forms retain light Windows controls even when the desktop's
+// Qt theme uses dark buttons. Apply only to the form or work strip being styled.
+inline void styleSettingsControls(QWidget *root)
+{
+    root->setStyleSheet(root->styleSheet() + QStringLiteral(
+        " QPushButton { color: #000000; border: 1px solid #8E8F8F; border-radius: 2px;"
+        " padding: 4px 12px; min-width: 52px; border-image: none;"
+        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #FAFAFA,stop:0.48 #F1F1F1,stop:0.52 #E6E6E6,stop:1 #EFEFEF); }"
+        " QPushButton:hover { border-color: #3C7FB1; background: #E8F4FC; }"
+        " QPushButton:pressed { background: #C4E5F6; }"
+        " QPushButton:focus { border: 1px solid #3C7FB1; }"
+        " QPushButton:disabled { color: #777777; border-color: #B8B8B8; background: #F0F0F0; }"
+        " QComboBox { color: #000000; background: #FFFFFF; border: 1px solid #ABADB3;"
+        " border-radius: 2px; padding: 3px 22px 3px 6px; border-image: none; }"
+        " QComboBox:focus { border-color: #3C7FB1; }"
+        " QComboBox:disabled { color: #777777; background: #F0F0F0; border-color: #C5C5C5; }"
+        " QComboBox::drop-down { width: 18px; border-left: 1px solid #D4D4D4;"
+        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #FAFAFA,stop:1 #E5E5E5); }"
+        " QComboBox::down-arrow { image: url(:/AeroQt/ribbon/arrowDown.svg.png); width: 6px; height: 4px; }"
+        " QComboBox QAbstractItemView { color: #000000; background: #FFFFFF;"
+        " selection-background-color: #CDE6F7; selection-color: #000000; }"));
+}
+
 // ---- Separators and page scaffold -----------------------------------------
+
+// Property dialogs use a light Windows palette independently of a dark Qt
+// desktop theme. Scope this to native dialogs, preserving their chosen fonts.
+inline void styleSettingsDialog(QWidget *dialog)
+{
+    styleSettingsControls(dialog);
+    dialog->setStyleSheet(dialog->styleSheet() + QStringLiteral(
+        " QDialog { background: #F0F0F0; color: #000000; }"
+        " QLabel, QGroupBox { color: #000000; background: transparent; }"
+        " QLineEdit, QTextEdit, QSpinBox, QListView, QTreeView { color: #000000; background: #FFFFFF;"
+        " border: 1px solid #ABADB3; selection-background-color: #CDE6F7; selection-color: #000000; }"
+        " QLineEdit:focus, QTextEdit:focus, QSpinBox:focus { border-color: #3C7FB1; }"));
+}
 
 // The full-width separator under a page's title/instruction block.
 inline QFrame *hSeparator(const char *color = "#D9D9D9")
@@ -240,9 +316,12 @@ inline QWidget *dropdownLabel(const QString &text, int pt = 9,
     auto *h = new QHBoxLayout(w);
     h->setContentsMargins(0, 0, 0, 0);
     h->setSpacing(5);
-    h->addWidget(label(text, pt, color));
-    h->addWidget(arrowLabel(Qt::DownArrow, QColor(0x3C, 0x3C, 0x3C), 6),
+    Q_UNUSED(color);
+    h->addWidget(label(text, pt, "#777777"));
+    h->addWidget(arrowLabel(Qt::DownArrow, QColor(0x77, 0x77, 0x77), 6),
                  0, Qt::AlignVCenter);
+    w->setEnabled(false);
+    w->setToolTip(QStringLiteral("This menu is not available yet."));
     return w;
 }
 
@@ -254,6 +333,7 @@ public:
         : QToolButton(parent)
     {
         setText(text);
+        setFocusPolicy(Qt::StrongFocus);
         setPopupMode(QToolButton::InstantPopup);
         setToolButtonStyle(Qt::ToolButtonTextOnly);
         setCursor(Qt::PointingHandCursor);
@@ -276,6 +356,16 @@ public:
     }
 
 protected:
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            if (!event->isAutoRepeat() && isEnabled())
+                showMenu();
+            event->accept();
+            return;
+        }
+        QToolButton::keyPressEvent(event);
+    }
     void enterEvent(QEnterEvent *e) override { update(); QToolButton::enterEvent(e); }
     void leaveEvent(QEvent *e) override      { update(); QToolButton::leaveEvent(e); }
 
@@ -293,6 +383,7 @@ protected:
         const QSizeF as = arrow.deviceIndependentSize();
         p.drawPixmap(QPointF(textWidth + kSpacing,
                              (height() - as.height()) / 2.0 + 1), arrow);
+        paintFocus(this, p);
     }
 
 private:
@@ -314,9 +405,14 @@ public:
         setCheckable(true);
         setCursor(Qt::PointingHandCursor);
         setFixedSize(20, 20);
-        setFocusPolicy(Qt::NoFocus);
-        if (!interactive)
+        setFocusPolicy(interactive ? Qt::StrongFocus : Qt::NoFocus);
+        setAccessibleName(QStringLiteral("Expand or collapse section"));
+        if (!interactive) {
             setAttribute(Qt::WA_TransparentForMouseEvents);
+            // The parent header owns activation. Disabled decoration also blocks
+            // assistive-technology press actions that bypass mouse hit testing.
+            setEnabled(false);
+        }
         setStyleSheet(
             "QToolButton { border: 1px solid #C0CEDA; border-radius: 10px;"
             " background: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
@@ -326,6 +422,16 @@ public:
     }
 
 protected:
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            if (!event->isAutoRepeat() && isEnabled())
+                click();
+            event->accept();
+            return;
+        }
+        QToolButton::keyPressEvent(event);
+    }
     void paintEvent(QPaintEvent *e) override
     {
         QToolButton::paintEvent(e);   // the stylesheet's round bevel
@@ -335,25 +441,42 @@ protected:
         const QSizeF s = arrow.deviceIndependentSize();
         p.drawPixmap(QPointF((width() - s.width()) / 2.0,
                              (height() - s.height()) / 2.0), arrow);
+        paintFocus(this, p);
     }
 };
 
 // ---- Click plumbing -------------------------------------------------------
 
-// A bare widget that runs a callback when clicked, used for collapsible
-// section headers so the whole strip toggles the body below. No signals are
-// needed, so this stays a plain QWidget (no Q_OBJECT / moc).
-class ClickableWidget : public QWidget {
+// A checkable section header with native button activation and accessibility.
+// Its callback toggles the body; the custom paint keeps the flat Aero appearance.
+class ClickableWidget : public QAbstractButton {
 public:
-    using QWidget::QWidget;
+    explicit ClickableWidget(QWidget *parent = nullptr) : QAbstractButton(parent)
+    {
+        setFocusPolicy(Qt::StrongFocus);
+        setCheckable(true);
+        connect(this, &QAbstractButton::clicked, this, [this] {
+            if (onClick)
+                onClick();
+        });
+    }
     std::function<void()> onClick;
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override
+    void keyPressEvent(QKeyEvent *event) override
     {
-        if (event->button() == Qt::LeftButton && onClick)
-            onClick();
-        QWidget::mousePressEvent(event);
+        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+            if (!event->isAutoRepeat() && isEnabled())
+                click();
+            event->accept();
+            return;
+        }
+        QAbstractButton::keyPressEvent(event);
+    }
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter painter(this);
+        paintFocus(this, painter);
     }
 };
 
@@ -384,13 +507,17 @@ inline void addCommandBarIcons(QHBoxLayout *h)
     auto *viewIcon = new QLabel;
     viewIcon->setStyleSheet("background: transparent;");
     viewIcon->setPixmap(themeIcon({"view-list-details", "view-list-text",
-                                   "view-choose"}).pixmap(16, 16));
+                                   "view-choose"}).pixmap(16, 16, QIcon::Disabled));
+    viewIcon->setEnabled(false);
+    viewIcon->setToolTip(QStringLiteral("Changing the view is not available yet."));
     h->addWidget(viewIcon);
 
     auto *helpIcon = new QLabel;
     helpIcon->setStyleSheet("background: transparent;");
     helpIcon->setPixmap(themeIcon({"help-contents", "help-browser",
-                                   "system-help"}).pixmap(16, 16));
+                                   "system-help"}).pixmap(16, 16, QIcon::Disabled));
+    helpIcon->setEnabled(false);
+    helpIcon->setToolTip(QStringLiteral("Help is not available yet."));
     h->addWidget(helpIcon);
 }
 

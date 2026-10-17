@@ -4,18 +4,19 @@
 #include <QStringList>
 #include <QList>
 
+#include "ActionId.h"
+
 // A top-level Control Panel category as shown on the home page grid.
 struct CategoryItem {
     QString     iconName;
     QString     title;
-    QStringList tasks;
+    QList<ActionId> tasks;
 };
 
 // A heading and its task links within a category's detail page.
 struct DetailGroup {
-    QString            iconName;
-    QString            title;
-    QList<QStringList> lines;   // each line is a row of links
+    ActionId action = ActionId::None;
+    QList<QList<ActionId>> lines;   // each line is a row of links
 };
 
 // Categories shown in the home page two-column grid.

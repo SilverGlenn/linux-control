@@ -51,12 +51,13 @@ LinverConfigDialog::LinverConfigDialog(const QString &distroName, QWidget *paren
     auto *custRow = new QHBoxLayout;
     custRow->setSpacing(10);
     auto *hint = new QLabel(
-        QStringLiteral("To customize texts, branding image and\n"
-                       "other options, click customize."));
+        QStringLiteral("Additional text and branding customization\n"
+                       "is not available yet."));
     custRow->addWidget(hint, 1);
 
     auto *customize = new QPushButton(QStringLiteral("Customize..."));
-    customize->setEnabled(false);   // reserved for a future customization panel
+    customize->setEnabled(false);
+    customize->setToolTip(QStringLiteral("Additional customization is not available yet."));
     custRow->addWidget(customize, 0, Qt::AlignBottom);
     root->addLayout(custRow);
 

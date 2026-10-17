@@ -1,0 +1,8 @@
+Offline world map asset from KDE Plasma Workspace 6.6.6:
+https://invent.kde.org/plasma/plasma-workspace/-/blob/v6.6.6/kcms/nighttime/ui/worldmap.png
+KDE describes this as modified from TUBS, Wikimedia Commons:
+https://commons.wikimedia.org/wiki/File:World_location_map_(equirectangular_180).svg
+License: Creative Commons Attribution-ShareAlike 3.0 Unported
+https://creativecommons.org/licenses/by-sa/3.0/
+The image is distributed unchanged in this project. The original attribution and
+license apply to the image; this notice does not change the project's code license.

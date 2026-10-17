@@ -4,26 +4,28 @@ const QList<DetailGroup> &networkAndInternetGroups()
 {
     static const QList<DetailGroup> groups = {
         {
-            "preferences-system-network", "Network and Sharing Center",
+            ActionId::NetworkAndSharingCenter,
             {
-                { "View network status and tasks",
-                  "Connect to a network" },
-                { "View network computers and devices",
-                  "Add a wireless device to the network" },
+                { ActionId::ViewNetworkStatusAndTasks,
+                  ActionId::ConnectToANetwork },
+                { ActionId::ViewNetworkComputersAndDevices,
+                  ActionId::AddAWirelessDeviceToTheNetwork },
+            }
+        },
+        { ActionId::NetworkConnections, {{ ActionId::ChangeAdapterSettings, ActionId::ManageWirelessNetworks,
+                                            ActionId::NetworkConnectionProperties }} },
+        {
+            ActionId::HomeGroup,
+            {
+                { ActionId::ChooseHomegroupAndSharingOptions },
             }
         },
         {
-            "preferences-system-network-share-windows", "HomeGroup",
+            ActionId::InternetOptions,
             {
-                { "Choose homegroup and sharing options" },
-            }
-        },
-        {
-            "applications-internet", "Internet Options",
-            {
-                { "Change your homepage",
-                  "Manage browser add-ons",
-                  "Delete browsing history and cookies" },
+                { ActionId::ChangeYourHomepage,
+                  ActionId::ManageBrowserAddOns,
+                  ActionId::DeleteBrowsingHistoryAndCookies },
             }
         },
     };
