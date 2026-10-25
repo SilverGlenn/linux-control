@@ -4,10 +4,11 @@ Decision and final handoff review: **25 October 2026**.
 Status: **A–C preparation passed; candidate installed for acceptance; RC qualification remains open**.
 
 The [repository review and assignments](mvp-rc1-review.md) record prerequisite
-gaps and corrections. W2 currently requires a second supported physical playback
-output: the October 25 inventory exposes only one, already selected. W2 remains
-mandatory and blocked until that change can be demonstrated; implementation of
-A–C can proceed independently.
+gaps and corrections. The initial October 25 inventory exposed one playback
+output. A later passive refresh found two real outputs, built-in and Bluetooth;
+see [the current acceptance record](local-acceptance.md). W2 remains mandatory
+and unqualified until the actual changes, audible effects and restoration are
+demonstrated. The inventory alone does not pass it.
 
 ## Release decision
 

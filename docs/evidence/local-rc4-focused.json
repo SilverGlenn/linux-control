@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-25",
+  "scope": "Focused private Qt fixture results for RC4 source corrections; not installed/physical acceptance",
+  "sound": {
+    "baseline": "actual Qt accessibility Selection regressions failed all three tab rows with current0 vs selected1",
+    "fix": "selection -> current editor coordination including deselection; full current target/error details exposed through Description",
+    "final_qt_cases": 15,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.076,
+    "guards": "exact requested kind/index/lifetime, refresh/reorder, recycled/missing lifetime, no write during selection, cleared selection disables",
+    "review_correction": "Clearing selection while rows remain now says to select a device/stream, rather than claiming none were reported; focused suite rerun passes"
+  },
+  "update_labels": {
+    "baseline": "actual QAccessible Description empty while visible text populated",
+    "fix": "full current build/status/metadata descriptions; native DescriptionChanged notifications including metadata clearing",
+    "final_qt_cases": 17,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 1.92
+  },
+  "source_sha256": {
+    "src/ui/dialogs/SoundDialog.cpp": "9df477017beac830c5355f50aff7d426083ef2727d502d7aeda82c8c2c57e4db",
+    "tests/audio_dialog_test.cpp": "a5a359abbcedd664db75b7c7177c3b817b99ecbe8a7c636d534f6765a087455e",
+    "src/ui/pages/LinuxUpdatePage.cpp": "d23b28d120ead01863130450f6b28f83cc868eef24c1c33143b06f3df3ce1a9f",
+    "tests/control_panel_update_service_test.cpp": "547e35791173e2232146a392b2dd6a886bbdbe18d48e031fc7eb2bb6f1b60617"
+  },
+  "evidence_sha256": {
+    "audio-final-green.log": "8fd5d0f5ca4220fb46ea98e52f18630a74b3487107d98c50ce8943b34114f975",
+    "audio-green.log": "aa54bf492f6bc6f5328d301dd63e0a50540007626fb799bbdf6dc918ada8843a",
+    "update-green.log": "b6542d5a15e38f538261af21c1499a31368c862029f2f801d92709a99cc33d8b",
+    "audio-red.log": "94ecfc52104e87f39545dc7f06f6b2c3c2ebcf0a35a2592d3577ae3e1f906b29",
+    "audio-final-build.log": "4a0255de2a1dc8608e987ab1a8589166e2b4b3f2fb235960e7380818fac20ae0",
+    "update-red.log": "a53fe06c040edcad36f6d19197023d76c0f4e4aa39170da45de2453a229da776",
+    "audio-description-green.log": "c6d53b2f72acf61f3e3c680c85719046f332e7ae5b8f966123d3902b6f293801"
+  },
+  "full_new_artifact": "pending",
+  "settings_mutations": "none from these fixtures",
+  "independent_review": "No blocker in four changed source/test files; one wording edge corrected by integration owner"
+}

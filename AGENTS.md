@@ -13,7 +13,8 @@ settings screens as the finished interface.
 Read these before release, installer, updater or cloud work:
 
 - [Release gates](docs/mvp-release-candidate.md)
-- [Current manual-update candidate record](docs/manual-update-validation.md)
+- [Current local candidate and acceptance record](docs/local-acceptance.md)
+- [Historical manual-update RC2 record](docs/manual-update-validation.md)
 - [Historical RC1 qualification record](docs/mvp-rc1-qualification.md)
 - [Installation and rollback](docs/local-rc-install.md)
 - [Manual update workflow](docs/manual-updates.md)

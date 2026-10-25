@@ -8,6 +8,7 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QItemSelectionModel>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -50,6 +51,17 @@ void noDefaultButton(QPushButton *button)
 {
     button->setAutoDefault(false);
     button->setDefault(false);
+}
+void followSelectedItem(QListWidget *list)
+{
+    // Accessibility Selection.SelectChild changes the selection without moving
+    // the current index. Keep the editor's current-row path on that same item;
+    // NoUpdate avoids changing the selection again inside its notification.
+    QObject::connect(list, &QListWidget::itemSelectionChanged, list, [list] {
+        const auto selected = list->selectedItems();
+        list->setCurrentItem(selected.size() == 1 ? selected.first() : nullptr,
+                             QItemSelectionModel::NoUpdate);
+    });
 }
 struct PropertyEditorState {
     QString port, profile, cardIdentity;
@@ -195,6 +207,7 @@ QWidget *SoundDialog::buildDeviceTab(ObjectEditor &editor, bool playback)
     layout->addWidget(prompt);
     editor.list = new QListWidget;
     editor.list->setSelectionMode(QAbstractItemView::SingleSelection);
+    followSelectedItem(editor.list);
     editor.list->setIconSize(QSize(32, 32));
     editor.list->setSpacing(2);
     nameControl(editor.list, prefix + QStringLiteral("Devices"), playback ? QStringLiteral("Playback devices") : QStringLiteral("Recording devices"));
@@ -236,6 +249,7 @@ QWidget *SoundDialog::buildApplicationsTab()
     layout->addWidget(prompt);
     editor.list = new QListWidget;
     editor.list->setSelectionMode(QAbstractItemView::SingleSelection);
+    followSelectedItem(editor.list);
     nameControl(editor.list, QStringLiteral("audioApplications"), QStringLiteral("Active playback and recording application streams"));
     prompt->setBuddy(editor.list);
     layout->addWidget(editor.list, 1);
@@ -343,14 +357,19 @@ void SoundDialog::updateEditor(ObjectEditor &editor, bool playback, bool applica
     editor.setVolume->setEnabled(editor.volume->isEnabled());
     editor.mute->setEnabled(enabled && object->muteWritable);
     if (!object) {
+        const QString unselected = editor.list->count()
+            ? (applications ? QStringLiteral("Select an application stream to edit its settings.")
+                            : QStringLiteral("Select an audio device to edit its settings."))
+            : (applications ? QStringLiteral("No active application streams were reported.")
+                            : QStringLiteral("No audio devices were reported."));
         editor.details->setText(editor.selectedId.isEmpty()
-            ? (applications ? QStringLiteral("No active application streams were reported.")
-                            : QStringLiteral("No audio devices were reported."))
+            ? unselected
             : QStringLiteral("The selected device or stream is no longer available. Select another item or refresh."));
     } else {
         editor.details->setText(audioDisplayName(*object) + QStringLiteral("\n") + object->name
             + (object->identity.isEmpty() ? QStringLiteral("\nRead-only: the audio server did not report a stable lifetime identity.") : QString()));
     }
+    editor.details->setAccessibleDescription(editor.details->text());
     if (!applications) {
         const QString currentDefault = playback ? snapshot.defaultSink : snapshot.defaultSource;
         editor.setDefault->setEnabled(enabled && object->name != currentDefault);

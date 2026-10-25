@@ -102,6 +102,7 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent,
     auto *currentBuild = new QLabel("Current build: " + ControlPanelUpdateService::currentBuildId());
     currentBuild->setObjectName("controlPanelCurrentBuild");
     currentBuild->setAccessibleName("Current Control Panel build");
+    currentBuild->setAccessibleDescription(currentBuild->text());
     currentBuild->setTextFormat(Qt::PlainText);
     currentBuild->setWordWrap(true);
     currentBuild->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -1053,10 +1054,14 @@ void LinuxUpdatePage::syncControlPanelUpdate()
     m_controlPanelStatus->setText(state.phase == Phase::Ready
         ? state.message + tr("\nClose and install will close this window. Close other Control Panel windows too, then reopen normally after installation.")
         : state.message);
+    // Keep the fixed label names while exposing the full changing values.
+    // QWidget notifies assistive clients with DescriptionChanged when updated.
+    m_controlPanelStatus->setAccessibleDescription(m_controlPanelStatus->text());
     QStringList metadata;
     if (!state.buildId.isEmpty()) metadata << "Update build: " + state.buildId;
     if (!state.releaseTag.isEmpty()) metadata << "Release: " + state.releaseTag;
     m_controlPanelMetadata->setText(metadata.join('\n'));
+    m_controlPanelMetadata->setAccessibleDescription(m_controlPanelMetadata->text());
     m_controlPanelMetadata->setVisible(!metadata.isEmpty());
     m_controlPanelProgress->setVisible(busy);
     m_controlPanelCheck->setEnabled(configured && !busy && !state.installerLaunched);

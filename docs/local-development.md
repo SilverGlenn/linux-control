@@ -7,18 +7,21 @@ source and release downloads; no remote build service is required.
 
 ## Current position
 
-RC2 `0.1.0-rc.2+a749642a9c559c3b` is installed for acceptance with the separate
-trusted updater. Its recorded 112/112 isolated suites, staged deployment/recovery
-and headless identity checks passed. See [the exact evidence](manual-update-validation.md).
-Those results belong to that artifact. They do not complete real desktop/hardware
-acceptance or prove a published-release download/install. The recorded manual
-GitHub check found no candidate releases.
+RC3 `0.1.0-rc.3+a6a4987093bf32d3` is installed for acceptance with the separate
+trusted updater. Its complete 114/114 isolated suites and staged checks passed;
+the real published immutable-release Check/Download/Close and install/reopen path
+also passed. See [the current evidence](local-acceptance.md). These results do not
+complete real desktop/hardware qualification or actual installed rollback.
+RC2's [112-suite record](manual-update-validation.md) remains historical.
 
-Existing Batch 25, MVP and updater work is still present locally. Review and
-checkpoint the intended source/tests/tools and sanitized evidence to GitHub.
-Exclude ignored build products, raw KDE baselines, backup bytes and credentials.
-Preserve existing changes; do not reset, clean or stash to manufacture a clean
-release checkout.
+The preserved Batch 25, MVP and updater work was checkpointed to fork main as
+`6148cdc`; the reviewed local release tooling and accessibility search fix are
+`70966b4`. RC3 built from that clean main commit passed its complete 114-suite
+run and staged checks. It is published and installed for acceptance; physical
+qualification remains separate. See [the current record](local-acceptance.md).
+Exclude ignored build products, raw KDE baselines, backup bytes and credentials
+from future checkpoints. Preserve existing changes; do not reset, clean or stash
+to manufacture a clean release checkout.
 
 ## Next batch: qualify the installed MVP
 
@@ -30,9 +33,10 @@ batch. Follow [RC-4 and its mandatory workflows](mvp-release-candidate.md).
 2. Coordinate W2-W5 and W7 individually: Sound, pointer/scroll preference,
    wallpaper, Night Light and supported Aero tuning. Capture baseline, apply,
    observe the real effect, reopen and restore. Record failures honestly.
-3. Refresh the audio inventory before W2. The last recorded blocker was only one
-   physical playback output; do not waive the required default-output change or
-   replace it with a virtual sink fixture. Other acceptance can proceed meanwhile.
+3. Refresh the audio inventory before W2. The latest passive check found two real
+   outputs (built-in and Bluetooth), superseding the historical single-output
+   blocker. Do not waive the required default-output change or replace it with a
+   virtual sink fixture. Actual effects and restoration still need observation.
 4. Run power acceptance last, coordinating the timeout and preserving the three
    charging-policy fingerprints before/after. Do not use a charging setter as
    part of qualification or infer the old incident's actor.
@@ -58,7 +62,7 @@ before expanding KDE parity. Keep one identified build installed during the tria
 source, builds its archive for `/home/siru/.local`, runs all discovered fixtures
 with `tools/run_isolated_tests.py`, stages the payload and independently validates
 rollback/recovery with `tools/validate_release_payload.py`. Miniature real-build
-fixtures pass; the first complete project run is tracked in
+fixtures and the complete RC3 project run pass, as tracked in
 [the local acceptance record](local-acceptance.md).
 Record actual Qt/KF6/KNightTime/AeroQt and external development/runtime inputs.
 Existing ignored development caches are inputs to document, not deployable app

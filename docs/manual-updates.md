@@ -2,10 +2,12 @@
 
 The owner selected this workflow on 25 October 2026, replacing the automatic-update
 proposal. The source implements manual UI, a verified consumer, packaging and
-app/installer locking. RC2 and its trusted updater are now installed; a real
-published-release update and installed acceptance remain separate gates. See the
-[current candidate record](manual-update-validation.md). Development and builds
-stay on the laptop; the owner cancelled the Cloud migration.
+app/installer locking. RC3 and the separate trusted updater are installed. A real
+immutable-release Check/Download/Close and install/reopen cycle passed; actual
+installed rollback and desktop qualification remain open. See the
+[current candidate record](local-acceptance.md). Development and builds stay on
+the laptop; the owner cancelled the Cloud migration. The historical
+[RC2 preparation record](manual-update-validation.md) remains artifact-specific.
 
 ## User workflow
 

@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-25",
+  "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+  "source_revision": "70966b4e49975c018144564bab93cf899d69be0e",
+  "release_url": "https://github.com/SilverGlenn/linux-control/releases/tag/laptop-candidate-1-70966b4e4997",
+  "release_id": 423372480,
+  "immutable_release_policy_enabled": true,
+  "draft_commit_asset_size_and_sha256_match": true,
+  "pinned_verifier_results": {
+    "release": "exit 0",
+    "release.json": "exit 0",
+    "control-panel-bundle.tar.gz": "exit 0",
+    "validation.json": "exit 0"
+  },
+  "verification_evidence_sha256": {
+    "control-panel-bundle.tar.gz.stdout.json": "b89adeffcdc9198b7ed6ce91dde3cc618f216666a8a2b7ad01cb94b3f55e1f3e",
+    "release.json.stdout.json": "b89adeffcdc9198b7ed6ce91dde3cc618f216666a8a2b7ad01cb94b3f55e1f3e",
+    "release.stdout.json": "b89adeffcdc9198b7ed6ce91dde3cc618f216666a8a2b7ad01cb94b3f55e1f3e",
+    "validation.json.stdout.json": "b89adeffcdc9198b7ed6ce91dde3cc618f216666a8a2b7ad01cb94b3f55e1f3e"
+  },
+  "real_installed_ui": {
+    "check": "available; exact RC3 candidate",
+    "download": "ready; strict descriptor/archive, attestation, dependency and staged probe verified",
+    "install": "Close and install through own RC2 window; detached helper completed",
+    "reopen": "installed RC3 GUI title and provider-free version match",
+    "local_helper_result": {
+      "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+      "message": "Candidate installed for acceptance; live qualification remains open",
+      "release_tag": "laptop-candidate-1-70966b4e4997",
+      "schema": 1,
+      "status": "installed"
+    },
+    "payload_bytes_and_modes": {
+      "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+      "payload_manifest_sha256": "6d242f018a5afe9f575702ee9b6274468f7de3a3cd34e55ca2a534135dba0e94",
+      "matched_files": 12,
+      "mismatches": []
+    },
+    "other_window_cleanup": "Only separate agent-owned launch probe terminated with no draft or job; no user-owned window closed",
+    "local_result_button": "not yet exercised",
+    "real_installed_rollback": "not run"
+  },
+  "assistive_search": "RC3 Sound query produced actual search-result list items; original quick probe wrongly expected link roles; remaining W1 destinations/keyboard/drafts open",
+  "update_label_accessibility": "actual fixed-name labels expose no Text and empty Description; repair in progress",
+  "charging": "three policy fingerprints unchanged after update",
+  "configuration_drift": "kfontinst.rc fingerprint changed between passive snapshots; other nine monitored configuration files unchanged; no attribution or overwrite",
+  "qualification": "installed for acceptance; not qualified; five-day trial not started"
+}

@@ -189,6 +189,111 @@ private slots:
         dialog.showTab(SoundDialog::TabPlayback);
         capture(dialog, QStringLiteral("audio-playback"));
     }
+    void accessibleSelectionEditsTheSelectedLifetime_data()
+    {
+        QTest::addColumn<int>("tab");
+        QTest::addColumn<QString>("listName");
+        QTest::addColumn<QString>("prefix");
+        QTest::addColumn<int>("kindValue");
+        QTest::newRow("playback") << int(SoundDialog::TabPlayback) << QStringLiteral("playbackDevices")
+            << QStringLiteral("playback") << int(AudioObjectKind::Sink);
+        QTest::newRow("recording") << int(SoundDialog::TabRecording) << QStringLiteral("recordingDevices")
+            << QStringLiteral("recording") << int(AudioObjectKind::Source);
+        QTest::newRow("applications") << int(SoundDialog::TabApplications) << QStringLiteral("audioApplications")
+            << QStringLiteral("application") << int(AudioObjectKind::SourceOutput);
+    }
+    void accessibleSelectionEditsTheSelectedLifetime()
+    {
+        QFETCH(int, tab);
+        QFETCH(QString, listName);
+        QFETCH(QString, prefix);
+        QFETCH(int, kindValue);
+        const auto kind = AudioObjectKind(kindValue);
+        auto *backend = new DialogAudioBackend;
+        auto &objects = kind == AudioObjectKind::Sink ? backend->current.sinks
+            : kind == AudioObjectKind::Source ? backend->current.sources : backend->current.sourceOutputs;
+        auto &target = objects.last();
+        target.channelVolumes = {16384, 16384};
+        const auto index = target.index;
+        const auto identity = target.identity;
+        const auto name = target.name;
+        const auto description = target.description;
+        AudioSettings session(backend);
+        SoundDialog dialog(&session);
+        QTRY_VERIFY(session.isReady());
+        dialog.showTab(SoundDialog::Tab(tab));
+        dialog.show();
+        auto *list = control<QListWidget>(dialog, qPrintable(listName));
+        auto *volume = control<QSpinBox>(dialog, qPrintable(prefix + QStringLiteral("Volume")));
+        auto *setVolume = control<QPushButton>(dialog, qPrintable(prefix + QStringLiteral("SetVolume")));
+        auto *details = control<QLabel>(dialog, qPrintable(prefix + QStringLiteral("Details")));
+        auto *accessibleDetails = QAccessible::queryAccessibleInterface(details);
+        QVERIFY(accessibleDetails);
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QCOMPARE(list->currentRow(), 0);
+        volume->setValue(73);
+        auto *accessible = QAccessible::queryAccessibleInterface(list);
+        QVERIFY(accessible);
+        auto *selection = accessible->selectionInterface();
+        auto *table = accessible->tableInterface();
+        QVERIFY(selection);
+        QVERIFY(table);
+        // This is Qt's actual accessibility Selection implementation, used by
+        // AT-SPI SelectChild; selecting a cell need not set its current index.
+        QVERIFY(selection->select(table->cellAt(1, 0)));
+        QCOMPARE(list->selectedItems(), QList<QListWidgetItem *>{list->item(1)});
+        QCOMPARE(list->currentRow(), 1);
+        QVERIFY(details->text().contains(name));
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), description + QLatin1Char('\n') + name);
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QCOMPARE(volume->value(), 25);
+        QCOMPARE(backend->requests.size(), 0);
+        volume->setValue(42);
+        setVolume->click();
+        QCOMPARE(backend->requests.size(), 1);
+        QCOMPARE(backend->requests.last().kind, kind);
+        QCOMPARE(backend->requests.last().index, index);
+        QCOMPARE(backend->requests.last().identity, identity);
+        QCOMPARE(backend->requests.last().volumePercent, 42);
+
+        if (kind == AudioObjectKind::SourceOutput) backend->current.sinkInputs.clear();
+        else std::swap(objects[0], objects[1]);
+        session.refresh();
+        QCOMPARE(list->currentRow(), 0);
+        QVERIFY(details->text().contains(name));
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QCOMPARE(volume->value(), 42);
+        QCOMPARE(backend->requests.size(), 1);
+
+        // A recycled index with a new lifetime must not inherit the selection.
+        objects[0].identity = QStringLiteral("replacement-lifetime");
+        session.refresh();
+        QCOMPARE(list->currentRow(), -1);
+        QVERIFY(list->selectedItems().isEmpty());
+        QVERIFY(!setVolume->isEnabled());
+        QVERIFY(details->text().contains(QStringLiteral("no longer available")));
+        QVERIFY(accessibleDetails->text(QAccessible::Description).contains(QStringLiteral("no longer available")));
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QCOMPARE(backend->requests.size(), 1);
+
+        objects[0].identity.clear();
+        session.refresh();
+        QVERIFY(selection->select(table->cellAt(0, 0)));
+        QCOMPARE(list->currentRow(), 0);
+        QVERIFY(details->text().contains(QStringLiteral("lifetime identity")));
+        QVERIFY(accessibleDetails->text(QAccessible::Description).contains(name));
+        QVERIFY(accessibleDetails->text(QAccessible::Description).contains(QStringLiteral("lifetime identity")));
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QVERIFY(!setVolume->isEnabled());
+        QVERIFY(selection->clear());
+        QCOMPARE(list->currentRow(), -1);
+        QVERIFY(list->selectedItems().isEmpty());
+        QVERIFY(!setVolume->isEnabled());
+        QVERIFY(list->count() > 0);
+        QVERIFY(details->text().startsWith(QStringLiteral("Select ")));
+        QCOMPARE(accessibleDetails->text(QAccessible::Description), details->text());
+        QCOMPARE(backend->requests.size(), 1);
+    }
     void propertiesProvidePortsProfilesAndChannelBalance()
     {
         auto *backend = new DialogAudioBackend;

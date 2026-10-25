@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-25",
+  "build_id": "0.1.0-rc.2+a749642a9c559c3b",
+  "scope": "Installed read-only launch/navigation observations; not full W1 or hardware qualification",
+  "terminal_gui_launch": "pass; owned installed executable frame identified through AT-SPI",
+  "desktop_entry_gui_launch": "pass; GIO desktop entry activation frame matches terminal build; not a visible-menu click",
+  "visible_desktop_menu": "not run",
+  "assistive_search": "fail on installed RC2; editing field did not refresh results",
+  "category_navigation": "Control Panel home -> Hardware and Sound -> Sound dialog observed through target-specific accessibility actions",
+  "audio_prerequisites": "two real suspended sinks observed: ALSA/PCI and BlueZ/Bluetooth; no audio setters used",
+  "charging_and_monitored_config": "13 fingerprints unchanged (3 charging policy +10 configuration files)",
+  "read_only_changes": [],
+  "keyboard_drafts_remaining": "not fully observed on installed candidate",
+  "privacy": "Raw trees, PIDs, device identifiers and baseline bytes stay private",
+  "qualification": "not qualified"
+}

@@ -11,7 +11,7 @@
 <br>
 
 > [!WARNING]
-> **Work in progress.** A bounded local release candidate is installed for acceptance. Live qualification remains open; full KDE parity is a later milestone. See the [current candidate record](docs/manual-update-validation.md) for exact evidence.
+> **Work in progress.** A bounded local release candidate is installed for acceptance. Live qualification remains open; full KDE parity is a later milestone. See the [current candidate record](docs/local-acceptance.md) for exact evidence.
 
 > [!NOTE]
 > **Built for CachyOS / Arch Linux.** Some features (package updates, AUR reinstall, driver-adjacent firewall config) depend on `pacman`, `yay`, and `ufw`. Other distros may need minor adjustments.
@@ -113,11 +113,13 @@ measurements through the system tools; server editing remains unavailable there.
 
 ## Current implementation limits
 
-Programs and Features, Linux Update, and Installed Updates currently require
-pacman. On Ubuntu and other systems without pacman they report unavailable;
-APT mutations remain unsupported. The separate Ubuntu Package Preview provides
-read-only APT simulation with cached indexes. A failed update check is not shown
-as up to date.
+Package mutation in Programs and Features, the operating-system package section
+of Linux Update, and Installed Updates currently require pacman. On Ubuntu and
+other systems without pacman those actions report unavailable; APT mutations
+remain unsupported. Manual **Control Panel updates** in Linux Update work
+independently through the configured verified-release updater. The separate
+Ubuntu Package Preview provides read-only APT simulation with cached indexes.
+A failed update check is not shown as up to date.
 
 Action Center does not monitor automatic updates, backups, antivirus protection,
 or system maintenance. The firewall page shows recognized UFW configuration,

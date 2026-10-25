@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-25",
+  "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+  "coordination": "Owner ready for brief volume/mute/default-output test; later requested untouched Control Panel for speaker phase",
+  "bluetooth_phase": {
+    "ui_volume_change": "47 -> 42 -> 47",
+    "ui_mute_change": "false -> true -> false",
+    "action": "Press after waiting for UI readiness",
+    "independent_readback": "all requested states confirmed",
+    "quiet_test_tones": "lower volume, muted interval, unmuted",
+    "physical_observation": "Owner confirmed: sound, silence, then sound returned",
+    "earlier_probes": "Insufficient UI-readiness waits; baseline restored after each; not conclusive evidence of a Toggle defect",
+    "baseline_raw_volume_and_mute_restored": true,
+    "build_id": "0.1.0-rc.3+a6a4987093bf32d3"
+  },
+  "speaker_phase": {
+    "outcome": "probe failed before speaker routing",
+    "cause": "AT-SPI SelectChild selected a row without moving the current-row editor; probe applied volume to Bluetooth",
+    "transient_bluetooth_changes": "20 -> 15 -> 0 -> 20",
+    "speaker_state": "unchanged 0%/muted; default remained Bluetooth",
+    "recovery": "Exact Bluetooth pre-phase baseline restored via same installed Sound volume control",
+    "default_output_acceptance": "not passed"
+  },
+  "selection_finding": "AT-SPI Selection.SelectChild updates visual selection without current-row editor; child GrabFocus returned false. Source fix/regression in progress; not an observed successful speaker switch.",
+  "owner_baseline_change": "Fresh Bluetooth baseline became 20% between phases; original 47% restoration was verified first. Current 20% baseline preserved. No attribution.",
+  "raw_data": "Device identifiers, sink indices, PIDs, raw pactl snapshots and test tone stay private",
+  "qualification": "Partial W2 only; default-output, reopening, persistence and overall workflow acceptance remain open"
+}

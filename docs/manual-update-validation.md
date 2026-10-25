@@ -1,5 +1,9 @@
 # Manual update RC2 validation
 
+Historical RC2 artifact record. Later local tooling, RC3 build/release and live
+observations are recorded in [local acceptance](local-acceptance.md); do not
+interpret the remaining-gate snapshot below as a fresh inventory or RC3 result.
+
 Status: **installed for acceptance; not qualified**. Integration owner: root.
 Date: 25 October 2026. The owner coordinated closing RC1 before migration.
 

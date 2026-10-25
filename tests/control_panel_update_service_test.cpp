@@ -4,6 +4,7 @@
 
 #include <QtTest>
 #include <QApplication>
+#include <QAccessible>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -36,6 +37,37 @@ QByteArray result(const QString &status, const QString &message = "Fixture statu
     if (!receipt.isEmpty()) object.insert("receipt", receipt);
     return QJsonDocument(object).toJson(QJsonDocument::Compact);
 }
+struct AccessibleDescriptions {
+    struct Change { QObject *object; QString description; };
+    static inline QList<Change> changes;
+    QAccessible::UpdateHandler previous;
+    bool wasActive;
+    AccessibleDescriptions()
+        : previous(QAccessible::installUpdateHandler(record)), wasActive(QAccessible::isActive())
+    {
+        QAccessible::setActive(true);
+        changes.clear();
+    }
+    ~AccessibleDescriptions()
+    {
+        QAccessible::installUpdateHandler(previous);
+        QAccessible::setActive(wasActive);
+        changes.clear();
+    }
+    static void record(QAccessibleEvent *event)
+    {
+        if (event->type() == QAccessible::DescriptionChanged) {
+            auto *interface = event->accessibleInterface();
+            if (interface) changes.append({event->object(), interface->text(QAccessible::Description)});
+        }
+    }
+    static bool contains(QObject *object, const QString &description)
+    {
+        for (const auto &change : changes)
+            if (change.object == object && change.description == description) return true;
+        return false;
+    }
+};
 struct Fixture {
     QTemporaryDir dir;
     QString helper() const { return dir.filePath("updater.py"); }
@@ -68,6 +100,7 @@ class ControlPanelUpdateServiceTest final : public QObject {
 private slots:
     void initTestCase();
     void noImplicitProcessesAndUnconfiguredIsHonest();
+    void accessibleBuildStatusAndMetadataTrackActualText();
     void malformedResults_data();
     void malformedResults();
     void navigationAndDuplicateClicks();
@@ -126,6 +159,63 @@ void ControlPanelUpdateServiceTest::noImplicitProcessesAndUnconfiguredIsHonest()
     unavailable.checkForUpdates();
     unavailable.prepareUpdate();
     QCOMPARE(OperationManager::instance()->jobs().size(), jobs);
+}
+
+void ControlPanelUpdateServiceTest::accessibleBuildStatusAndMetadataTrackActualText()
+{
+    Fixture fixture;
+    QVERIFY(fixture.setup());
+    QVERIFY(writeFile(fixture.dir.filePath("delay"), ""));
+    ControlPanelUpdateService service(fixture.helper());
+    LinuxUpdatePage page(new QScrollArea, nullptr, &service);
+    page.show();
+    auto *build = page.findChild<QLabel *>("controlPanelCurrentBuild");
+    auto *status = page.findChild<QLabel *>("controlPanelUpdateStatus");
+    auto *metadata = page.findChild<QLabel *>("controlPanelUpdateMetadata");
+    QVERIFY(build && status && metadata);
+    auto *buildAccess = QAccessible::queryAccessibleInterface(build);
+    auto *statusAccess = QAccessible::queryAccessibleInterface(status);
+    auto *metadataAccess = QAccessible::queryAccessibleInterface(metadata);
+    QVERIFY(buildAccess && statusAccess && metadataAccess);
+    QCOMPARE(buildAccess->text(QAccessible::Name), QString("Current Control Panel build"));
+    QCOMPARE(buildAccess->text(QAccessible::Description), build->text());
+    QVERIFY(buildAccess->text(QAccessible::Description).contains(ControlPanelUpdateService::currentBuildId()));
+    QCOMPARE(statusAccess->text(QAccessible::Name), QString("Control Panel update status"));
+    QCOMPARE(statusAccess->text(QAccessible::Description), service.state().message);
+    QCOMPARE(metadataAccess->text(QAccessible::Name), QString("Available Control Panel update identity"));
+    QCOMPARE(metadataAccess->text(QAccessible::Description), QString());
+
+    AccessibleDescriptions notifications;
+    service.checkForUpdates();
+    QCOMPARE(service.state().phase, Phase::Checking);
+    QCOMPARE(statusAccess->text(QAccessible::Description), service.state().message);
+    QVERIFY(AccessibleDescriptions::contains(status, status->text()));
+    QTRY_COMPARE(service.state().phase, Phase::Available);
+    const QString available = QStringLiteral("Update build: fixture-next+123\nRelease: laptop-candidate-2-fixture");
+    QCOMPARE(statusAccess->text(QAccessible::Description), QString("Fixture status"));
+    QCOMPARE(metadataAccess->text(QAccessible::Description), available);
+    QVERIFY(AccessibleDescriptions::contains(status, QString("Fixture status")));
+    QVERIFY(AccessibleDescriptions::contains(metadata, available));
+
+    service.prepareUpdate();
+    QTRY_COMPARE(service.state().phase, Phase::Ready);
+    const QString ready = QStringLiteral("Verified fixture\nClose and install will close this window. Close other Control Panel windows too, then reopen normally after installation.");
+    QCOMPARE(status->text(), ready);
+    QCOMPARE(statusAccess->text(QAccessible::Description), ready);
+    QVERIFY(AccessibleDescriptions::contains(status, ready));
+    QCOMPARE(metadataAccess->text(QAccessible::Description), available);
+    // A subsequent local result clears the old candidate identity for assistive
+    // clients as well as hiding its visual label. It makes no online request.
+    service.refreshLocalStatus();
+    QTRY_COMPARE(service.state().phase, Phase::RolledBack);
+    QCOMPARE(statusAccess->text(QAccessible::Description), QString("The fixture was rolled back"));
+    QCOMPARE(metadataAccess->text(QAccessible::Description), QString());
+    QVERIFY(AccessibleDescriptions::contains(metadata, QString()));
+    QVERIFY(!metadata->isVisible());
+    QCOMPARE(buildAccess->text(QAccessible::Name), QString("Current Control Panel build"));
+    QCOMPARE(statusAccess->text(QAccessible::Name), QString("Control Panel update status"));
+    QCOMPARE(metadataAccess->text(QAccessible::Name), QString("Available Control Panel update identity"));
+    QCOMPARE(fixture.calls().count('\n'), 3);
 }
 
 void ControlPanelUpdateServiceTest::malformedResults_data()

@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-25",
+  "integration_owner": "root",
+  "scope": "Real complete local frozen-source build, isolated fixtures, staging and release packaging; physical desktop qualification separate",
+  "source": {
+    "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+    "revision": "70966b4e49975c018144564bab93cf899d69be0e",
+    "source_archive_sha256": "622f8d38a68a0a5fe82e461d3eb928a4993507d6fb51dd3f261c943dd53caa07",
+    "source_manifest_sha256": "a6a4987093bf32d3aaa59b9dcc5324dbfc4351dd163d8e121a66f5d0e93b6e15",
+    "version": "0.1.0-rc.3"
+  },
+  "prefix": "/home/siru/.local",
+  "clean_actual_main": true,
+  "configuration_input_count": 13,
+  "complete_fixture_suite": {
+    "failed": 0,
+    "not_run": 0,
+    "passed": 114,
+    "total": 114
+  },
+  "ctest_elapsed_seconds": 126.01,
+  "payload_manifest_sha256": "6d242f018a5afe9f575702ee9b6274468f7de3a3cd34e55ca2a534135dba0e94",
+  "payload_files": 12,
+  "runtime_dependency_count": 130,
+  "staging_checks": {
+    "install_and_bytes_changing_upgrade": "passed",
+    "intervening_edits_refused_before_mutation": "passed",
+    "one_changed_object_interruption_and_recovery": "passed",
+    "provider_free_identity_and_runtime_loading": "passed",
+    "remove_restores_original_bytes_modes_symlink": "passed",
+    "rollback_to_predecessor": "passed",
+    "unrelated_preferences_and_external_runtime_preserved": "passed"
+  },
+  "predecessor": {
+    "kind": "synthetic metadata fixture",
+    "scope": "candidate executable bytes unchanged; desktop comment and fixture-only managed marker differ; not prior-release qualification"
+  },
+  "interruption": {
+    "after_changed_path": "share/applications/linux-controlpanel.desktop",
+    "scope": "one boundary only; not exhaustive crash/power-loss testing"
+  },
+  "release": {
+    "tag": "laptop-candidate-1-70966b4e4997",
+    "sequence": 1,
+    "archive_sha256": "8676cd077ae6e4a3d4affa184db4a0b3d42f66d9e4cbfed922debb733cd960ef",
+    "archive_size": 6443341
+  },
+  "evidence_sha256": {
+    "build-report.json": "434a46b0babf6ede2a52f8db20718d9dff82165354bfda4aa089e4cf7500411d",
+    "commands.json": "5050f7bd392a3ad386f63ee9f85698a1be411c654758784071af91c9433d9593",
+    "ctest.log": "9b45124cebe8d04cdbef1e469195f303e8901589204e69be5a67705eacb71afb",
+    "ctest.xml": "aea5d1fe3abddec3982372395091230397d9891acdf0b4d654e981d21e723d01",
+    "ctest-discovery.log": "affd4a9902addd2aab06c2a200874ce5ddc2d86461d2177148891d6a53bbed3c",
+    "source/identity.json": "2aab3db5ac2899a65fd11d5659f3d064d534f45f3bda5fb3480b1d11f0729c19",
+    "source/source-manifest.json": "a6a4987093bf32d3aaa59b9dcc5324dbfc4351dd163d8e121a66f5d0e93b6e15",
+    "bundle/payload-manifest.json": "6d242f018a5afe9f575702ee9b6274468f7de3a3cd34e55ca2a534135dba0e94",
+    "staged-validation/evidence.json": "cbca19295a6253a5e67edb3a389ba18feb1604a719236a2463249086f85bc86f",
+    "release/release.json": "c8bd1ee8a4c415519b38de4a823e3a0bde521dc145b253333d643348603f9290",
+    "release/validation.json": "6daddd0a1b9dd7aec6d4a35784a50a95e34ad22368fcc6e8729a22137c3fc7f2"
+  },
+  "private_execution_root": "build/local-acceptance/release-checkout/build/local-rc3",
+  "qualification": "candidate for acceptance; not qualified",
+  "settings_mutations": "none"
+}
