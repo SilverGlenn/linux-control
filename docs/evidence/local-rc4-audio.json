@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-25",
+  "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+  "coordination": "Owner approved installation/rollback/reinstall and brief Sound recheck; requested speaker repeat after phone interference, then explicitly requested louder speaker test",
+  "bluetooth": {
+    "volume": "20 -> 15 -> 20",
+    "mute": "false -> true -> false",
+    "readback": "confirmed all requested states",
+    "physical": "Owner confirmed sound -> silence -> sound on RC4"
+  },
+  "speaker_15_percent": "New test stream independently routed to actual analog-output-speaker; owner heard only Bluetooth, low speaker level insufficient for physical confirmation. No full pass recorded for that attempt.",
+  "speaker_50_percent": {
+    "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+    "speaker_test_volume_percent": 50,
+    "actual_test_stream_routed_to_speakers": true,
+    "changed_state_reopen_shows_50_unmuted_default": true,
+    "default_output_change": "Bluetooth -> speakers -> Bluetooth",
+    "all_baseline_raw_channels_mutes_default_restored": true,
+    "physical_observation": "Owner confirmed hearing the laptop speakers"
+  },
+  "changed_state_reopen": "Sound reopened during 50%/unmuted/default-speaker state and showed actual changed values before restoration",
+  "restoration": "Each phase restored captured raw channel volumes, mute flags and Bluetooth default using installed UI; speaker original 0%/muted. Bluetooth baseline changed externally from 20% to31% between phases; fresh 31% value preserved, no attribution.",
+  "initial_reopen_after_restoration": {
+    "devices": {
+      "alsa": {
+        "volume_percent": 0,
+        "mute": true,
+        "exact_target_identified": true,
+        "ui_matches_independent_baseline": true
+      },
+      "bluez5": {
+        "volume_percent": 20,
+        "mute": false,
+        "exact_target_identified": true,
+        "ui_matches_independent_baseline": true
+      }
+    },
+    "default_restored": true
+  },
+  "guard": "Exact selected editor target verified through full accessible Description before each writer; visual selection alone insufficient",
+  "persistent_changed_value_signin": "not run; still mandatory where applicable",
+  "charging_policy_fingerprints": "3/3 unchanged after all live checks",
+  "configuration_drift": "Corrected comparison: all 10 configuration paths match baseline, including absent kfontinst.rc. Earlier reported drift was missing/absent label mismatch; see local-baseline-correction.json.",
+  "qualification": "Immediate Sound effects, changed-state reopen and restoration observed; W2 persistence and overall qualification remain open",
+  "privacy": "All raw snapshots, device identifiers, PIDs, receipts, baseline bytes and test tones stay private"
+}

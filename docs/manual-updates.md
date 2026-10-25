@@ -2,9 +2,10 @@
 
 The owner selected this workflow on 25 October 2026, replacing the automatic-update
 proposal. The source implements manual UI, a verified consumer, packaging and
-app/installer locking. RC3 and the separate trusted updater are installed. A real
-immutable-release Check/Download/Close and install/reopen cycle passed; actual
-installed rollback and desktop qualification remain open. See the
+app/installer locking. RC4 and the separate trusted updater are installed. A real
+immutable-release Check/Download/Close and install/reopen/local-result cycle and
+independent app-file rollback/restoration passed. Desktop qualification and live
+consumer failure/quarantine handling remain open. See the
 [current candidate record](local-acceptance.md). Development and builds stay on
 the laptop; the owner cancelled the Cloud migration. The historical
 [RC2 preparation record](manual-update-validation.md) remains artifact-specific.
@@ -59,6 +60,14 @@ replayed. Failed candidates are quarantined. The sequence high-water mark surviv
 rollback. Exact external dependency hashes conservatively reject drift, including
 some ABI-compatible package changes; broader ABI/provider contracts require later
 explicit implementation. Retain existing runtime provider/root trust guards.
+
+Local status also quarantines a previously installed candidate when it observes
+that an independent manual rollback made that candidate inactive. Do not clear
+quarantine, reset the sequence or reuse a consumed receipt to make it available
+again. Reviewed independent repair or a new reviewed release is a separate
+operator action. The recorded qualification cycle used the trusted independent
+installer and exact verified local bundle for app-file restoration; it did not
+live-exercise consumer rollback-status/quarantine reconciliation.
 
 The app holds a shared lock before providers through teardown; all deployment
 commands require the same exclusive lock at

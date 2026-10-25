@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-25",
+  "monitored": 13,
+  "unchanged": 13,
+  "charging_unchanged": 3,
+  "configuration_unchanged": 10,
+  "changed": [],
+  "absence_preserved": [
+    "/home/siru/.config/kfontinst.rc"
+  ],
+  "correction": "Earlier post-update/audio comparisons used missing:true for an absent file, while baseline used absent:true. The reported kfontinst.rc drift was a comparison-label error; it was absent at baseline and all sampled later checkpoints, and remains absent. Earlier raw comparison reports retained privately."
+}

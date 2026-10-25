@@ -7,18 +7,22 @@ source and release downloads; no remote build service is required.
 
 ## Current position
 
-RC3 `0.1.0-rc.3+a6a4987093bf32d3` is installed for acceptance with the separate
+RC4 `0.1.0-rc.4+4ca694bb908b1211` is installed for acceptance with the separate
 trusted updater. Its complete 114/114 isolated suites and staged checks passed;
-the real published immutable-release Check/Download/Close and install/reopen path
-also passed. See [the current evidence](local-acceptance.md). These results do not
-complete real desktop/hardware qualification or actual installed rollback.
+the real published immutable-release Check/Download/Close and install/reopen/local
+result path and independent app-file rollback/restoration also passed. Sound
+effects, changed-state reopen and baseline restoration have owner observations;
+persistence remains open. See [the current evidence](local-acceptance.md). These
+results do not complete desktop/hardware qualification or live consumer failure/
+quarantine handling.
 RC2's [112-suite record](manual-update-validation.md) remains historical.
 
 The preserved Batch 25, MVP and updater work was checkpointed to fork main as
 `6148cdc`; the reviewed local release tooling and accessibility search fix are
-`70966b4`. RC3 built from that clean main commit passed its complete 114-suite
-run and staged checks. It is published and installed for acceptance; physical
-qualification remains separate. See [the current record](local-acceptance.md).
+`70966b4`. RC4 from `ce2a444` fixes the subsequent accessible Sound selection and
+status-description findings and passed its complete 114-suite run. It is
+published and installed for acceptance; remaining physical qualification stays
+separate. See [the current record](local-acceptance.md).
 Exclude ignored build products, raw KDE baselines, backup bytes and credentials
 from future checkpoints. Preserve existing changes; do not reset, clean or stash
 to manufacture a clean release checkout.
@@ -108,6 +112,14 @@ installs live or publishes. Optional `--sequence N` packages through the existin
 release contract; it does not publish. Explicit `--rehearsal` accepts dirty or
 non-main development snapshots, forbids updater packaging, and writes separately
 labelled `rehearsal-validation.json`. Rehearsal evidence is not release evidence.
+
+The recorded laptop runs use a separate user systemd scope to avoid inheriting
+the terminal's smaller memory cap: prefix the command with
+`systemd-run --user --scope --quiet -p MemoryHigh=2G -p MemoryMax=3G`, keeping
+`--jobs 2`. This scopes build resources; it installs no service or update timer.
+Once a previous exact bundle exists, also run `validate_release_payload.py`
+with `--previous-bundle` to validate actual prior-release bytes in staging.
+The driver's default synthetic metadata predecessor is labelled separately.
 
 ## Team coordination
 

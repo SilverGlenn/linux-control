@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-25",
+  "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+  "source_revision": "ce2a444d132f63b92f01a6f7836a786ac0612260",
+  "release_url": "https://github.com/SilverGlenn/linux-control/releases/tag/laptop-candidate-2-ce2a444d132f",
+  "release_id": 423401501,
+  "draft_commit_asset_size_and_sha256_match": true,
+  "immutable_release_and_asset_verification": {
+    "release": "exit 0",
+    "release.json": "exit 0",
+    "control-panel-bundle.tar.gz": "exit 0",
+    "validation.json": "exit 0"
+  },
+  "verification_evidence_sha256": {
+    "control-panel-bundle.tar.gz.stdout.json": "776d240739d2cb4c8013346d7dcc06775b151664c2871ff5080b6b14da810727",
+    "release.json.stdout.json": "776d240739d2cb4c8013346d7dcc06775b151664c2871ff5080b6b14da810727",
+    "release.stdout.json": "776d240739d2cb4c8013346d7dcc06775b151664c2871ff5080b6b14da810727",
+    "validation.json.stdout.json": "776d240739d2cb4c8013346d7dcc06775b151664c2871ff5080b6b14da810727"
+  },
+  "real_installed_ui": {
+    "installed_build_before": "0.1.0-rc.3+a6a4987093bf32d3",
+    "check": "available; exact verified RC4",
+    "download": "ready; verified descriptor/archive/attestations/dependencies/provider-free probe",
+    "installation": "Close and install completed; all 12 managed files/modes matched manifest; canonical journal preserved",
+    "local_result_button": "Passed on installed RC4; full installed-for-acceptance message exposed without online check",
+    "actual_installed_rollback_reinstall": {
+      "rollback": {
+        "build_id": "0.1.0-rc.3+a6a4987093bf32d3",
+        "matched_files_and_modes": 12,
+        "version": "Control Panel 0.1.0-rc.3 (0.1.0-rc.3+a6a4987093bf32d3)"
+      },
+      "restore": {
+        "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+        "matched_files_and_modes": 12,
+        "version": "Control Panel 0.1.0-rc.4 (0.1.0-rc.4+4ca694bb908b1211)"
+      },
+      "method": "Independent trusted installer and verified local bundle; no receipt reuse, updater-state edit, online check or local-status reconciliation while RC3 was temporarily restored"
+    },
+    "reopen": "Exact RC4 GUI title, provider-free identity, full accessible build description verified",
+    "final_independent_updater_status": {
+      "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+      "message": "Candidate installed for acceptance; live qualification remains open",
+      "release_tag": "laptop-candidate-2-ce2a444d132f",
+      "schema": 1,
+      "status": "installed"
+    }
+  },
+  "coordination": "Owner confirmed all app windows closed and approved install/app-file rollback/reinstall/Sound rechecks. Only agent-owned read-only probe was terminated during cleanup; no user-owned window force-closed.",
+  "qualification": "installed for acceptance; not qualified; five-day trial not started",
+  "privacy": "Receipts, process records, raw configurations and device identifiers stay private",
+  "rollback_scope": "Independent trusted installer and exact verified locally built bundle; no used receipt replay, quarantine reset or updater-state edit. Consumer rollback-status/quarantine handling was not live-exercised.",
+  "probe_note": "Raw-state polling briefly observed the intentional durable recovery sentinel while apply held its lock. Final official local status, exact payload and no-pending-journal checks passed; no repair was needed.",
+  "assistive_search": {
+    "Sound": true,
+    "Mouse": true,
+    "Desktop Background": true,
+    "Night Light": true,
+    "Power Options": true,
+    "Personalization": true
+  },
+  "remaining_w1": "Visible desktop-menu launch, actual keyboard and pending-work acceptance still open",
+  "final_policy_config_baseline": "All 13 paths match baseline: 3 charging policies + 10 configuration paths, including absent kfontinst.rc; see explicit comparison correction record."
+}

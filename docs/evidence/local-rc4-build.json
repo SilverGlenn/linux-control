@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-25",
+  "integration_owner": "root",
+  "scope": "Real local frozen-source build, complete isolated CTest suite, private deployment/runtime checks and packaging; no live qualification claim",
+  "source": {
+    "build_id": "0.1.0-rc.4+4ca694bb908b1211",
+    "revision": "ce2a444d132f63b92f01a6f7836a786ac0612260",
+    "source_archive_sha256": "05c3d90875b3c0809f8c7e15097d32e838382d671950d75643b800aa40162717",
+    "source_manifest_sha256": "4ca694bb908b1211e5be9ce884911bec7a6b43fd287579fafb4e146081a60faa",
+    "version": "0.1.0-rc.4"
+  },
+  "prefix": "/home/siru/.local",
+  "clean_actual_main": true,
+  "complete_fixture_suite": {
+    "failed": 0,
+    "not_run": 0,
+    "passed": 114,
+    "total": 114
+  },
+  "ctest_elapsed_seconds": 128.38,
+  "payload_manifest_sha256": "1fef2955aa6714f9f1a90fe751dcdb53b4675a42eb513dcba274b63ebe461f25",
+  "payload_files": 12,
+  "runtime_dependency_count": 130,
+  "pipeline_staging": {
+    "checks": {
+      "install_and_bytes_changing_upgrade": "passed",
+      "intervening_edits_refused_before_mutation": "passed",
+      "one_changed_object_interruption_and_recovery": "passed",
+      "provider_free_identity_and_runtime_loading": "passed",
+      "remove_restores_original_bytes_modes_symlink": "passed",
+      "rollback_to_predecessor": "passed",
+      "unrelated_preferences_and_external_runtime_preserved": "passed"
+    },
+    "predecessor": {
+      "kind": "synthetic metadata fixture",
+      "scope": "candidate executable bytes unchanged; desktop comment and fixture-only managed marker differ; not prior-release qualification"
+    },
+    "interruption": {
+      "after_changed_path": "share/applications/linux-controlpanel.desktop",
+      "scope": "one boundary only; not exhaustive crash/power-loss testing"
+    }
+  },
+  "actual_rc3_bundle_staging": {
+    "status": "passed",
+    "predecessor": {
+      "kind": "provided release bundle",
+      "payload_manifest_sha256": "6d242f018a5afe9f575702ee9b6274468f7de3a3cd34e55ca2a534135dba0e94"
+    },
+    "checks": {
+      "install_and_bytes_changing_upgrade": "passed",
+      "intervening_edits_refused_before_mutation": "passed",
+      "one_changed_object_interruption_and_recovery": "passed",
+      "provider_free_identity_and_runtime_loading": "passed",
+      "remove_restores_original_bytes_modes_symlink": "passed",
+      "rollback_to_predecessor": "passed",
+      "unrelated_preferences_and_external_runtime_preserved": "passed"
+    },
+    "interruption": {
+      "after_changed_path": "bin/control",
+      "scope": "one boundary only; not exhaustive crash/power-loss testing"
+    },
+    "evidence_sha256": "20d183a50c3dce977cd14722e929e4372180d28c9f268041c41031b58fa6349b"
+  },
+  "release": {
+    "tag": "laptop-candidate-2-ce2a444d132f",
+    "sequence": 2,
+    "archive_sha256": "595672b9f16731786e3780692d70ec5ea67b588910f85ed0f3bc805caa914f7a",
+    "archive_size": 6452610
+  },
+  "evidence_sha256": {
+    "build-report.json": "4c51db778f71c3700b432c1f46947270f709f97f836bacd9f3e1d9642a4816f9",
+    "commands.json": "b185016a655ce22f538f9af18565c3a7657460b4d4c3eb07ac1bf54204b30d9b",
+    "ctest.log": "07b56da9670f570e7056ac45c8e5ad30c395d07945bf58acfb4466ee2584243d",
+    "ctest.xml": "0ac3eb2c97525087c196ba9798036627eea2b11d2fabdcc7d853f78ca359603d",
+    "ctest-discovery.log": "37a567d9ad0854e62e8eb5bc0b8caeeea2268047948838ae636a3028f1917aed",
+    "source/identity.json": "0b87d57bf32f3756deb3c9acca5da09d45334416595e29582695e0eae555be54",
+    "source/source-manifest.json": "4ca694bb908b1211e5be9ce884911bec7a6b43fd287579fafb4e146081a60faa",
+    "bundle/payload-manifest.json": "1fef2955aa6714f9f1a90fe751dcdb53b4675a42eb513dcba274b63ebe461f25",
+    "staged-validation/evidence.json": "af7d4b1fa32a9ba6b98400462407ae7437d4b0bcf5e80e9f8ec7234709253229",
+    "release/release.json": "26bed3ad8d1c76eb60373833f1964c16dee02efb80891d0e167a4698ec689a49",
+    "release/validation.json": "c12b9eb9f740425710a3041062df0bb571ddfea61c8f61a0552aed5e1b68a8c7"
+  },
+  "private_execution_root": "build/local-acceptance/release-checkout/build/local-rc4",
+  "outer_build_scope": "systemd-run --user --scope --quiet -p MemoryHigh=2G -p MemoryMax=3G; parallel jobs 2",
+  "qualification": "candidate for acceptance; not qualified",
+  "settings_mutations": "none by automated validation"
+}

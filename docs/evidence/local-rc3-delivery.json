@@ -43,6 +43,7 @@
   "assistive_search": "RC3 Sound query produced actual search-result list items; original quick probe wrongly expected link roles; remaining W1 destinations/keyboard/drafts open",
   "update_label_accessibility": "actual fixed-name labels expose no Text and empty Description; repair in progress",
   "charging": "three policy fingerprints unchanged after update",
-  "configuration_drift": "kfontinst.rc fingerprint changed between passive snapshots; other nine monitored configuration files unchanged; no attribution or overwrite",
-  "qualification": "installed for acceptance; not qualified; five-day trial not started"
+  "configuration_drift": "Correction: no actual drift observed. All 10 monitored configuration paths match, including absent kfontinst.rc. Earlier missing/absent comparison labels differed.",
+  "qualification": "installed for acceptance; not qualified; five-day trial not started",
+  "evidence_correction": "See local-baseline-correction.json; original erroneous drift report remains in prior Git/source snapshots, not proof of a configuration mutation."
 }
