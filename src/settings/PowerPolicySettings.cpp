@@ -73,6 +73,11 @@ PowerPolicySettings::PowerPolicySettings(PowerPolicyBackend *backend, QObject *p
     backend->setParent(this);
     connect(backend, &PowerPolicyBackend::readFinished, this, &PowerPolicySettings::readFinished);
     connect(backend, &PowerPolicyBackend::writeFinished, this, &PowerPolicySettings::writeFinished);
+    connect(backend, &PowerPolicyBackend::operationPending, this, [this](const QString &message) {
+        if (m_phase != Phase::Writing) return;
+        m_pendingMessage = message;
+        emit stateChanged();
+    });
     connect(backend, &PowerPolicyBackend::externalChange, this, &PowerPolicySettings::refresh);
     m_busy = true;
     QTimer::singleShot(0, this, &PowerPolicySettings::startRefresh);
@@ -291,6 +296,8 @@ void PowerPolicySettings::stageDefaults(DefaultsScope scope, const QString &id, 
 }
 QString PowerPolicySettings::applySupportText() const
 {
+    if (m_busy) return m_pendingMessage.isEmpty()
+        ? QStringLiteral("Native power settings are being checked or saved.") : m_pendingMessage;
     if (!m_ready || m_conflict) return QStringLiteral("Revert to reload the native power settings before applying.");
     QString error; PowerPolicyFields::requestValid(m_applied,m_staged,error); return error;
 }
@@ -301,8 +308,9 @@ void PowerPolicySettings::apply()
     if (!m_ready || m_conflict) {
         m_applyError = true;
         m_error = QStringLiteral("Power settings changed or could not be read. Revert to reload before applying.");
+        QPointer<PowerPolicySettings> guard(this);
         emit applyFinished(false);
-        emit stateChanged();
+        if (guard) emit stateChanged();
         return;
     }
     if (!m_dirty) {
@@ -311,17 +319,20 @@ void PowerPolicySettings::apply()
     }
     const auto support = applySupportText();
     if (!support.isEmpty()) {
-        m_error = support; m_applyError = true; emit applyFinished(false); emit stateChanged(); return;
+        m_error = support; m_applyError = true; QPointer<PowerPolicySettings> guard(this);
+        emit applyFinished(false); if (guard) emit stateChanged(); return;
     }
     m_requested = m_staged;
     m_error.clear();
     m_result.clear();
     m_cancelled = false;
     m_applyError = false;
+    m_pendingMessage.clear();
     m_busy = true;
     m_phase = Phase::Preflight;
+    QPointer<PowerPolicySettings> guard(this);
     emit stateChanged();
-    m_backend->readCurrent();
+    if (guard) m_backend->readCurrent();
 }
 void PowerPolicySettings::revert()
 {
@@ -343,8 +354,10 @@ void PowerPolicySettings::startRefresh()
     m_refreshPending = false;
     m_phase = Phase::Refreshing;
     m_busy = true;
+    m_pendingMessage.clear();
+    QPointer<PowerPolicySettings> guard(this);
     emit stateChanged();
-    m_backend->readCurrent();
+    if (guard) m_backend->readCurrent();
 }
 void PowerPolicySettings::cancel()
 {
@@ -359,6 +372,7 @@ void PowerPolicySettings::writeFinished(bool saved, bool acknowledged, bool canc
     m_acknowledged = acknowledged;
     m_cancelled = cancelled;
     m_writeError = error;
+    m_pendingMessage.clear();
     m_phase = Phase::Readback;
     m_backend->readCurrent();
 }
@@ -420,7 +434,7 @@ void PowerPolicySettings::readFinished(bool success, const PowerPolicySnapshot &
     bool applied = false;
     if (readback) {
         QString verificationError;
-        applied = m_saved && m_acknowledged && !m_cancelled && success
+        applied = m_saved && m_acknowledged && !m_cancelled && m_writeError.isEmpty() && success
             && PowerPolicyFields::matchesRequest(previous, m_requested, snapshot, verificationError);
         m_applyError = !applied;
         if (applied) {
@@ -432,7 +446,8 @@ void PowerPolicySettings::readFinished(bool success, const PowerPolicySnapshot &
         } else {
             m_result.clear();
             m_error = m_cancelled
-                ? QStringLiteral("Reload cancelled. Saved values may already have changed; current file values were read back.")
+                ? QStringLiteral("Waiting for the power operation was cancelled. %1").arg(m_writeError.isEmpty()
+                    ? QStringLiteral("Saved preferences or a native reload may already have changed; Revert to inspect.") : m_writeError)
                 : !m_writeError.isEmpty() ? m_writeError
                 : !success ? QStringLiteral("Power policy readback failed. %1").arg(error)
                 : !m_acknowledged ? QStringLiteral("Power policy was saved, but PowerDevil did not acknowledge the live reload.")
@@ -454,9 +469,13 @@ void PowerPolicySettings::finish(bool applying, bool success)
 {
     m_phase = Phase::Idle;
     m_busy = false;
+    m_pendingMessage.clear();
+    QPointer<PowerPolicySettings> guard(this);
     if (applying)
         emit applyFinished(success);
+    if (!guard) return;
     emit stateChanged();
+    if (!guard) return;
     if (m_refreshPending)
         QTimer::singleShot(0, this, [this] {
             if (!m_busy && m_refreshPending)

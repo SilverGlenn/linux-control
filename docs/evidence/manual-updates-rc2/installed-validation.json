@@ -1,0 +1,10 @@
+{
+  "build_id": "0.1.0-rc.2+a749642a9c559c3b",
+  "payload_manifest_sha256": "0b1cfc97330cd44614cbf900c88d8feace7f5eb1328f95d02125b2d6ac7602e2",
+  "payload_files": 12,
+  "installed_fingerprints": "pass",
+  "headless_identity": "pass",
+  "prior_journal_preserved": true,
+  "transaction": "c4c201911b28427592d542a6e896b15e",
+  "gui_acceptance": "not run"
+}

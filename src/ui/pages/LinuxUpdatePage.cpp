@@ -3,6 +3,7 @@
 #include "Win7Ui.h"
 #include "Branding.h"
 #include "../../operations/UpdateService.h"
+#include "../../operations/ControlPanelUpdateService.h"
 
 #include <QScrollArea>
 #include <QMessageBox>
@@ -29,7 +30,7 @@ QList<SidebarLink> LinuxUpdatePage::sidebarLinks()
 {
     // The typed callback shares the action catalog used by search and views.
     return {
-        Nav::callback("Check for updates", CallbackId::CheckUpdates),
+        Nav::callback("Check for package updates", CallbackId::CheckUpdates),
         Nav::plain("Change settings"),
         Nav::plain("View update history"),
         Nav::plain("Restore hidden updates"),
@@ -43,8 +44,9 @@ QList<SidebarLink> LinuxUpdatePage::sidebarSeeAlso()
              Nav::to("Ubuntu Package Preview", PageId::PackagePreview) };
 }
 
-LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
-    : QWidget(parent)
+LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent,
+                                 ControlPanelUpdateService *controlPanelService)
+    : QWidget(parent), m_controlPanelService(controlPanelService ? controlPanelService : ControlPanelUpdateService::instance())
 {
     // ID-scoped backgrounds throughout: a declaration-only stylesheet acts as
     // `* { ... }`, matching every descendant and forcing them (scroll bars
@@ -85,6 +87,75 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
     pageTitle->setStyleSheet("color: #003399;");
     contentV->addWidget(pageTitle);
     contentV->addSpacing(16);
+
+    auto *selfBox = new QFrame;
+    selfBox->setObjectName("controlPanelUpdateBox");
+    selfBox->setMaximumWidth(620);
+    selfBox->setStyleSheet("QFrame#controlPanelUpdateBox { background: #F8FAFE; border: 1px solid #C7D4E8; border-left: 5px solid #6C8EB8; }"
+                          "QFrame#controlPanelUpdateBox QLabel { color: #222222; background: transparent; border: none; }");
+    auto *selfLayout = new QVBoxLayout(selfBox);
+    selfLayout->setContentsMargins(12, 10, 12, 10);
+    selfLayout->setSpacing(7);
+    auto *selfTitle = new QLabel("Control Panel updates");
+    selfTitle->setStyleSheet("color: #003399; font-size: 11pt;");
+    selfLayout->addWidget(selfTitle);
+    auto *currentBuild = new QLabel("Current build: " + ControlPanelUpdateService::currentBuildId());
+    currentBuild->setObjectName("controlPanelCurrentBuild");
+    currentBuild->setAccessibleName("Current Control Panel build");
+    currentBuild->setTextFormat(Qt::PlainText);
+    currentBuild->setWordWrap(true);
+    currentBuild->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    selfLayout->addWidget(currentBuild);
+    m_controlPanelStatus = new QLabel;
+    m_controlPanelStatus->setObjectName("controlPanelUpdateStatus");
+    m_controlPanelStatus->setAccessibleName("Control Panel update status");
+    m_controlPanelStatus->setTextFormat(Qt::PlainText);
+    m_controlPanelStatus->setWordWrap(true);
+    selfLayout->addWidget(m_controlPanelStatus);
+    m_controlPanelMetadata = new QLabel;
+    m_controlPanelMetadata->setObjectName("controlPanelUpdateMetadata");
+    m_controlPanelMetadata->setAccessibleName("Available Control Panel update identity");
+    m_controlPanelMetadata->setTextFormat(Qt::PlainText);
+    m_controlPanelMetadata->setWordWrap(true);
+    m_controlPanelMetadata->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    selfLayout->addWidget(m_controlPanelMetadata);
+    m_controlPanelProgress = new QProgressBar;
+    m_controlPanelProgress->setAccessibleName("Control Panel update operation in progress");
+    m_controlPanelProgress->setRange(0, 0);
+    m_controlPanelProgress->setTextVisible(false);
+    m_controlPanelProgress->setMaximumWidth(200);
+    selfLayout->addWidget(m_controlPanelProgress);
+    auto *selfButtons = new QHBoxLayout;
+    auto makeSelfButton = [selfButtons](const QString &text, const QString &name) {
+        auto *button = new QPushButton(text);
+        button->setObjectName(name);
+        button->setAccessibleName(text);
+        selfButtons->addWidget(button);
+        return button;
+    };
+    m_controlPanelCheck = makeSelfButton("Check for Control Panel updates", "controlPanelCheckUpdates");
+    m_controlPanelDownload = makeSelfButton("Download update", "controlPanelDownloadUpdate");
+    m_controlPanelInstall = makeSelfButton("Close and install", "controlPanelCloseAndInstall");
+    selfButtons->addStretch(1);
+    selfLayout->addLayout(selfButtons);
+    m_controlPanelLocalStatus = new QPushButton("View last installation result");
+    m_controlPanelLocalStatus->setObjectName("controlPanelLocalStatus");
+    m_controlPanelLocalStatus->setAccessibleName("View last Control Panel installation result without checking online");
+    m_controlPanelLocalStatus->setFlat(true);
+    m_controlPanelLocalStatus->setStyleSheet("QPushButton { color: #0066CC; text-align: left; padding: 0; border: none; }");
+    selfLayout->addWidget(m_controlPanelLocalStatus, 0, Qt::AlignLeft);
+    contentV->addWidget(selfBox);
+    contentV->addSpacing(18);
+    auto *packageTitle = new QLabel("Operating system package updates");
+    packageTitle->setStyleSheet("color: #003399; font-size: 11pt;");
+    contentV->addWidget(packageTitle);
+    contentV->addSpacing(10);
+    connect(m_controlPanelCheck, &QPushButton::clicked, m_controlPanelService, &ControlPanelUpdateService::checkForUpdates);
+    connect(m_controlPanelDownload, &QPushButton::clicked, m_controlPanelService, &ControlPanelUpdateService::prepareUpdate);
+    connect(m_controlPanelLocalStatus, &QPushButton::clicked, m_controlPanelService, &ControlPanelUpdateService::refreshLocalStatus);
+    connect(m_controlPanelInstall, &QPushButton::clicked, this, &LinuxUpdatePage::controlPanelInstallRequested);
+    connect(m_controlPanelService, &ControlPanelUpdateService::changed, this, &LinuxUpdatePage::syncControlPanelUpdate);
+    syncControlPanelUpdate();
 
     // Status box
     m_statusBox = new QFrame;
@@ -269,7 +340,7 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
         auto *lbl = new QLabel(
             "Find out more about free software from the Arch User Repository (AUR).");
         lbl->setTextFormat(Qt::PlainText);
-        lbl->setStyleSheet("border: none; background: transparent;");
+        lbl->setStyleSheet("color: #444444; border: none; background: transparent;");
         {
             QFont f = lbl->font();
             f.setPointSize(9);
@@ -280,7 +351,11 @@ LinuxUpdatePage::LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent)
     contentV->addWidget(fossBox);
     contentV->addStretch(1);
 
-    statusRoot->addWidget(contentWrap, 1);
+    auto *contentScroll = new QScrollArea;
+    contentScroll->setFrameShape(QFrame::NoFrame);
+    contentScroll->setWidgetResizable(true);
+    contentScroll->setWidget(contentWrap);
+    statusRoot->addWidget(contentScroll, 1);
     m_stack->addWidget(statusView);
 
     // Fade in
@@ -350,7 +425,7 @@ void LinuxUpdatePage::setIdleState()
     resetStatusWidgets();
     m_iconLabel->setPixmap(themeIcon({"security-medium", "view-refresh"}).pixmap(48, 48));
     m_titleLabel->setText("There may be updates available");
-    m_subLabel->setText("Click “Check for updates” in the sidebar to search for available updates.");
+    m_subLabel->setText("Click “Check for package updates” in the sidebar to search for available package updates.");
 }
 
 void LinuxUpdatePage::setCheckingState()
@@ -967,4 +1042,28 @@ bool LinuxUpdatePage::eventFilter(QObject *watched, QEvent *event)
         }
     }
     return QWidget::eventFilter(watched, event);
+}
+
+void LinuxUpdatePage::syncControlPanelUpdate()
+{
+    using Phase = ControlPanelUpdateService::Phase;
+    const auto &state = m_controlPanelService->state();
+    const bool busy = m_controlPanelService->busy();
+    const bool configured = state.phase != Phase::NotConfigured;
+    m_controlPanelStatus->setText(state.phase == Phase::Ready
+        ? state.message + tr("\nClose and install will close this window. Close other Control Panel windows too, then reopen normally after installation.")
+        : state.message);
+    QStringList metadata;
+    if (!state.buildId.isEmpty()) metadata << "Update build: " + state.buildId;
+    if (!state.releaseTag.isEmpty()) metadata << "Release: " + state.releaseTag;
+    m_controlPanelMetadata->setText(metadata.join('\n'));
+    m_controlPanelMetadata->setVisible(!metadata.isEmpty());
+    m_controlPanelProgress->setVisible(busy);
+    m_controlPanelCheck->setEnabled(configured && !busy && !state.installerLaunched);
+    m_controlPanelCheck->setVisible(state.phase != Phase::Available && state.phase != Phase::Ready && state.phase != Phase::Downloading);
+    m_controlPanelDownload->setVisible(state.phase == Phase::Available || state.phase == Phase::Downloading);
+    m_controlPanelDownload->setEnabled(state.phase == Phase::Available && !busy);
+    m_controlPanelInstall->setVisible(state.phase == Phase::Ready);
+    m_controlPanelInstall->setEnabled(state.phase == Phase::Ready && !busy && !state.installerLaunched);
+    m_controlPanelLocalStatus->setEnabled(configured && !busy && !state.installerLaunched);
 }

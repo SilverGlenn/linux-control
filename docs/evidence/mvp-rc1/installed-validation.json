@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-25T15:42:43.870424+08:00",
+  "build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+  "source_manifest_sha256": "7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b",
+  "payload_manifest_sha256": "e020192274e21fbce7009656a380c0b3a3903fe15735f53cd0d86101a1b2af4d",
+  "managed_files": 11,
+  "all_installed_bytes_modes_match": true,
+  "external_aeroqt_unchanged": true,
+  "installed_headless_identity": true,
+  "no_checkout_in_elf_dependencies": true,
+  "elf_library_hashes": 130,
+  "path_lookup": "/home/siru/.local/bin/control",
+  "path_lookup_matches": true,
+  "desktop_exec": "/home/siru/.local/bin/control",
+  "menu_gui_launch": "not run",
+  "fresh_sign_in": "not run",
+  "live_workflows": "not run",
+  "state_directory": "/home/siru/.control-panel-rc-deployment",
+  "qualification": "not qualified"
+}

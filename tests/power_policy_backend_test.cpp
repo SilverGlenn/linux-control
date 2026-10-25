@@ -9,6 +9,9 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QPointer>
+#include <QTimer>
+#include "operations/OperationManager.h"
 
 class FakePowerDaemon final : public PowerPolicyDaemon {
 public:
@@ -24,12 +27,12 @@ public:
         caps.mobileKnown = caps.defaultMobileKnown = caps.virtualMachineKnown = true;
     }
     void queryCapabilities() override { ++reads; if (!holdCapabilities) emit capabilitiesFinished(caps); }
-    void reload() override { ++reloads; }
+    void reload() override { ++reloads; if (finishOnReload) QTimer::singleShot(0, this, [this]{ acknowledge(); }); }
     void cancel() override { ++cancellations; emit reloadFinished(false, true, QStringLiteral("Cancelled")); }
-    void acknowledge(bool success = true) { emit reloadFinished(success, false, success ? QString() : QStringLiteral("Reload denied")); }
+    void acknowledge(bool success = true) { ++acknowledgements; emit reloadFinished(success, false, success ? QString() : QStringLiteral("Reload denied")); }
     PowerPolicyCapabilities caps;
-    bool holdCapabilities = false;
-    int reads = 0, reloads = 0, cancellations = 0;
+    bool holdCapabilities = false, finishOnReload = false;
+    int reads = 0, reloads = 0, cancellations = 0, acknowledgements = 0;
 };
 
 class PowerPolicyBackendTest : public QObject {
@@ -52,7 +55,11 @@ private slots:
         daemon = new FakePowerDaemon;
         backend = std::make_unique<KdePowerPolicyBackend>(file, daemon);
     }
-    void cleanup() { backend.reset(); dir.reset(); }
+    void cleanup() {
+        if (daemon) { if (daemon->holdCapabilities) { daemon->holdCapabilities=false; emit daemon->capabilitiesFinished(daemon->caps); } daemon->finishOnReload=true; if (daemon->reloads>daemon->acknowledgements) daemon->acknowledge(); }
+        QTRY_VERIFY_WITH_TIMEOUT(!OperationManager::instance()->hasActiveJobs(),10000);
+        backend.reset(); dir.reset();
+    }
     void readsNestedSchemaInSecondsAndProfileDefaults()
     {
         const auto current = read();
@@ -78,7 +85,7 @@ private slots:
         requested.profiles[1].suspendSeconds = 1800;
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(before, requested); backend->writePolicy(before, requested);
-        QCOMPARE(daemon->reloads, 1);
+        QTRY_COMPARE(daemon->reloads, 1);
         QVERIFY(finished.isEmpty());
         {
             KConfig config(file, KConfig::SimpleConfig);
@@ -93,8 +100,8 @@ private slots:
             QCOMPARE(config.group("Other").readEntry("Unrelated", QString()), QStringLiteral("keep me"));
             QVERIFY(!config.group("LowBattery").group("SuspendAndShutdown").hasKey("AutoSuspendAction"));
         }
-        daemon->acknowledge();
-        QCOMPARE(finished.size(), 1);
+        acknowledgeSave();
+        QTRY_COMPARE(finished.size(), 1);
         QVERIFY(finished.first()[0].toBool());
         QVERIFY(finished.first()[1].toBool());
         QCOMPARE(read().profiles[0].displaySeconds, 1200);
@@ -112,7 +119,7 @@ private slots:
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(before, requested); backend->writePolicy(before, requested);
         QCOMPARE(daemon->reloads, 0);
-        QVERIFY(!finished.first()[0].toBool());
+        QTRY_VERIFY(!finished.isEmpty()); QVERIFY(!finished.first()[0].toBool());
         before = read();
         requested = before;
         requested.profiles[0].displaySeconds = 1200;
@@ -122,8 +129,8 @@ private slots:
             QVERIFY(config.sync());
         }
         explicitChanges(before, requested); backend->writePolicy(before, requested);
-        QCOMPARE(daemon->reloads, 1);
-        daemon->acknowledge();
+        QTRY_COMPARE(daemon->reloads, 1);
+        acknowledgeSave();
         KConfig config(file, KConfig::SimpleConfig);
         QCOMPARE(config.group("Other").readEntry("Unrelated", QString()), QStringLiteral("new external value"));
     }
@@ -180,7 +187,7 @@ private slots:
         auto requested = current;
         requested.profiles[0].displaySeconds = 1200;
         explicitChanges(current, requested); backend->writePolicy(current, requested);
-        daemon->acknowledge();
+        acknowledgeSave();
         KConfig config(file, KConfig::SimpleConfig);
         QCOMPARE(config.group("AC").group("SuspendAndShutdown").readEntry("AutoSuspendAction", 0u), 2u);
     }
@@ -202,7 +209,7 @@ private slots:
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(current, requested); backend->writePolicy(current, requested);
         QCOMPARE(daemon->reloads, 0);
-        QVERIFY(!finished.first()[0].toBool());
+        QTRY_VERIFY(!finished.isEmpty()); QVERIFY(!finished.first()[0].toBool());
     }
     void outOfRangeRequestCannotSaveAnyProfile()
     {
@@ -212,7 +219,7 @@ private slots:
         requested.profiles[2].suspendSeconds = 604801;
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(current, requested); backend->writePolicy(current, requested);
-        QVERIFY(!finished.first()[0].toBool());
+        QTRY_VERIFY(!finished.isEmpty()); QVERIFY(!finished.first()[0].toBool());
         QCOMPARE(read().profiles[0].displaySeconds, 600);
         QCOMPARE(daemon->reloads, 0);
     }
@@ -223,8 +230,8 @@ private slots:
         requested.profiles[0].displayEnabled = false;
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(before, requested); backend->writePolicy(before, requested);
-        backend->cancel();
-        QCOMPARE(daemon->cancellations, 1);
+        QTRY_COMPARE(daemon->reloads, 1); backend->cancel();
+        QTRY_COMPARE(finished.size(), 1); QCOMPARE(daemon->cancellations, 1);
         QVERIFY(finished.first()[0].toBool());
         QVERIFY(!finished.first()[1].toBool());
         QVERIFY(finished.first()[2].toBool());
@@ -273,7 +280,7 @@ private slots:
         p.inhibitLidActionWhenExternalMonitorPresent = false; p.sleepMode = 3;
         requested.batteryLowLevel = 25; requested.batteryCriticalLevel = 25; requested.batteryCriticalAction = 8;
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished); explicitChanges(before, requested); backend->writePolicy(before, requested);
-        QCOMPARE(daemon->reloads, 1); QVERIFY(finished.isEmpty()); daemon->acknowledge();
+        QTRY_COMPARE(daemon->reloads, 1); QVERIFY(finished.isEmpty()); acknowledgeSave();
         QVERIFY(finished.first()[0].toBool() && finished.first()[1].toBool());
         QString verificationError;
         QVERIFY2(PowerPolicyFields::matchesRequest(before, requested, read(), verificationError), qPrintable(verificationError));
@@ -294,7 +301,7 @@ private slots:
         QVERIFY(!current.profiles[0].brightnessEditable); QCOMPARE(current.profiles[0].lidAction, 2u);
         QVERIFY(!has(current.profiles[0].powerButtonActions, 2)); QVERIFY(!has(current.profiles[0].sleepModes, 2));
         auto requested = current; requested.profiles[0].dimSeconds = 80;
-        explicitChanges(current, requested); backend->writePolicy(current, requested); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        explicitChanges(current, requested); backend->writePolicy(current, requested); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         const auto after = read(); QCOMPARE(after.profiles[0].lidAction, 2u); QCOMPARE(after.profiles[0].dimSeconds, 80);
     }
     void extendedRequestValidationIsAtomic_data()
@@ -321,16 +328,16 @@ private slots:
         if (fault == 9) requested.batteryLowLevel = -1;
         if (fault == 10) p.powerButtonActions << PowerPolicyAction{4, QStringLiteral("Injected")};
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished); explicitChanges(before, requested); backend->writePolicy(before, requested);
-        QCOMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0); QVERIFY(read() == before);
+        QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0); QVERIFY(read() == before);
     }
     void ownerAndCapabilityDriftAtNativeWriteBoundaryRefusesAllWrites()
     {
         const auto before = read(); auto requested = before; requested.profiles[0].dimSeconds = 90;
         daemon->caps.owner = QStringLiteral(":fixture.replaced"); QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
-        explicitChanges(before, requested); backend->writePolicy(before, requested); QCOMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0);
+        explicitChanges(before, requested); backend->writePolicy(before, requested); QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0);
         QCOMPARE(read().profiles[0].dimSeconds, before.profiles[0].dimSeconds);
         daemon->caps.owner = before.owner; daemon->caps.revision = QStringLiteral("changed-native-capabilities");
-        explicitChanges(before, requested); backend->writePolicy(before, requested); QCOMPARE(finished.size(), 2); QVERIFY(!finished.last()[0].toBool()); QCOMPARE(daemon->reloads, 0);
+        explicitChanges(before, requested); backend->writePolicy(before, requested); QTRY_COMPARE(finished.size(), 2); QVERIFY(!finished.last()[0].toBool()); QCOMPARE(daemon->reloads, 0);
     }
     void policyLocksAndUnknownCriticalDefaultAffectOnlyTheirOwnControls()
     {
@@ -341,7 +348,7 @@ private slots:
         QVERIFY(!current.batteryLevelsEditable); QVERIFY(current.batteryCriticalActionEditable);
         QVERIFY(!current.keys.value(PowerPolicyKey::BatteryCriticalAction).valueKnown);
         auto requested = current; requested.profiles[0].keyboardBrightnessEnabled = true; requested.profiles[0].keyboardBrightnessPercent = 0;
-        explicitChanges(current, requested); backend->writePolicy(current, requested); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        explicitChanges(current, requested); backend->writePolicy(current, requested); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         QCOMPARE(read().profiles[0].keyboardBrightnessPercent, 0);
     }
     void cancellingNewCapabilityPreflightCannotWriteAfterItsLateReply()
@@ -349,8 +356,8 @@ private slots:
         const auto before = read(); auto requested = before; requested.profiles[0].dimSeconds = 90;
         daemon->holdCapabilities = true; QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
         explicitChanges(before, requested); backend->writePolicy(before, requested); QVERIFY(finished.isEmpty()); backend->cancel();
-        QCOMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QVERIFY(finished.first()[2].toBool());
-        emit daemon->capabilitiesFinished(daemon->caps); QCOMPARE(finished.size(), 1); QCOMPARE(daemon->reloads, 0);
+        QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QVERIFY(finished.first()[2].toBool());
+        emit daemon->capabilitiesFinished(daemon->caps); QTRY_COMPARE(finished.size(), 1); QCOMPARE(daemon->reloads, 0);
         daemon->holdCapabilities = false; QVERIFY(read() == before);
     }
     void unknownEffectiveDefaultCanBeExplicitlyPinnedWithoutFlatteningCompanions()
@@ -365,7 +372,7 @@ private slots:
                                         QVariant(before.profiles[2].displaySeconds), error));
         QVERIFY(request.profiles[2].intents.contains(key));
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         QVERIFY(finished.first()[1].toBool());
         KConfig config(file, KConfig::SimpleConfig); auto display = config.group("LowBattery").group("Display");
         QVERIFY(display.hasKey("TurnOffDisplayIdleTimeoutSec"));
@@ -378,7 +385,7 @@ private slots:
         daemon->caps.mobileKnown = false;
         auto before = read(); auto request = before; QString error;
         QVERIFY(PowerPolicyFields::stage(request.profiles[2], before.profiles[2], PowerPolicyKey::DisplayEnabled, QVariant(false), error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         KConfig config(file, KConfig::SimpleConfig); const auto group = config.group("LowBattery").group("Display");
         QVERIFY(group.hasKey("TurnOffDisplayWhenIdle")); QVERIFY(!group.hasKey("TurnOffDisplayIdleTimeoutSec"));
         QVERIFY(!read().profiles[2].keys.value(PowerPolicyKey::DisplaySeconds).valueKnown);
@@ -387,9 +394,9 @@ private slots:
     {
         const auto before = read(); auto request = before; request.profiles[0].displaySeconds = 1200;
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
-        backend->writePolicy(before, request); QCOMPARE(finished.size(), 1); QVERIFY(!finished.last()[0].toBool());
+        backend->writePolicy(before, request); QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.last()[0].toBool());
         explicitChanges(before, request); request.profiles[0].keys[PowerPolicyKey::DisplaySeconds].localPresent = false;
-        backend->writePolicy(before, request); QCOMPARE(finished.size(), 2); QVERIFY(!finished.last()[0].toBool());
+        backend->writePolicy(before, request); QTRY_COMPARE(finished.size(), 2); QVERIFY(!finished.last()[0].toBool());
         QCOMPARE(daemon->reloads, 0); QVERIFY(read() == before);
     }
     void explicitEqualOverrideIsANativeDefaultsNoop()
@@ -411,7 +418,7 @@ private slots:
         QCOMPARE(before.profiles[0].keys.value(key).defaultValue.toUInt(), 128u);
         QVERIFY(!has(before.profiles[0].powerButtonActions, 128u));
         QVERIFY(PowerPolicyFields::restore(request.profiles[0], before.profiles[0], key, error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         KConfig config(file, KConfig::SimpleConfig);
         QVERIFY(!config.group("AC").group("SuspendAndShutdown").hasKey("PowerButtonAction"));
         // The daemon has independent nonmobile defaults, so the effective value
@@ -425,7 +432,7 @@ private slots:
         const auto before = read(); auto request = before; QString error; const auto key = PowerPolicyKey::DisplaySeconds;
         QVERIFY(before.profiles[2].keys.value(key).valueKnown);
         QVERIFY(PowerPolicyFields::restore(request.profiles[2], before.profiles[2], key, error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         const auto after = read(); QVERIFY(!after.profiles[2].keys.value(key).valueKnown);
         QVERIFY(!after.profiles[2].keys.value(key).effectivePresent);
         QVERIFY(!after.profiles[2].keys.value(key).resettable);
@@ -437,14 +444,14 @@ private slots:
         { QFile output(file); QVERIFY(output.open(QIODevice::Append)); output.write("\n[AC][Display]\nTurnOffDisplayIdleTimeoutSec=0600\n"); }
         QCOMPARE(read().profiles[0].displaySeconds, before.profiles[0].displaySeconds);
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
-        backend->writePolicy(before, request); QCOMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0);
+        backend->writePolicy(before, request); QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 0);
     }
     void nativeCustomTimeoutMaximumRoundTripsWithoutMillisecondsOverflow()
     {
         const auto before=read(); auto request=before; QString error;
         for(auto key:{PowerPolicyKey::DisplaySeconds,PowerPolicyKey::IdleSeconds,PowerPolicyKey::DimSeconds,PowerPolicyKey::LockedDisplaySeconds})
             QVERIFY(PowerPolicyFields::stage(request.profiles[0],before.profiles[0],key,604800,error));
-        backend->writePolicy(before,request); QCOMPARE(daemon->reloads,1); daemon->acknowledge();
+        backend->writePolicy(before,request); QTRY_COMPARE(daemon->reloads,1); acknowledgeSave();
         QVERIFY2(PowerPolicyFields::matchesRequest(before,request,read(),error),qPrintable(error));
         KConfig config(file,KConfig::SimpleConfig);
         QCOMPARE(config.group("AC").group("Display").readEntry("TurnOffDisplayIdleTimeoutSec",0),604800);
@@ -491,7 +498,7 @@ private slots:
         QVERIFY(before.profiles[0].keys.value(key).inheritedPresent);
         QCOMPARE(before.profiles[0].keys.value(key).defaultValue.toInt(), 1000);
         QVERIFY(PowerPolicyFields::restore(request.profiles[0], before.profiles[0], key, error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 1); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 1); acknowledgeSave();
         { KConfig local(file, KConfig::SimpleConfig); QVERIFY(local.group("AC").group("Display").hasKey("TurnOffDisplayIdleTimeoutSec")); QCOMPARE(local.group("AC").group("Display").readEntry("TurnOffDisplayIdleTimeoutSec", 0), 1000); }
         // A global-origin native reset writes the user global file, preserving
         // unrelated entries. This cannot be simulated using NoGlobals sources.
@@ -499,7 +506,7 @@ private slots:
         const auto state = before.profiles[0].keys.value(key);
         QVERIFY(state.globalPresent && !state.localPresent && !state.inheritedPresent);
         QVERIFY(PowerPolicyFields::restore(request.profiles[0], before.profiles[0], key, error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 2); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 2); acknowledgeSave();
         { KConfig global(globalFile, KConfig::SimpleConfig); QVERIFY(!global.group("AC").group("SuspendAndShutdown").hasKey("PowerButtonAction")); QCOMPARE(global.group("Other").readEntry("Keep", QString()), QStringLiteral("global-unowned")); }
         // Local shadowing a global override uses native deletion-mask semantics.
         QVERIFY(save(globalFile, "[AC][SuspendAndShutdown]\nPowerButtonAction=32\n[Other]\nKeep=global-unowned\n"));
@@ -507,7 +514,7 @@ private slots:
         before = read(); request = before;
         QVERIFY(before.profiles[0].keys.value(key).globalPresent && before.profiles[0].keys.value(key).localPresent);
         QVERIFY(PowerPolicyFields::restore(request.profiles[0], before.profiles[0], key, error));
-        backend->writePolicy(before, request); QCOMPARE(daemon->reloads, 3); daemon->acknowledge();
+        backend->writePolicy(before, request); QTRY_COMPARE(daemon->reloads, 3); acknowledgeSave();
         const auto after = read(); QVERIFY(!after.profiles[0].keys.value(key).effectivePresent);
         QVERIFY(!after.profiles[0].keys.value(key).localPresent); QVERIFY(after.profiles[0].keys.value(key).globalPresent);
         { KConfig global(globalFile, KConfig::SimpleConfig); QCOMPARE(global.group("AC").group("SuspendAndShutdown").readEntry("PowerButtonAction", 0u), 32u); }
@@ -518,7 +525,7 @@ private slots:
         QVERIFY(PowerPolicyFields::stage(request.profiles[0], before.profiles[0], key, QVariant(8u), error));
         { KConfig global(globalFile, KConfig::SimpleConfig); global.group("AC").group("SuspendAndShutdown").writeEntry("PowerButtonAction", 64u); QVERIFY(global.sync()); }
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
-        backend->writePolicy(before, request); QCOMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QCOMPARE(daemon->reloads, 3);
+        backend->writePolicy(before, request); QTRY_COMPARE(finished.size(), 1); QVERIFY(!finished.first()[0].toBool()); QTRY_COMPARE(daemon->reloads, 3);
         // Native inherited immutable policy applies independently to each key.
         QVERIFY(save(defaultsFile, "[AC][Display]\nTurnOffDisplayIdleTimeoutSec[$i]=1000\n"));
         const auto locked = read(); QVERIFY(locked.profiles[0].keys.value(PowerPolicyKey::DisplaySeconds).immutable);
@@ -527,6 +534,13 @@ private slots:
     }
 
 private:
+    void acknowledgeSave()
+    {
+        QTRY_VERIFY(daemon->reloads > daemon->acknowledgements);
+        QSignalSpy finished(backend.get(), &PowerPolicyBackend::writeFinished);
+        daemon->acknowledge();
+        QTRY_COMPARE(finished.size(), 1);
+    }
     static void explicitChanges(const PowerPolicySnapshot &baseline, PowerPolicySnapshot &request)
     {
         for (int i = 0; i < request.profiles.size(); ++i)
@@ -544,13 +558,14 @@ private:
     {
         QSignalSpy finished(backend.get(), &PowerPolicyBackend::readFinished);
         backend->readCurrent();
+        if (finished.isEmpty()) finished.wait(5000);
         if (finished.size() != 1 || !finished.first()[0].toBool())
             qFatal("Temporary PowerDevil configuration read failed");
         return qvariant_cast<PowerPolicySnapshot>(finished.first()[1]);
     }
     std::unique_ptr<QTemporaryDir> dir;
     QString file;
-    FakePowerDaemon *daemon = nullptr;
+    QPointer<FakePowerDaemon> daemon;
     std::unique_ptr<KdePowerPolicyBackend> backend;
 };
 QTEST_GUILESS_MAIN(PowerPolicyBackendTest)

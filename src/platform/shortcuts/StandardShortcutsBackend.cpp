@@ -1,4 +1,6 @@
 #include "StandardShortcutsBackend.h"
+#include "operations/SettingsFileReservations.h"
+#include "operations/OperationManager.h"
 #include <KConfig>
 #include <KConfigGroup>
 #include <KStandardShortcut>
@@ -17,6 +19,7 @@
 #include <QUuid>
 #include <QtConcurrent>
 #include <algorithm>
+#include <memory>
 #include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -75,7 +78,7 @@ bool safeWritable(const QString &path, QString &reason)
     }
     ::close(fd); return true;
 }
-bool atomicReplace(const QString &path, const FileImage &expected, const QByteArray &data, bool remove, QString &error)
+bool atomicReplace(const QString &path, const FileImage &expected, const QByteArray &data, bool remove, QString &error, FileImage *receipt = nullptr)
 {
     if (!safeWritable(path, error)) return false;
     FileImage current;
@@ -111,6 +114,8 @@ bool atomicReplace(const QString &path, const FileImage &expected, const QByteAr
     }
     if (ok && exists) ok = ::fchmod(output, st.st_mode & 0777) == 0;
     if (ok) ok = ::fsync(output) == 0;
+    struct stat writtenImage{};
+    if (ok) ok = ::fstat(output,&writtenImage)==0;
     if (output >= 0) ::close(output);
     // Recheck the name after preparing bytes. renameat never follows this name.
     struct stat after{};
@@ -121,6 +126,12 @@ bool atomicReplace(const QString &path, const FileImage &expected, const QByteAr
     if (!ok) ::unlinkat(fd, temp.constData(), 0);
     if (ok) ::fsync(fd);
     ::close(fd);
+    if (ok && receipt) {
+        receipt->exists=true; receipt->bytes=data;
+        receipt->permissions=expected.exists?expected.permissions:QFileDevice::Permissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner|QFileDevice::ReadUser|QFileDevice::WriteUser);
+        receipt->device=writtenImage.st_dev; receipt->inode=writtenImage.st_ino; receipt->links=writtenImage.st_nlink;
+        receipt->modifiedSeconds=writtenImage.st_mtim.tv_sec; receipt->modifiedNanoseconds=writtenImage.st_mtim.tv_nsec;
+    }
     if (!ok) error = QObject::tr("An atomic settings write failed or the file changed: %1").arg(path);
     return ok;
 }
@@ -289,7 +300,8 @@ bool notify(const StandardShortcutsBackendOptions &options, const QByteArrayList
     return false;
 }
 StandardShortcutsResult writeTransaction(const StandardShortcutsBackendOptions &options, const QList<ShortcutAction> &entries,
-                                        const ShortcutsSnapshot &expected, const ShortcutChanges &requested)
+                                        const ShortcutsSnapshot &expected, const ShortcutChanges &requested,
+                                        const std::function<bool(const QStringList &,QString &)> &retainAliases)
 {
     StandardShortcutsResult result;
     QString error;
@@ -313,10 +325,20 @@ StandardShortcutsResult writeTransaction(const StandardShortcutsBackendOptions &
         if (preflight.available) result.snapshot = preflight;
         return fail(QObject::tr("Standard shortcut configuration changed while preparing Apply. No settings were written."));
     }
-    if (!atomicReplace(path, original, prepared, false, error)) return fail(error);
     FileImage committed;
-    // Capture our committed identity before the test hook/external readback.
-    if (!bytes(path, committed, error) || committed.bytes != prepared) {
+    if (!atomicReplace(path, original, prepared, false, error,&committed)) return fail(error);
+    if (options.isolated && options.afterReplaceBeforeRetention) options.afterReplaceBeforeRetention();
+    const auto writtenKey=QStringLiteral("inode:%1:%2").arg(committed.device).arg(committed.inode);
+    if (!retainAliases({writtenKey},error)) {
+        result.outcome=ShortcutsOutcome::Uncertain;
+        return fail(QObject::tr("Standard bindings were written, but file identities could not be retained. No notification or rollback was attempted. %1").arg(error));
+    }
+    // This receipt comes from the actual written descriptor before rename,
+    // never a later same-byte foreign replacement during the GUI bridge.
+    FileImage observed;
+    if (!bytes(path, observed, error) || observed.exists!=committed.exists || observed.bytes!=committed.bytes
+        || observed.device!=committed.device || observed.inode!=committed.inode
+        || observed.modifiedSeconds!=committed.modifiedSeconds || observed.modifiedNanoseconds!=committed.modifiedNanoseconds) {
         result.outcome = ShortcutsOutcome::Uncertain;
         return fail(QObject::tr("Standard bindings were written, but the saved file could not be verified. Refresh before continuing."));
     }
@@ -341,17 +363,18 @@ StandardShortcutsResult writeTransaction(const StandardShortcutsBackendOptions &
         && current.modifiedSeconds == committed.modifiedSeconds && current.modifiedNanoseconds == committed.modifiedNanoseconds;
     if (!verified || !ownFile) {
         QString rollbackError;
-        const bool restored = ownFile && atomicReplace(path, committed, original.bytes, !original.exists, rollbackError);
+        FileImage rollbackReceipt;
+        const bool restored = ownFile && atomicReplace(path, committed, original.bytes, !original.exists, rollbackError,&rollbackReceipt)
+            && retainAliases(rollbackReceipt.exists?QStringList{QStringLiteral("inode:%1:%2").arg(rollbackReceipt.device).arg(rollbackReceipt.inode)}:QStringList{},rollbackError);
         readSnapshot(options, entries, result.snapshot, error);
         result.outcome = restored ? ShortcutsOutcome::Failed : ShortcutsOutcome::Partial;
         return fail(restored ? QObject::tr("Standard shortcut verification failed. The original configuration was restored.")
                             : QObject::tr("Standard bindings changed during verification. The current file was preserved; refresh before continuing."));
     }
     result.snapshot = after;
-    if (!notify(options, changed, error)) {
-        result.outcome = ShortcutsOutcome::Partial;
-        return fail(error.isEmpty() ? QObject::tr("Standard bindings were saved, but KDE's change notification failed. Applications may need to restart.") : error);
-    }
+    // Notification belongs to the GUI-owned continuation, which survives the
+    // optional facade and retains the reservation until that continuation ends.
+    result.notificationKeys=changed;
     result.success = true; result.outcome = ShortcutsOutcome::Success;
     return result;
 }
@@ -367,19 +390,6 @@ KdeStandardShortcutsBackend::KdeStandardShortcutsBackend(const StandardShortcuts
     connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, [this] { m_debounce.start(); });
     connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, [this] { m_debounce.start(); });
     connect(&m_debounce, &QTimer::timeout, this, [this] { watchFiles(); emit externalChange(); });
-    connect(&m_future, &QFutureWatcher<StandardShortcutsResult>::finished, this, [this] {
-        const auto result = m_future.result();
-        const auto job = m_active; m_jobActive = false;
-        if (result.snapshot.available) m_revision = result.snapshot.revision;
-        watchFiles();
-        QPointer<KdeStandardShortcutsBackend> guard(this);
-        if (job.write) emit writeFinished(job.tokens.first(), result.outcome, result.snapshot, result.error);
-        else for (const auto token : job.tokens) {
-            emit readFinished(token, result.success, result.snapshot, result.error);
-            if (!guard) return;
-        }
-        if (guard) startNext();
-    });
     watchFiles();
 }
 void KdeStandardShortcutsBackend::watchFiles()
@@ -403,15 +413,89 @@ void KdeStandardShortcutsBackend::writeChanges(quint64 token, const ShortcutsSna
     StandardShortcutsJob job; job.tokens << token; job.write = true; job.expected = expected; job.requested = requested;
     m_queue.enqueue(job); startNext();
 }
+void KdeStandardShortcutsBackend::cancel()
+{
+    const auto queued=m_queue; m_queue.clear(); QPointer<KdeStandardShortcutsBackend> guard(this);
+    for (const auto &job:queued) for (const auto token:job.tokens) {
+        const auto error=tr("Queued standard-shortcut work was canceled before it started. No changes were written by that job.");
+        if (job.write) emit writeFinished(token,ShortcutsOutcome::Failed,job.expected,error);
+        else emit readFinished(token,false,{},error);
+        if (!guard) return;
+    }
+    if (m_jobActive) emit operationPending(tr("Standard-shortcut work is already running and continues until its actual completion. It has not been canceled."));
+}
 void KdeStandardShortcutsBackend::startNext()
 {
     if (m_jobActive || m_queue.isEmpty()) return;
-    m_jobActive = true; m_active = m_queue.dequeue();
-    const auto options = m_options; const auto entries = m_catalog; const auto job = m_active;
-    m_future.setFuture(QtConcurrent::run([options, entries, job] {
-        if (job.write) return writeTransaction(options, entries, job.expected, job.requested);
-        StandardShortcutsResult result;
-        result.success = readSnapshot(options, entries, result.snapshot, result.error);
-        return result;
-    }));
+    m_jobActive=true; m_active=m_queue.dequeue();
+    const auto options=m_options; const auto entries=m_catalog; const auto job=m_active;
+    auto *work=new QObject(QCoreApplication::instance());
+    auto lease=std::make_shared<SettingsFileReservations::Reservation>();
+    QPointer<KdeStandardShortcutsBackend> facade(this);
+    OperationManager::instance()->setActivity(work,job.write?tr("Saving Application Shortcuts"):tr("Reading Application Shortcuts"),true);
+    auto *pendingDeadline=new QTimer(work); pendingDeadline->setSingleShot(true);
+    pendingDeadline->setInterval(options.isolated?qMax(1,options.softDeadlineMs):10000);
+    connect(pendingDeadline,&QTimer::timeout,work,[facade] {
+        if (facade) emit facade->operationPending(QObject::tr("Standard-shortcut work is taking longer than expected. It continues in the background; wait for its actual completion."));
+    });
+    pendingDeadline->start();
+    auto finish=[facade,work,lease,job,options,pendingDeadline](StandardShortcutsResult result) {
+        pendingDeadline->stop();
+        // Keep the app-owned activity and old/new inode aliases through the
+        // actual native notification, even when the page/session is destroyed.
+        if (job.write && result.success && !result.notificationKeys.isEmpty()) {
+            QString error;
+            if (!notify(options,result.notificationKeys,error)) {
+                result.success=false; result.outcome=ShortcutsOutcome::Partial;
+                result.error=error.isEmpty()?QObject::tr("Standard bindings were saved, but KDE's change notification failed. Applications may need to restart."):error;
+            }
+        }
+        SettingsFileReservations::endMutation(*lease); SettingsFileReservations::release(*lease);
+        OperationManager::instance()->setActivity(work,{},false);
+        if (facade) {
+            if (result.snapshot.available) facade->m_revision=result.snapshot.revision;
+            facade->m_jobActive=false; facade->watchFiles();
+            if (job.write) emit facade->writeFinished(job.tokens.first(),result.outcome,result.snapshot,result.error);
+            else for (const auto token:job.tokens) {
+                emit facade->readFinished(token,result.success,result.snapshot,result.error);
+                if (!facade) break;
+            }
+            if (facade) facade->startNext();
+        }
+        work->deleteLater();
+    };
+    auto run=[options,entries,job,work,lease,finish] {
+        auto *future=new QFutureWatcher<StandardShortcutsResult>(work);
+        connect(future,&QFutureWatcher<StandardShortcutsResult>::finished,work,[future,finish] {
+            const auto result=future->result(); future->deleteLater(); finish(result);
+        });
+        future->setFuture(QtConcurrent::run([options,entries,job,work,lease] {
+            auto retain=[work,lease](const QStringList &writtenKeys,QString &error) {
+                auto keys=SettingsFileReservations::currentKeys(lease->paths,&error);
+                if (keys.isEmpty()) return false;
+                keys<<writtenKeys; keys.removeDuplicates();
+                bool retained=false;
+                const bool delivered=QMetaObject::invokeMethod(work,[lease,keys,&retained] {
+                    retained=SettingsFileReservations::refresh(*lease,keys);
+                },Qt::BlockingQueuedConnection);
+                if (!delivered || !retained) error=QObject::tr("The standard-shortcut file identities could not be retained on the owning thread.");
+                return delivered && retained;
+            };
+            if (job.write) return writeTransaction(options,entries,job.expected,job.requested,retain);
+            StandardShortcutsResult result; result.success=readSnapshot(options,entries,result.snapshot,result.error); return result;
+        }));
+    };
+    if (!job.write) { run(); return; }
+    const auto inventory=SettingsFileReservations::snapshot(); auto targets=sources(options); targets<<configPath(options); targets.removeDuplicates();
+    auto *admission=new QFutureWatcher<SettingsFileReservations::Inspection>(work);
+    connect(admission,&QFutureWatcher<SettingsFileReservations::Inspection>::finished,work,[admission,lease,run,finish,job] {
+        const auto inspected=admission->result(); admission->deleteLater(); QString error;
+        *lease=SettingsFileReservations::acquire(inspected,error);
+        if (!lease->valid() || !SettingsFileReservations::beginMutation(*lease)) {
+            StandardShortcutsResult result; result.snapshot=job.expected;
+            result.error=error.isEmpty()?QObject::tr("The standard-shortcut file reservation could not be acquired."):error; finish(result); return;
+        }
+        run();
+    });
+    admission->setFuture(QtConcurrent::run([targets,inventory] { return SettingsFileReservations::inspect(targets,inventory); }));
 }

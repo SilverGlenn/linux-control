@@ -1,0 +1,66 @@
+Running as unit: linux-control-rc1-focused.scope; invocation ID: 411d1eccf850473493b03d08d9e24793
+Test project /home/siru/Projects/linux-control/build/rc1-release
+      Start   1: rc_bundle
+ 1/30 Test   #1: rc_bundle ........................   Passed    0.16 sec
+      Start   2: release_identity
+ 2/30 Test   #2: release_identity .................   Passed    0.24 sec
+      Start  33: shortcuts_settings
+ 3/30 Test  #33: shortcuts_settings ...............   Passed    0.02 sec
+      Start  36: keyboard_preview
+ 4/30 Test  #36: keyboard_preview .................   Passed    0.35 sec
+      Start  37: standard_shortcuts_backend
+ 5/30 Test  #37: standard_shortcuts_backend .......   Passed    1.08 sec
+      Start  44: keyboard_settings
+ 6/30 Test  #44: keyboard_settings ................   Passed    0.02 sec
+      Start  45: keyboard_backend
+ 7/30 Test  #45: keyboard_backend .................   Passed    2.72 sec
+      Start  46: keyboard_page
+ 8/30 Test  #46: keyboard_page ....................   Passed    0.32 sec
+      Start  47: default_apps_settings
+ 9/30 Test  #47: default_apps_settings ............   Passed    0.02 sec
+      Start  48: default_apps_backend
+10/30 Test  #48: default_apps_backend .............   Passed    0.86 sec
+      Start  49: default_apps_page
+11/30 Test  #49: default_apps_page ................   Passed    0.10 sec
+      Start  53: network_types
+12/30 Test  #53: network_types ....................   Passed    0.01 sec
+      Start  54: network_settings
+13/30 Test  #54: network_settings .................   Passed    1.09 sec
+      Start  55: network_backend
+14/30 Test  #55: network_backend ..................   Passed   19.81 sec
+      Start  56: network_pages
+15/30 Test  #56: network_pages ....................   Passed    0.23 sec
+      Start  57: aero_theme_settings
+16/30 Test  #57: aero_theme_settings ..............   Passed    0.03 sec
+      Start  58: aero_theme_backend
+17/30 Test  #58: aero_theme_backend ...............   Passed   14.80 sec
+      Start  59: aero_theme_contract
+18/30 Test  #59: aero_theme_contract ..............   Passed    0.02 sec
+      Start  63: font_settings
+19/30 Test  #63: font_settings ....................   Passed    0.05 sec
+      Start  64: font_backend
+20/30 Test  #64: font_backend .....................   Passed    4.04 sec
+      Start  65: font_browser
+21/30 Test  #65: font_browser .....................   Passed    0.38 sec
+      Start  79: navigation_guard
+22/30 Test  #79: navigation_guard .................   Passed    0.02 sec
+      Start  91: main_window_lifecycle
+23/30 Test  #91: main_window_lifecycle ............   Passed    1.12 sec
+      Start  94: display_settings
+24/30 Test  #94: display_settings .................   Passed    1.10 sec
+      Start  97: appearance_settings
+25/30 Test  #97: appearance_settings ..............   Passed    0.05 sec
+      Start  98: appearance_backend
+26/30 Test  #98: appearance_backend ...............   Passed    0.85 sec
+      Start  99: appearance_async
+27/30 Test  #99: appearance_async .................   Passed    2.88 sec
+      Start 100: font_async
+28/30 Test #100: font_async .......................   Passed    2.04 sec
+      Start 101: rc_file_jobs_integration
+29/30 Test #101: rc_file_jobs_integration .........   Passed    5.91 sec
+      Start 102: rc_primary_ui
+30/30 Test #102: rc_primary_ui ....................   Passed    0.44 sec
+
+100% tests passed, 0 tests failed out of 30
+
+Total Test time (real) =  60.78 sec

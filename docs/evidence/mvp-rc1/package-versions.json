@@ -1,0 +1,144 @@
+{
+  "observed_at": "2026-10-25T14:57:59.301517+08:00",
+  "method": "Passive installed package/archive metadata only; running provider identity remains separately guarded and live qualification pending",
+  "packages": {
+    "qt6-base-dev": {
+      "installed": true,
+      "record": "qt6-base-dev\t6.10.2+dfsg-7\tinstall ok installed"
+    },
+    "libqt6core6t64": {
+      "installed": true,
+      "record": "libqt6core6t64\t6.10.2+dfsg-7\tinstall ok installed"
+    },
+    "libqt6widgets6": {
+      "installed": true,
+      "record": "libqt6widgets6\t6.10.2+dfsg-7\tinstall ok installed"
+    },
+    "libqt6positioning6": {
+      "installed": true,
+      "record": "libqt6positioning6\t6.10.2-1\tinstall ok installed"
+    },
+    "libqt6multimedia6": {
+      "installed": true,
+      "record": "libqt6multimedia6\t6.10.2-2\tinstall ok installed"
+    },
+    "libkf6configcore6": {
+      "installed": true,
+      "record": "libkf6configcore6\t6.24.0-0ubuntu1\tinstall ok installed"
+    },
+    "libkf6kio6": {
+      "installed": false,
+      "record": null
+    },
+    "libkf6holidays6": {
+      "installed": true,
+      "record": "libkf6holidays6\t6.24.0-0ubuntu1\tinstall ok installed"
+    },
+    "libknighttime0": {
+      "installed": true,
+      "record": "libknighttime0\t6.6.5-0ubuntu0.1\tinstall ok installed"
+    },
+    "kwin-wayland": {
+      "installed": true,
+      "record": "kwin-wayland\t4:6.6.6-0ubuntu0.1\tinstall ok installed"
+    },
+    "plasma-workspace": {
+      "installed": true,
+      "record": "plasma-workspace\t4:6.6.6-0ubuntu0.1\tinstall ok installed"
+    },
+    "powerdevil": {
+      "installed": true,
+      "record": "powerdevil\t4:6.6.6-0ubuntu0.1\tinstall ok installed"
+    },
+    "kglobalacceld": {
+      "installed": true,
+      "record": "kglobalacceld\t6.6.5-0ubuntu0.1\tinstall ok installed"
+    },
+    "network-manager": {
+      "installed": true,
+      "record": "network-manager\t1.54.3-2ubuntu3.1\tinstall ok installed"
+    },
+    "pipewire": {
+      "installed": true,
+      "record": "pipewire\t1.6.2-1ubuntu1.2\tinstall ok installed"
+    },
+    "cups": {
+      "installed": true,
+      "record": "cups\t2.4.16-1ubuntu1.3\tinstall ok installed"
+    },
+    "libcups2t64": {
+      "installed": true,
+      "record": "libcups2t64\t2.4.16-1ubuntu1.3\tinstall ok installed"
+    },
+    "fontconfig": {
+      "installed": true,
+      "record": "fontconfig\t2.17.1-3ubuntu1\tinstall ok installed"
+    },
+    "libxkbcommon0": {
+      "installed": true,
+      "record": "libxkbcommon0\t1.13.1-1\tinstall ok installed"
+    },
+    "cmake": {
+      "installed": true,
+      "record": "cmake\t4.2.3-2ubuntu2\tinstall ok installed"
+    },
+    "g++": {
+      "installed": true,
+      "record": "g++\t4:15.2.0-5ubuntu1\tinstall ok installed"
+    },
+    "python3": {
+      "installed": true,
+      "record": "python3\t3.14.3-0ubuntu2\tinstall ok installed"
+    }
+  },
+  "cached_archives": [
+    {
+      "path": "build/deps/libcups2-dev_2.4.16-1ubuntu1.3_amd64.deb",
+      "sha256": "6516fb274a2f210fc4a5ec341f6ca1a682a5cd26434e814a88ea6ee0c0c045d4",
+      "metadata": "Package: libcups2-dev\nVersion: 2.4.16-1ubuntu1.3\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/knighttime-dev_6.6.5-0ubuntu0.1_amd64.deb",
+      "sha256": "a67ef5e5a0113c859a1d53dc180c6dd905cfc3b5e44239eef3d8cef960481593",
+      "metadata": "Package: knighttime-dev\nVersion: 6.6.5-0ubuntu0.1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/libkf6holidays-dev_6.24.0-0ubuntu1_amd64.deb",
+      "sha256": "cf27432d9175864260c32cb8dc057efb7a3c1112bb172fbcbf311d0de94bf9c3",
+      "metadata": "Package: libkf6holidays-dev\nVersion: 6.24.0-0ubuntu1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/libkf6holidays6_6.24.0-0ubuntu1_amd64.deb",
+      "sha256": "419fd6e63ac0a15ba9e1aa28fca100080d7e8b0311a1c9efd0963bb04860fc65",
+      "metadata": "Package: libkf6holidays6\nVersion: 6.24.0-0ubuntu1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/libknighttime0_6.6.5-0ubuntu0.1_amd64.deb",
+      "sha256": "9fcacb3599b7c9947152287d1db0b58b82bf474345b6e2b9458fc68eef3e4033",
+      "metadata": "Package: libknighttime0\nVersion: 6.6.5-0ubuntu0.1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/libqt6positioning6_6.10.2-1_amd64.deb",
+      "sha256": "6dcb2415c16648c6f2d91648fbefa90506392acfd0788ec5b4181f51134701e4",
+      "metadata": "Package: libqt6positioning6\nVersion: 6.10.2-1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/libqt6positioningquick6_6.10.2-1_amd64.deb",
+      "sha256": "0f7fd2f843bcb00cc7cd9f5cea9a16e50d3910195681f028e4164a7fcaa6e29e",
+      "metadata": "Package: libqt6positioningquick6\nVersion: 6.10.2-1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    },
+    {
+      "path": "build/deps/nighttime/qt6-positioning-dev_6.10.2-1_amd64.deb",
+      "sha256": "b7eb92103c726225dddb101b3ff800b06eb4906861923030806ed06daf53d993",
+      "metadata": "Package: qt6-positioning-dev\nVersion: 6.10.2-1\nArchitecture: amd64",
+      "provenance": "Existing cached package archive; no package installation performed in RC preparation"
+    }
+  ]
+}

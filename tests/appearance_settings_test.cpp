@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSignalSpy>
+#include <QPointer>
 #include "settings/AppearanceSettings.h"
 #include "ui/pages/WindowBehaviorPage.h"
 
@@ -173,6 +174,61 @@ private slots:
         QVERIFY(backend->writes.isEmpty());
         session->selectAction("Close"); // Existing actions can be read, not newly authored.
         QCOMPARE(session->stagedAction(), "Maximize (vertical only)");
+    }
+    void pendingStatusIsScopedToWriteAndSurvivesPageReplacement()
+    {
+        emit backend->operationPending("stale idle progress"); QVERIFY(session->pendingMessage().isEmpty());
+        session->selectAction("Minimize"); session->apply();
+        emit backend->operationPending("stale preflight progress"); QVERIFY(session->pendingMessage().isEmpty());
+        backend->report("Maximize"); emit backend->operationPending("Saving continues in the background.");
+        QVERIFY(session->isBusy()); QVERIFY(session->isDirty()); QVERIFY(session->errorText().isEmpty());
+        WindowBehaviorPage page(nullptr, session, nullptr);
+        QVERIFY(page.findChild<QLabel *>("windowBehaviorStatus")->text().contains("continues"));
+        QVERIFY(!page.findChild<QPushButton *>("applyWindowBehavior")->isEnabled());
+        QVERIFY(!page.findChild<QPushButton *>("revertWindowBehavior")->isEnabled());
+        backend->written(); emit backend->operationPending("late write progress"); QVERIFY(session->pendingMessage().isEmpty());
+        backend->report("Minimize"); QVERIFY(!session->isDirty()); QVERIFY(!session->isBusy());
+    }
+    void explicitFailureCannotBeErasedByMatchingReadback()
+    {
+        session->selectAction("Minimize"); session->apply(); backend->report("Maximize");
+        QSignalSpy finished(session, &SettingsSession::applyFinished);
+        emit backend->writeFinished(true, "The saved source receipt changed."); backend->report("Minimize");
+        QCOMPARE(finished.size(), 1); QVERIFY(!finished[0][0].toBool());
+        QVERIFY(session->isDirty()); QVERIFY(session->hasConflict()); QVERIFY(session->errorText().contains("receipt"));
+        backend->changed(); backend->report("Minimize"); QVERIFY(session->isDirty()); QVERIFY(session->hasConflict());
+        session->revert(); backend->failedRead(); QVERIFY(session->isDirty()); QCOMPARE(session->stagedAction(), "Minimize"); QVERIFY(session->errorText().contains("Read failed"));
+        session->revert(); backend->report("Minimize"); QVERIFY(!session->isDirty()); QVERIFY(!session->hasConflict());
+    }
+    void observersMayDeleteTheSession_data()
+    {
+        QTest::addColumn<int>("transition");
+        QTest::newRow("refresh-start") << 0; QTest::newRow("apply-start") << 1;
+        QTest::newRow("apply-finished") << 2; QTest::newRow("pending-progress") << 3;
+        QTest::newRow("blocked-apply") << 4; QTest::newRow("refresh-finished") << 5;
+    }
+    void observersMayDeleteTheSession()
+    {
+        QFETCH(int, transition); QPointer<AppearanceSettings> guard(session);
+        const auto remove = [this] { auto *victim = session; session = nullptr; backend = nullptr; delete victim; };
+        if (transition == 0) {
+            connect(session, &SettingsSession::stateChanged, this, remove); session->refresh();
+        } else if (transition == 1) {
+            session->selectAction("Minimize"); connect(session, &SettingsSession::stateChanged, this, remove); session->apply();
+        } else if (transition == 4) {
+            session->selectAction("Minimize"); backend->changed(); backend->report("Nothing");
+            connect(session, &SettingsSession::applyFinished, this, remove); session->apply();
+        } else if (transition == 5) {
+            session->refresh(); connect(session, &SettingsSession::stateChanged, this, remove); backend->report("Maximize");
+        } else {
+            session->selectAction("Minimize"); session->apply(); backend->report("Maximize");
+            if (transition == 3) {
+                connect(session, &SettingsSession::stateChanged, this, remove); emit backend->operationPending("Saving continues.");
+            } else {
+                connect(session, &SettingsSession::applyFinished, this, remove); backend->written(); backend->report("Minimize");
+            }
+        }
+        QVERIFY(!guard); QVERIFY(!session);
     }
 private:
     FakeAppearanceBackend *backend = nullptr;

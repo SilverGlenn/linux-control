@@ -1,0 +1,538 @@
+Running as unit: linux-control-rc1-build-all.scope; invocation ID: a37d9247c6414dc6947b8062239bbb28
+[  0%] Built target control_aero_login_autogen_timestamp_deps
+[  0%] Built target control_time_autogen_timestamp_deps
+[  0%] Built target control_nighttime_forecast_autogen_timestamp_deps
+[  0%] Built target control_operations_autogen_timestamp_deps
+[  0%] Built target controlpanel-display-guard_autogen_timestamp_deps
+[  0%] Built target control_catalog_autogen_timestamp_deps
+[  0%] Built target control_form_style_autogen_timestamp_deps
+[  0%] Built target control_form_style_resources_1
+[  0%] Built target control_ui_resources_1
+[  0%] Built target status_test_autogen_timestamp_deps
+[  0%] Built target benchmark_lifecycle_test_autogen_timestamp_deps
+[  0%] Built target display_fake_doctor_autogen_timestamp_deps
+[  0%] Built target control_aero_login_autogen
+[  0%] Built target control_time_autogen
+[  0%] Built target control_operations_autogen
+[  0%] Built target control_nighttime_forecast_autogen
+[  0%] Built target controlpanel-display-guard_autogen
+[  0%] Built target control_catalog_autogen
+[  0%] Built target control_form_style_autogen
+[  0%] Built target status_test_autogen
+[  0%] Built target benchmark_lifecycle_test_autogen
+[  1%] Built target display_fake_doctor_autogen
+[  2%] Built target control_aero_login
+[  3%] Built target control_time
+[  4%] Built target control_nighttime_forecast
+[  5%] Built target control_operations
+[  5%] Built target controlpanel-time-helper_autogen_timestamp_deps
+[  5%] Built target controlpanel-display-guard
+[  6%] Built target control_form_style
+[  8%] Built target control_catalog
+[  8%] Built target timesync_test_autogen_timestamp_deps
+[  8%] Built target settings_file_reservations_test_autogen_timestamp_deps
+[  8%] Built target ui_controls_test_autogen_timestamp_deps
+[  8%] Built target status_test
+[  8%] Built target date_time_dialog_test_autogen_timestamp_deps
+[  8%] Built target package_status_test_autogen_timestamp_deps
+[  8%] Built target programs_lifecycle_test_autogen_timestamp_deps
+[  8%] Built target action_catalog_test_autogen_timestamp_deps
+[  8%] Built target operation_test_autogen_timestamp_deps
+[  8%] Built target update_lifecycle_test_autogen_timestamp_deps
+[  8%] Built target shared_load_test_autogen_timestamp_deps
+[  9%] Built target benchmark_lifecycle_test
+[  9%] Built target display_fake_doctor
+[  9%] Built target controlpanel-aero-login-helper_autogen_timestamp_deps
+[  9%] Built target control_settings_autogen_timestamp_deps
+[  9%] Built target controlpanel-time-helper_autogen
+[  9%] Built target settings_file_reservations_test_autogen
+[ 10%] Built target timesync_test_autogen
+[ 10%] Built target ui_controls_test_autogen
+[ 10%] Built target date_time_dialog_test_autogen
+[ 10%] Built target package_status_test_autogen
+[ 10%] Built target programs_lifecycle_test_autogen
+[ 10%] Built target action_catalog_test_autogen
+[ 10%] Built target operation_test_autogen
+[ 10%] Built target update_lifecycle_test_autogen
+[ 11%] Built target shared_load_test_autogen
+[ 11%] Built target controlpanel-display-guard-test_autogen_timestamp_deps
+[ 11%] Built target controlpanel-aero-login-helper_autogen
+[ 11%] Automatic MOC and UIC for target control_settings
+[ 12%] Built target controlpanel-time-helper
+[ 12%] Built target settings_file_reservations_test
+[ 12%] Built target timesync_test
+[ 12%] Built target time_config_test_autogen_timestamp_deps
+[ 12%] Built target ui_controls_test
+[ 12%] Built target date_time_dialog_test
+[ 12%] Built target control_settings_autogen
+[ 13%] Built target package_status_test
+[ 13%] Built target action_catalog_test
+[ 13%] Built target programs_lifecycle_test
+[ 14%] Built target operation_test
+[ 15%] Built target update_lifecycle_test
+[ 15%] Built target shared_load_test
+[ 15%] Built target controlpanel-display-guard-test_autogen
+[ 16%] Built target controlpanel-aero-login-helper
+[ 16%] Built target time_config_test_autogen
+[ 17%] Built target controlpanel-display-guard-test
+[ 18%] Building CXX object CMakeFiles/control_settings.dir/control_settings_autogen/mocs_compilation.cpp.o
+[ 18%] Built target time_config_test
+[ 18%] Building CXX object CMakeFiles/control_settings.dir/src/settings/FontSettings.cpp.o
+[ 18%] Building CXX object CMakeFiles/control_settings.dir/src/platform/kde/FontBackend.cpp.o
+[ 18%] Linking CXX static library libcontrol_settings.a
+[ 25%] Built target control_settings
+[ 25%] Built target control_ui_autogen_timestamp_deps
+[ 25%] Built target aero_login_probe_autogen_timestamp_deps
+[ 25%] Built target screen_lock_probe_autogen_timestamp_deps
+[ 25%] Built target night_time_probe_autogen_timestamp_deps
+[ 25%] Built target night_light_probe_autogen_timestamp_deps
+[ 25%] Built target settings_file_jobs_integration_test_autogen_timestamp_deps
+[ 25%] Built target audio_backend_probe_autogen_timestamp_deps
+[ 25%] Built target shortcuts_backend_probe_autogen_timestamp_deps
+[ 25%] Built target standard_shortcuts_backend_probe_autogen_timestamp_deps
+[ 25%] Built target custom_shortcuts_backend_probe_autogen_timestamp_deps
+[ 25%] Built target shortcut_import_coordinator_test_autogen_timestamp_deps
+[ 25%] Built target keyboard_backend_probe_autogen_timestamp_deps
+[ 25%] Built target input_backend_probe_autogen_timestamp_deps
+[ 25%] Built target default_apps_probe_autogen_timestamp_deps
+[ 25%] Built target network_backend_probe_autogen_timestamp_deps
+[ 25%] Built target navigation_guard_test_autogen_timestamp_deps
+[ 25%] Built target settings_session_test_autogen_timestamp_deps
+[ 25%] Built target power_lifecycle_test_autogen_timestamp_deps
+[ 25%] Built target kde_backend_probe_autogen_timestamp_deps
+[ 25%] Built target display_power_probe_autogen_timestamp_deps
+[ 25%] Built target display_protocol_test_autogen_timestamp_deps
+[ 25%] Built target display_settings_test_autogen_timestamp_deps
+[ 25%] Built target appearance_backend_test_autogen_timestamp_deps
+[ 25%] Built target display_guard_test_autogen_timestamp_deps
+[ 25%] Built target appearance_async_test_autogen_timestamp_deps
+[ 25%] Built target font_async_test_autogen_timestamp_deps
+[ 25%] Built target rc_file_jobs_integration_test_autogen_timestamp_deps
+[ 25%] Built target power_policy_dbus_test_autogen_timestamp_deps
+[ 25%] Built target power_policy_async_test_autogen_timestamp_deps
+[ 25%] Built target power_policy_backend_test_autogen_timestamp_deps
+[ 25%] Built target aero_login_probe_autogen
+[ 26%] Automatic MOC and UIC for target control_ui
+[ 26%] Built target screen_lock_probe_autogen
+[ 26%] Built target night_time_probe_autogen
+[ 26%] Built target control_ui_autogen
+[ 26%] Built target night_light_probe_autogen
+[ 26%] Built target audio_backend_probe_autogen
+[ 26%] Built target settings_file_jobs_integration_test_autogen
+[ 26%] Built target shortcuts_backend_probe_autogen
+[ 26%] Built target standard_shortcuts_backend_probe_autogen
+[ 26%] Built target custom_shortcuts_backend_probe_autogen
+[ 26%] Built target shortcut_import_coordinator_test_autogen
+[ 26%] Built target keyboard_backend_probe_autogen
+[ 26%] Built target default_apps_probe_autogen
+[ 26%] Built target input_backend_probe_autogen
+[ 26%] Built target network_backend_probe_autogen
+[ 26%] Built target navigation_guard_test_autogen
+[ 27%] Built target power_lifecycle_test_autogen
+[ 27%] Built target settings_session_test_autogen
+[ 27%] Built target kde_backend_probe_autogen
+[ 27%] Built target display_power_probe_autogen
+[ 27%] Built target display_protocol_test_autogen
+[ 27%] Built target display_settings_test_autogen
+[ 27%] Built target display_guard_test_autogen
+[ 27%] Built target appearance_backend_test_autogen
+[ 27%] Built target appearance_async_test_autogen
+[ 27%] Automatic MOC and UIC for target font_async_test
+[ 27%] Automatic MOC and UIC for target rc_file_jobs_integration_test
+[ 27%] Built target font_async_test_autogen
+[ 27%] Built target power_policy_dbus_test_autogen
+[ 27%] Built target rc_file_jobs_integration_test_autogen
+[ 27%] Built target power_policy_backend_test_autogen
+[ 27%] Built target power_policy_async_test_autogen
+[ 27%] Linking CXX executable aero_login_probe
+[ 27%] Building CXX object CMakeFiles/control_ui.dir/src/ui/MainWindow.cpp.o
+[ 27%] Built target aero_login_probe
+[ 27%] Linking CXX executable screen_lock_probe
+[ 27%] Built target screen_lock_probe
+[ 27%] Linking CXX executable night_time_probe
+[ 27%] Built target night_time_probe
+[ 27%] Linking CXX executable night_light_probe
+[ 27%] Built target night_light_probe
+[ 28%] Linking CXX executable settings_file_jobs_integration_test
+[ 28%] Built target settings_file_jobs_integration_test
+[ 28%] Linking CXX executable audio_backend_probe
+[ 29%] Built target audio_backend_probe
+[ 30%] Linking CXX executable shortcuts_backend_probe
+[ 30%] Built target shortcuts_backend_probe
+[ 30%] Linking CXX executable standard_shortcuts_backend_probe
+[ 30%] Built target standard_shortcuts_backend_probe
+[ 31%] Linking CXX executable custom_shortcuts_backend_probe
+[ 31%] Built target custom_shortcuts_backend_probe
+[ 31%] Linking CXX executable shortcut_import_coordinator_test
+[ 32%] Built target shortcut_import_coordinator_test
+[ 32%] Linking CXX executable keyboard_backend_probe
+[ 32%] Built target keyboard_backend_probe
+[ 32%] Linking CXX executable default_apps_probe
+[ 32%] Building CXX object CMakeFiles/control_ui.dir/src/ui/pages/FontSettingsPage.cpp.o
+[ 32%] Built target default_apps_probe
+[ 33%] Linking CXX executable input_backend_probe
+[ 33%] Built target input_backend_probe
+[ 33%] Linking CXX executable network_backend_probe
+[ 34%] Built target network_backend_probe
+[ 34%] Linking CXX executable navigation_guard_test
+[ 34%] Built target navigation_guard_test
+[ 34%] Linking CXX executable power_lifecycle_test
+[ 34%] Built target power_lifecycle_test
+[ 34%] Linking CXX executable settings_session_test
+[ 35%] Built target settings_session_test
+[ 35%] Linking CXX static library libcontrol_ui.a
+[ 35%] Building CXX object CMakeFiles/kde_backend_probe.dir/tests/kde_backend_probe.cpp.o
+[ 41%] Built target control_ui
+[ 41%] Linking CXX executable display_power_probe
+[ 41%] Built target display_power_probe
+[ 41%] Linking CXX executable display_protocol_test
+[ 42%] Built target display_protocol_test
+[ 43%] Linking CXX executable display_settings_test
+[ 43%] Built target display_settings_test
+[ 43%] Built target display_page_test_autogen_timestamp_deps
+[ 43%] Linking CXX executable display_guard_test
+[ 43%] Built target display_guard_test
+[ 43%] Built target appearance_settings_test_autogen_timestamp_deps
+[ 44%] Linking CXX executable appearance_backend_test
+[ 44%] Linking CXX executable kde_backend_probe
+[ 44%] Built target appearance_backend_test
+[ 44%] Linking CXX executable appearance_async_test
+[ 44%] Built target kde_backend_probe
+[ 44%] Building CXX object CMakeFiles/font_async_test.dir/tests/font_async_test.cpp.o
+[ 45%] Built target appearance_async_test
+[ 45%] Building CXX object CMakeFiles/rc_file_jobs_integration_test.dir/tests/rc_file_jobs_integration_test.cpp.o
+[ 45%] Linking CXX executable font_async_test
+[ 45%] Linking CXX executable rc_file_jobs_integration_test
+[ 45%] Built target font_async_test
+[ 45%] Built target rc_primary_ui_test_autogen_timestamp_deps
+[ 45%] Built target power_policy_test_autogen_timestamp_deps
+[ 45%] Built target power_policy_page_test_autogen_timestamp_deps
+[ 45%] Linking CXX executable power_policy_dbus_test
+[ 46%] Built target rc_file_jobs_integration_test
+[ 46%] Linking CXX executable power_policy_backend_test
+[ 46%] Built target power_policy_dbus_test
+[ 46%] Linking CXX executable power_policy_async_test
+[ 47%] Built target power_policy_backend_test
+[ 47%] Built target controlpanel_autogen_timestamp_deps
+[ 47%] Built target aero_login_settings_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_protocol_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_files_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_backend_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_auth_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_page_test_autogen_timestamp_deps
+[ 47%] Built target aero_login_helper_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_settings_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_backend_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_dbus_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_async_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_page_test_autogen_timestamp_deps
+[ 47%] Built target screen_lock_appearance_test_autogen_timestamp_deps
+[ 47%] Built target night_time_settings_test_autogen_timestamp_deps
+[ 47%] Built target night_time_backend_test_autogen_timestamp_deps
+[ 47%] Built target night_time_async_test_autogen_timestamp_deps
+[ 47%] Built target night_time_dbus_test_autogen_timestamp_deps
+[ 47%] Built target night_time_page_test_autogen_timestamp_deps
+[ 47%] Built target night_time_forecast_test_autogen_timestamp_deps
+[ 47%] Built target night_time_location_test_autogen_timestamp_deps
+[ 47%] Built target night_light_settings_test_autogen_timestamp_deps
+[ 47%] Built target night_light_backend_test_autogen_timestamp_deps
+[ 47%] Built target night_light_async_test_autogen_timestamp_deps
+[ 47%] Built target night_light_dbus_test_autogen_timestamp_deps
+[ 47%] Built target night_light_page_test_autogen_timestamp_deps
+[ 47%] Built target power_policy_async_test
+[ 47%] Built target audio_settings_test_autogen_timestamp_deps
+[ 47%] Built target audio_backend_test_autogen_timestamp_deps
+[ 47%] Built target audio_dialog_test_autogen_timestamp_deps
+[ 47%] Built target shortcuts_settings_test_autogen_timestamp_deps
+[ 47%] Built target shortcuts_backend_test_autogen_timestamp_deps
+[ 47%] Built target shortcuts_page_test_autogen_timestamp_deps
+[ 47%] Built target keyboard_preview_test_autogen_timestamp_deps
+[ 47%] Built target standard_shortcuts_backend_test_autogen_timestamp_deps
+[ 47%] Built target shortcut_scheme_test_autogen_timestamp_deps
+[ 47%] Built target shortcut_scheme_dialog_test_autogen_timestamp_deps
+[ 47%] Built target custom_shortcuts_backend_test_autogen_timestamp_deps
+[ 47%] Built target custom_shortcuts_settings_test_autogen_timestamp_deps
+[ 47%] Built target custom_shortcuts_page_test_autogen_timestamp_deps
+[ 47%] Built target keyboard_settings_test_autogen_timestamp_deps
+[ 47%] Built target keyboard_backend_test_autogen_timestamp_deps
+[ 47%] Built target keyboard_page_test_autogen_timestamp_deps
+[ 47%] Built target default_apps_settings_test_autogen_timestamp_deps
+[ 47%] Built target default_apps_backend_test_autogen_timestamp_deps
+[ 47%] Built target default_apps_page_test_autogen_timestamp_deps
+[ 47%] Built target input_settings_test_autogen_timestamp_deps
+[ 47%] Built target input_backend_test_autogen_timestamp_deps
+[ 47%] Built target input_page_test_autogen_timestamp_deps
+[ 47%] Built target network_types_test_autogen_timestamp_deps
+[ 47%] Built target network_settings_test_autogen_timestamp_deps
+[ 47%] Built target network_backend_test_autogen_timestamp_deps
+[ 47%] Built target network_pages_test_autogen_timestamp_deps
+[ 47%] Built target aero_theme_settings_test_autogen_timestamp_deps
+[ 47%] Built target aero_theme_backend_test_autogen_timestamp_deps
+[ 47%] Built target aero_theme_contract_test_autogen_timestamp_deps
+[ 47%] Built target wallpaper_test_autogen_timestamp_deps
+[ 47%] Built target theme_component_settings_test_autogen_timestamp_deps
+[ 47%] Built target theme_component_backend_test_autogen_timestamp_deps
+[ 47%] Built target font_settings_test_autogen_timestamp_deps
+[ 47%] Built target font_backend_test_autogen_timestamp_deps
+[ 47%] Built target font_browser_test_autogen_timestamp_deps
+[ 47%] Built target user_font_service_test_autogen_timestamp_deps
+[ 47%] Built target account_settings_test_autogen_timestamp_deps
+[ 47%] Built target account_backend_test_autogen_timestamp_deps
+[ 47%] Built target aero_effect_settings_test_autogen_timestamp_deps
+[ 47%] Built target aero_effect_backend_test_autogen_timestamp_deps
+[ 47%] Built target package_simulation_test_autogen_timestamp_deps
+[ 47%] Built target style_guard_test_autogen_timestamp_deps
+[ 47%] Built target catalog_view_test_autogen_timestamp_deps
+[ 47%] Built target shell_navigation_test_autogen_timestamp_deps
+[ 47%] Built target personalization_test_autogen_timestamp_deps
+[ 47%] Built target main_window_lifecycle_test_autogen_timestamp_deps
+[ 47%] Built target kde_integration_test_autogen_timestamp_deps
+[ 47%] Built target display_page_test_autogen
+[ 47%] Built target appearance_settings_test_autogen
+[ 47%] Automatic MOC and UIC for target rc_primary_ui_test
+[ 47%] Built target power_policy_test_autogen
+[ 47%] Built target power_policy_page_test_autogen
+[ 47%] Built target controlpanel_autogen
+[ 48%] Built target aero_login_settings_test_autogen
+[ 48%] Built target aero_login_protocol_test_autogen
+[ 48%] Built target aero_login_files_test_autogen
+[ 48%] Built target aero_login_backend_test_autogen
+[ 48%] Built target aero_login_auth_test_autogen
+[ 48%] Built target aero_login_page_test_autogen
+[ 48%] Built target aero_login_helper_test_autogen
+[ 48%] Built target screen_lock_settings_test_autogen
+[ 49%] Built target screen_lock_backend_test_autogen
+[ 49%] Built target screen_lock_dbus_test_autogen
+[ 49%] Built target rc_primary_ui_test_autogen
+[ 49%] Built target screen_lock_async_test_autogen
+[ 49%] Built target screen_lock_page_test_autogen
+[ 49%] Built target screen_lock_appearance_test_autogen
+[ 49%] Built target night_time_backend_test_autogen
+[ 49%] Built target night_time_settings_test_autogen
+[ 49%] Built target night_time_async_test_autogen
+[ 49%] Built target night_time_dbus_test_autogen
+[ 50%] Built target night_time_page_test_autogen
+[ 50%] Built target night_time_forecast_test_autogen
+[ 50%] Built target night_light_settings_test_autogen
+[ 50%] Built target night_time_location_test_autogen
+[ 51%] Built target night_light_async_test_autogen
+[ 51%] Built target night_light_backend_test_autogen
+[ 51%] Built target night_light_dbus_test_autogen
+[ 51%] Built target night_light_page_test_autogen
+[ 52%] Built target audio_settings_test_autogen
+[ 52%] Built target audio_backend_test_autogen
+[ 53%] Built target audio_dialog_test_autogen
+[ 53%] Built target shortcuts_settings_test_autogen
+[ 53%] Built target shortcuts_backend_test_autogen
+[ 53%] Built target shortcuts_page_test_autogen
+[ 53%] Built target keyboard_preview_test_autogen
+[ 53%] Built target standard_shortcuts_backend_test_autogen
+[ 53%] Built target shortcut_scheme_dialog_test_autogen
+[ 53%] Built target shortcut_scheme_test_autogen
+[ 54%] Built target custom_shortcuts_backend_test_autogen
+[ 54%] Built target custom_shortcuts_settings_test_autogen
+[ 54%] Built target keyboard_settings_test_autogen
+[ 54%] Built target custom_shortcuts_page_test_autogen
+[ 54%] Built target keyboard_backend_test_autogen
+[ 54%] Built target keyboard_page_test_autogen
+[ 54%] Built target default_apps_settings_test_autogen
+[ 54%] Built target default_apps_backend_test_autogen
+[ 55%] Built target default_apps_page_test_autogen
+[ 55%] Built target input_settings_test_autogen
+[ 55%] Built target input_page_test_autogen
+[ 55%] Built target input_backend_test_autogen
+[ 55%] Built target network_types_test_autogen
+[ 55%] Built target network_settings_test_autogen
+[ 55%] Built target network_backend_test_autogen
+[ 55%] Automatic MOC and UIC for target network_pages_test
+[ 55%] Built target aero_theme_settings_test_autogen
+[ 55%] Automatic MOC and UIC for target aero_theme_backend_test
+[ 55%] Built target aero_theme_backend_test_autogen
+[ 55%] Built target aero_theme_contract_test_autogen
+[ 55%] Built target network_pages_test_autogen
+[ 56%] Built target wallpaper_test_autogen
+[ 56%] Built target theme_component_settings_test_autogen
+[ 56%] Built target theme_component_backend_test_autogen
+[ 56%] Automatic MOC and UIC for target font_settings_test
+[ 56%] Automatic MOC and UIC for target font_backend_test
+[ 56%] Built target font_settings_test_autogen
+[ 56%] Built target font_backend_test_autogen
+[ 56%] Built target font_browser_test_autogen
+[ 56%] Built target user_font_service_test_autogen
+[ 56%] Built target account_settings_test_autogen
+[ 56%] Built target account_backend_test_autogen
+[ 57%] Built target aero_effect_settings_test_autogen
+[ 57%] Built target aero_effect_backend_test_autogen
+[ 57%] Built target package_simulation_test_autogen
+[ 57%] Built target style_guard_test_autogen
+[ 57%] Built target catalog_view_test_autogen
+[ 57%] Built target shell_navigation_test_autogen
+[ 57%] Built target personalization_test_autogen
+[ 58%] Automatic MOC and UIC for target main_window_lifecycle_test
+[ 58%] Automatic MOC and UIC for target kde_integration_test
+[ 58%] Built target main_window_lifecycle_test_autogen
+[ 58%] Linking CXX executable display_page_test
+[ 58%] Built target kde_integration_test_autogen
+[ 58%] Linking CXX executable appearance_settings_test
+[ 59%] Built target display_page_test
+[ 59%] Built target appearance_settings_test
+[ 59%] Building CXX object CMakeFiles/rc_primary_ui_test.dir/tests/rc_primary_ui_test.cpp.o
+[ 60%] Linking CXX executable power_policy_test
+[ 60%] Built target power_policy_test
+[ 60%] Linking CXX executable power_policy_page_test
+[ 61%] Built target power_policy_page_test
+[ 61%] Building CXX object CMakeFiles/controlpanel.dir/src/main.cpp.o
+[ 61%] Linking CXX executable control
+[ 61%] Built target controlpanel
+[ 61%] Linking CXX executable aero_login_settings_test
+[ 61%] Built target aero_login_settings_test
+[ 61%] Linking CXX executable aero_login_protocol_test
+[ 62%] Built target aero_login_protocol_test
+[ 62%] Linking CXX executable aero_login_files_test
+[ 62%] Built target aero_login_files_test
+[ 62%] Linking CXX executable aero_login_backend_test
+[ 63%] Linking CXX executable rc_primary_ui_test
+[ 64%] Built target aero_login_backend_test
+[ 64%] Linking CXX executable aero_login_auth_test
+[ 64%] Built target rc_primary_ui_test
+[ 65%] Linking CXX executable aero_login_page_test
+[ 65%] Built target aero_login_auth_test
+[ 65%] Linking CXX executable aero_login_helper_test
+[ 66%] Built target aero_login_helper_test
+[ 66%] Linking CXX executable screen_lock_settings_test
+[ 66%] Built target aero_login_page_test
+[ 66%] Linking CXX executable screen_lock_backend_test
+[ 67%] Built target screen_lock_settings_test
+[ 67%] Linking CXX executable screen_lock_dbus_test
+[ 67%] Built target screen_lock_backend_test
+[ 67%] Linking CXX executable screen_lock_async_test
+[ 67%] Built target screen_lock_dbus_test
+[ 67%] Linking CXX executable screen_lock_page_test
+[ 68%] Built target screen_lock_async_test
+[ 68%] Linking CXX executable screen_lock_appearance_test
+[ 69%] Built target screen_lock_page_test
+[ 69%] Linking CXX executable night_time_settings_test
+[ 69%] Built target screen_lock_appearance_test
+[ 69%] Linking CXX executable night_time_backend_test
+[ 70%] Built target night_time_settings_test
+[ 71%] Linking CXX executable night_time_async_test
+[ 71%] Built target night_time_backend_test
+[ 71%] Linking CXX executable night_time_dbus_test
+[ 71%] Built target night_time_async_test
+[ 71%] Linking CXX executable night_time_page_test
+[ 72%] Built target night_time_dbus_test
+[ 72%] Linking CXX executable night_time_forecast_test
+[ 72%] Built target night_time_forecast_test
+[ 72%] Linking CXX executable night_time_location_test
+[ 73%] Built target night_time_page_test
+[ 73%] Built target night_time_location_test
+[ 73%] Linking CXX executable night_light_settings_test
+[ 73%] Linking CXX executable night_light_backend_test
+[ 74%] Built target night_light_settings_test
+[ 74%] Built target night_light_backend_test
+[ 74%] Linking CXX executable night_light_async_test
+[ 74%] Linking CXX executable night_light_dbus_test
+[ 75%] Built target night_light_async_test
+[ 75%] Built target night_light_dbus_test
+[ 75%] Linking CXX executable night_light_page_test
+[ 75%] Linking CXX executable audio_settings_test
+[ 76%] Built target audio_settings_test
+[ 76%] Linking CXX executable audio_backend_test
+[ 77%] Built target night_light_page_test
+[ 77%] Linking CXX executable audio_dialog_test
+[ 77%] Built target audio_backend_test
+[ 77%] Linking CXX executable shortcuts_settings_test
+[ 77%] Built target audio_dialog_test
+[ 77%] Linking CXX executable shortcuts_backend_test
+[ 77%] Built target shortcuts_settings_test
+[ 77%] Linking CXX executable shortcuts_page_test
+[ 77%] Built target shortcuts_backend_test
+[ 77%] Linking CXX executable keyboard_preview_test
+[ 78%] Built target shortcuts_page_test
+[ 78%] Linking CXX executable standard_shortcuts_backend_test
+[ 78%] Built target keyboard_preview_test
+[ 78%] Linking CXX executable shortcut_scheme_test
+[ 79%] Built target standard_shortcuts_backend_test
+[ 79%] Linking CXX executable shortcut_scheme_dialog_test
+[ 80%] Built target shortcut_scheme_test
+[ 80%] Linking CXX executable custom_shortcuts_backend_test
+[ 80%] Built target shortcut_scheme_dialog_test
+[ 80%] Built target custom_shortcuts_backend_test
+[ 80%] Linking CXX executable custom_shortcuts_settings_test
+[ 80%] Linking CXX executable custom_shortcuts_page_test
+[ 80%] Built target custom_shortcuts_settings_test
+[ 80%] Linking CXX executable keyboard_settings_test
+[ 81%] Built target custom_shortcuts_page_test
+[ 81%] Linking CXX executable keyboard_backend_test
+[ 82%] Built target keyboard_settings_test
+[ 83%] Linking CXX executable keyboard_page_test
+[ 84%] Built target keyboard_backend_test
+[ 84%] Linking CXX executable default_apps_settings_test
+[ 85%] Built target default_apps_settings_test
+[ 85%] Linking CXX executable default_apps_backend_test
+[ 85%] Built target keyboard_page_test
+[ 86%] Linking CXX executable default_apps_page_test
+[ 87%] Built target default_apps_backend_test
+[ 87%] Linking CXX executable input_settings_test
+[ 87%] Built target default_apps_page_test
+[ 87%] Linking CXX executable input_backend_test
+[ 87%] Built target input_settings_test
+[ 87%] Linking CXX executable input_page_test
+[ 87%] Built target input_backend_test
+[ 87%] Linking CXX executable network_types_test
+[ 87%] Built target network_types_test
+[ 88%] Linking CXX executable network_settings_test
+[ 89%] Built target input_page_test
+[ 89%] Linking CXX executable network_backend_test
+[ 89%] Built target network_settings_test
+[ 89%] Building CXX object CMakeFiles/network_pages_test.dir/tests/network_pages_test.cpp.o
+[ 89%] Built target network_backend_test
+[ 89%] Linking CXX executable aero_theme_settings_test
+[ 89%] Built target aero_theme_settings_test
+[ 89%] Building CXX object CMakeFiles/aero_theme_backend_test.dir/tests/aero_theme_backend_test.cpp.o
+[ 89%] Linking CXX executable network_pages_test
+[ 89%] Linking CXX executable aero_theme_backend_test
+[ 90%] Built target network_pages_test
+[ 90%] Built target aero_theme_backend_test
+[ 90%] Linking CXX executable aero_theme_contract_test
+[ 90%] Linking CXX executable wallpaper_test
+[ 91%] Built target aero_theme_contract_test
+[ 91%] Linking CXX executable theme_component_settings_test
+[ 91%] Built target wallpaper_test
+[ 92%] Linking CXX executable theme_component_backend_test
+[ 92%] Built target theme_component_settings_test
+[ 92%] Building CXX object CMakeFiles/font_settings_test.dir/tests/font_settings_test.cpp.o
+[ 92%] Built target theme_component_backend_test
+[ 92%] Building CXX object CMakeFiles/font_backend_test.dir/tests/font_backend_test.cpp.o
+[ 92%] Linking CXX executable font_settings_test
+[ 92%] Linking CXX executable font_backend_test
+[ 93%] Built target font_settings_test
+[ 93%] Linking CXX executable font_browser_test
+[ 94%] Built target font_backend_test
+[ 94%] Linking CXX executable user_font_service_test
+[ 94%] Built target font_browser_test
+[ 95%] Linking CXX executable account_settings_test
+[ 96%] Built target user_font_service_test
+[ 96%] Linking CXX executable account_backend_test
+[ 96%] Built target account_backend_test
+[ 96%] Built target account_settings_test
+[ 96%] Linking CXX executable aero_effect_settings_test
+[ 96%] Linking CXX executable aero_effect_backend_test
+[ 97%] Built target aero_effect_backend_test
+[ 97%] Linking CXX executable package_simulation_test
+[ 97%] Built target aero_effect_settings_test
+[ 97%] Linking CXX executable style_guard_test
+[ 98%] Built target style_guard_test
+[ 98%] Linking CXX executable catalog_view_test
+[ 98%] Built target package_simulation_test
+[ 98%] Linking CXX executable shell_navigation_test
+[ 98%] Built target catalog_view_test
+[ 98%] Linking CXX executable personalization_test
+[ 98%] Built target shell_navigation_test
+[ 98%] Building CXX object CMakeFiles/main_window_lifecycle_test.dir/tests/main_window_lifecycle_test.cpp.o
+[ 99%] Built target personalization_test
+[100%] Building CXX object CMakeFiles/kde_integration_test.dir/tests/kde_integration_test.cpp.o
+[100%] Linking CXX executable main_window_lifecycle_test
+[100%] Built target main_window_lifecycle_test
+[100%] Linking CXX executable kde_integration_test
+[100%] Built target kde_integration_test

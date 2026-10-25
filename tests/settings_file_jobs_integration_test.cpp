@@ -1,6 +1,7 @@
 #include "platform/kde/ScreenLockBackend.h"
 #include "platform/kde/NightLightBackend.h"
 #include "platform/kde/NightTimeBackend.h"
+#include "platform/kde/PowerPolicyBackend.h"
 #include "operations/OperationManager.h"
 #include <QtTest>
 #include <QCoreApplication>
@@ -19,7 +20,7 @@
 #include <vector>
 
 namespace {
-enum Kind { Locking, Filter, Schedule };
+enum Kind { Locking, Filter, Schedule, Power };
 class LockService final : public ScreenLockService {
 public:
     void query(quint64 token, const QString & = {}) override {
@@ -45,6 +46,20 @@ public:
         NightTimeRuntime r; r.installedVerified = true; r.version = QStringLiteral("6.6.5"); r.epoch = 1;
         emit queryFinished(token, true, r, {});
     }
+};
+class PolicyDaemon final : public PowerPolicyDaemon {
+public:
+    void queryCapabilities() override {
+        PowerPolicyCapabilities c;
+        c.serviceAvailable = c.schemaSupported = c.displaySupported = true;
+        c.suspendActionSupported = c.canSuspendKnown = c.canSuspend = true;
+        c.hibernateKnown = c.mobileKnown = c.defaultMobileKnown = c.virtualMachineKnown = true;
+        c.batteryKnown = c.hasBattery = true;
+        c.owner = QStringLiteral(":private.power"); c.revision = QStringLiteral("private-power-v1");
+        emit capabilitiesFinished(c);
+    }
+    void reload() override { emit reloadFinished(true, false, {}); }
+    void cancel() override { emit reloadFinished(false, true, QStringLiteral("Private reload cancelled")); }
 };
 struct Gate { QSemaphore release; std::atomic_bool entered{false}; };
 struct Endpoint {
@@ -77,22 +92,27 @@ class SettingsFileJobsIntegrationTest final : public QObject {
             auto *backend = new KdeNightLightBackend(path, service, context); auto *s = new NightLightSettings(backend);
             e->session = s; e->service = service; e->completed = std::make_unique<QSignalSpy>(backend, &NightLightBackend::writeFinished);
             e->stage = [s] { s->selectValue(NightLightKey::NightTemperature, 4200); }; e->ready = [s] { return s->isReady(); };
-        } else {
+        } else if (kind == Schedule) {
             auto *service = new ScheduleService; KdeNightTimeBackend::ConfigContext context; context.fullCascade = full; context.fixture = true; context.beforeSync = beforeSync; context.softDeadlineMs = 20;
             auto *backend = new KdeNightTimeBackend(path, service, context); auto *s = new NightTimeSettings(backend);
             e->session = s; e->service = service; e->completed = std::make_unique<QSignalSpy>(backend, &NightTimeBackend::writeFinished);
             e->stage = [s] { s->selectValue(NightTimeKey::Source, 1); }; e->ready = [s] { return s->isReady(); };
+        } else {
+            auto *service = new PolicyDaemon; KdePowerPolicyBackend::ConfigContext context; context.fullCascade = full; context.fixture = true; context.beforeSync = beforeSync; context.softDeadlineMs = 20;
+            auto *backend = new KdePowerPolicyBackend(path, service, context); auto *s = new PowerPolicySettings(backend);
+            e->session = s; e->service = service; e->completed = std::make_unique<QSignalSpy>(backend, &PowerPolicyBackend::writeFinished);
+            e->stage = [s] { s->selectDisplayTimeout(QStringLiteral("AC"), 1200); }; e->ready = [s] { return s->isReady(); };
         }
         endpoints.push_back(std::move(entry)); return e;
     }
     static QString name(Kind kind) {
-        return kind == Locking ? QStringLiteral("kscreenlockerrc") : kind == Filter ? QStringLiteral("kwinrc") : QStringLiteral("knighttimerc");
+        return kind == Locking ? QStringLiteral("kscreenlockerrc") : kind == Filter ? QStringLiteral("kwinrc") : kind == Schedule ? QStringLiteral("knighttimerc") : QStringLiteral("powerdevilrc");
     }
 private slots:
     void init() {
         QVERIFY(files.isValid());
         const auto home = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
-        for (const auto &file : {QStringLiteral("kscreenlockerrc"), QStringLiteral("kwinrc"), QStringLiteral("knighttimerc"), QStringLiteral("kdeglobals")}) QFile::remove(home + '/' + file);
+        for (const auto &file : {QStringLiteral("kscreenlockerrc"), QStringLiteral("kwinrc"), QStringLiteral("knighttimerc"), QStringLiteral("powerdevilrc"), QStringLiteral("kdeglobals")}) QFile::remove(home + '/' + file);
     }
     void cleanup() {
         for (const auto &gate : gates) gate->release.release(16);
@@ -108,6 +128,13 @@ private slots:
         QTest::newRow("locker-filter-shared-global") << int(Locking) << int(Filter) << true;
         QTest::newRow("filter-schedule-shared-global") << int(Filter) << int(Schedule) << true;
         QTest::newRow("schedule-locker-shared-global") << int(Schedule) << int(Locking) << true;
+        for (const auto other : {Locking, Filter, Schedule}) {
+            for (const bool full : {false, true}) {
+                const auto suffix = QByteArray::number(int(other)) + (full ? "-shared-global" : "-same-file");
+                QTest::newRow(("power-first-" + suffix).constData()) << int(Power) << int(other) << full;
+                QTest::newRow(("power-second-" + suffix).constData()) << int(other) << int(Power) << full;
+            }
+        }
     }
     void differentProvidersShareReservationUntilOrphanedJobFinishes() {
         QFETCH(int, first); QFETCH(int, second); QFETCH(bool, full);

@@ -1,4 +1,5 @@
 #include <QtTest>
+#include <QPointer>
 #include "settings/ShortcutsSettings.h"
 
 namespace {
@@ -63,6 +64,23 @@ private slots:
         QCOMPARE(backend->writes, 1); QCOMPARE(backend->requested.size(), 1);
         QCOMPARE(backend->requested.value(launch), next); QVERIFY(!session->isDirty());
         QCOMPARE(applied.count(), 1); QVERIFY(applied.takeFirst().at(0).toBool());
+    }
+    void softDeadlineKeepsOwnershipAndClearsProgressAtCompletion() {
+        backend->autoWrite=false; QVERIFY(session->selectShortcuts(launch,{key("Meta+O")})); session->apply();
+        emit backend->operationPending(QStringLiteral("Shortcut save continues until actual completion"));
+        QVERIFY(session->isBusy()); QVERIFY(session->isDirty()); QVERIFY(session->resultText().contains("continues"));
+        backend->finish(); QVERIFY(!session->isBusy()); QVERIFY(!session->resultText().contains("continues"));
+    }
+    void stateObserverMayDeleteControllerBeforeBackendSubmission() {
+        QVERIFY(session->selectShortcuts(launch,{key("Meta+O")})); QPointer<ShortcutsSettings> guarded=session;
+        connect(session,&SettingsSession::stateChanged,this,[this] { if (session && session->isBusy()) { delete session; session=nullptr; backend=nullptr; } });
+        session->apply(); QVERIFY(!guarded);
+    }
+    void terminalObserverMayDeleteControllerWithoutQueuedRefresh() {
+        backend->autoWrite=false; QVERIFY(session->selectShortcuts(launch,{key("Meta+O")})); session->apply(); session->refresh();
+        QPointer<ShortcutsSettings> guarded=session;
+        connect(session,&SettingsSession::applyFinished,this,[this] { delete session; session=nullptr; backend=nullptr; });
+        backend->finish(); QVERIFY(!guarded); QCoreApplication::processEvents();
     }
     void reorderedAlternativesDoNotCreateWrites() {
         const auto original = session->staged().find(launch)->current;

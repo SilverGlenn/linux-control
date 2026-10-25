@@ -39,6 +39,7 @@ enum class KeyboardOutcome { Success, Failed, Partial, Uncertain };
 namespace KeyboardTypes {
 QVariantMap defaults();
 KeyboardRegistry readRegistry(const QString &path, const QString &extrasPath = {});
+KeyboardRegistry readRegistryData(const QByteArray &primary, const QByteArray &extras = {}, bool extrasPresent = false);
 bool sameValues(const QVariantMap &a, const QVariantMap &b);
 QStringList changedKeys(const QVariantMap &a, const QVariantMap &b);
 bool validate(const KeyboardSnapshot &snapshot, const QVariantMap &requested, QString &error);
@@ -49,11 +50,13 @@ class KeyboardBackend : public QObject {
     Q_OBJECT
 public:
     using QObject::QObject;
+    virtual void cancel() {}
     virtual void readCurrent(quint64 token) = 0;
     virtual void writePreferences(quint64 token, const KeyboardSnapshot &expected, const QVariantMap &requested) = 0;
 signals:
     void readFinished(quint64 token, bool success, const KeyboardSnapshot &snapshot, const QString &error);
     void writeFinished(quint64 token, KeyboardOutcome outcome, const KeyboardSnapshot &snapshot, const QString &error);
+    void operationPending(const QString &message);
     void externalChange();
 };
 class KeyboardSettings final : public SettingsSession {

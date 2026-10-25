@@ -1,5 +1,10 @@
 # KDE System Settings replacement audit and plan
 
+The next delivery milestone is the [local MVP release candidate](mvp-release-candidate.md):
+reliable saves, repeatable installation and verified everyday workflows, followed
+by daily-use feedback. This document retains the longer-term full-parity plan;
+its remaining capability inventory does not all block the local RC.
+
 Turn linux-control into the everyday replacement for KDE System Settings on the current Ubuntu KDE installation, with Windows 7 presentation throughout. Preserve the existing AeroQt shell and useful system integrations, introduce reliable settings backends, and close the coverage gaps against a recorded KDE baseline.
 
 The application is a useful visual and integration foundation. It is not yet a complete settings frontend: many settings still open external KDE dialogs, unsupported controls are disabled, and native coverage remains limited to the explicitly implemented capabilities.
@@ -540,3 +545,16 @@ adoption, plus unresolved native control/provider coverage and real-session
 acceptance. The approved Aero-only product boundary remains in force. The Aero
 login assets are already root-owned; its new administrative helper still needs
 a trusted system installation before live editing. Full parity remains open.
+
+Work resumed on October 25 after passive verification that the repaired Lenovo
+charging cap survived subsequent boots and held at 80% throughout October 19–24.
+The original October 18 disabling action remains unproved. Power Policy's low
+and critical battery notification/action preferences are distinct from charging
+limits. Validation must preserve and separately fingerprint conservation mode,
+the selected hardware charge type and UPower's saved charging-limit preference.
+
+Batch 25 moves Power Policy file work to persistent workers and adopts the
+shared target/global reservation registry. Cancellation preserves ownership
+until an already-running native sync actually ends; final file/provider guards
+control unsent reload dispatch. Existing defaults, raw values, per-key scopes
+and the Aero UI remain in place. See [Batch25](kde-batch25-power-file-jobs.md).

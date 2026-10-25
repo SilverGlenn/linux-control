@@ -20,8 +20,10 @@ public:
     }
     void report(const FontState &s) { emit readFinished(true, s, {}); }
     void written(bool ok = true) { emit writeFinished(ok, ok ? QString() : QStringLiteral("Saved but refresh failed")); }
-    void failedRead() { emit readFinished(false, {}, QStringLiteral("Readback unavailable")); }
+    void failedRead(const QString &error = QStringLiteral("Readback unavailable")) { emit readFinished(false, {}, error); }
     void changed() { emit externalChange(); }
+    void pending(const QString &message) { emit operationPending(message); }
+    void warning() { emit writeFinished(true, QStringLiteral("Saved, but refresh status is uncertain")); }
 };
 class FontSettingsTest : public QObject {
     Q_OBJECT
@@ -90,6 +92,65 @@ private slots:
         QVERIFY(!page.findChild<QPushButton *>("generalFont")->isEnabled());
         QVERIFY(page.findChild<QLabel *>("fontSettingsMessage")->text().contains("No KDE Wayland"));
         session->apply(); QCOMPARE(backend->writes, 0);
+    }
+    void explicitWarningCannotBeClearedByMatchingReadback() {
+        QSignalSpy finished(session, &SettingsSession::applyFinished);
+        session->selectRendering("true", {}, {}); session->apply(); backend->report(initial); backend->warning();
+        auto saved = initial; saved.preferences = backend->requested; backend->report(saved);
+        QCOMPARE(finished.size(), 1); QVERIFY(!finished[0][0].toBool()); QVERIFY(session->hasConflict()); QVERIFY(session->isDirty());
+        QVERIFY(session->errorText().contains("uncertain")); QVERIFY(session->resultText().isEmpty());
+        backend->changed(); backend->report(saved); QVERIFY(session->errorText().contains("uncertain"));
+    }
+    void stagedFontUsesNativeStableAliasesWithoutDroppingNamedFaces() {
+        auto alias = initial; alias.preferences.fonts[0].setStyleName(QStringLiteral("Regular"));
+        backend->changed(); backend->report(alias); QVERIFY(session->appliedPreferences().fonts[0].styleName().isEmpty());
+        auto selected = alias.preferences.fonts[0]; selected.setPointSize(13); session->selectFont(0, selected);
+        QVERIFY(session->stagedPreferences().fonts[0].styleName().isEmpty());
+        QCOMPARE(session->stagedPreferences().fonts[0].pointSize(), 13); QCOMPARE(session->stagedPreferences().fonts[0].family(), selected.family());
+        session->apply(); backend->report(alias); QVERIFY(backend->requested.fonts[0].styleName().isEmpty());
+        backend->written(); auto saved = alias; saved.preferences = backend->requested; backend->report(saved);
+        QVERIFY(!session->hasConflict()); QVERIFY(!session->isDirty());
+        selected.setStyleName(QStringLiteral("Decorative Display")); session->selectFont(0, selected);
+        QCOMPARE(session->stagedPreferences().fonts[0].styleName(), QStringLiteral("Decorative Display"));
+    }
+    void failedRevertKeepsTheDraftAndPendingIsPhaseScoped() {
+        session->selectRendering("false", {}, {});
+        backend->pending("late idle status"); QVERIFY(session->pendingMessage().isEmpty());
+        session->revert(); backend->pending("slow font read"); QCOMPARE(session->pendingMessage(), "slow font read");
+        backend->failedRead(); QVERIFY(session->isDirty()); QCOMPARE(session->stagedPreferences().antialias, "false");
+        QVERIFY(session->pendingMessage().isEmpty());
+        session->revert(); backend->report(initial); QVERIFY(!session->isDirty());
+        QCOMPARE(session->stagedPreferences().antialias, initial.preferences.antialias);
+    }
+    void failedRevertAfterUncertainApplyReportsCurrentReadFailure() {
+        session->selectRendering("true", {}, {}); session->apply(); backend->report(initial); backend->written(false);
+        auto saved = initial; saved.preferences = backend->requested; backend->report(saved);
+        QVERIFY(session->errorText().contains("refresh failed")); QVERIFY(session->isDirty()); QVERIFY(session->hasConflict());
+        session->revert(); backend->failedRead(QStringLiteral("Current reconciliation read denied"));
+        QCOMPARE(session->errorText(), QStringLiteral("Current reconciliation read denied"));
+        QVERIFY(session->isDirty()); QVERIFY(session->hasConflict()); QCOMPARE(session->stagedPreferences().antialias, QStringLiteral("true"));
+    }
+    void pendingWriteSurvivesPageReplacementAndClearAtReadback() {
+        session->selectRendering("false", {}, {}); session->apply(); backend->report(initial);
+        backend->pending("waiting for native font synchronization");
+        auto *page = new FontSettingsPage(nullptr, session, nullptr);
+        QVERIFY(page->findChild<QLabel *>("fontSettingsStatus")->text().contains("native"));
+        QVERIFY(!page->findChild<QPushButton *>("applyFontSettings")->isEnabled()); delete page;
+        FontSettingsPage replacement(nullptr, session, nullptr);
+        QVERIFY(replacement.findChild<QLabel *>("fontSettingsStatus")->text().contains("native"));
+        backend->written(); QVERIFY(session->pendingMessage().isEmpty());
+        auto saved = initial; saved.preferences = backend->requested; backend->report(saved); QVERIFY(!session->isBusy());
+    }
+    void outwardSignalsCanDeleteTheSession() {
+        session->selectRendering("false", {}, {});
+        connect(session, &SettingsSession::stateChanged, this, [this] { delete session; session = nullptr; });
+        session->apply(); QVERIFY(!session); backend = nullptr;
+    }
+    void terminalApplySignalCanDeleteTheSession() {
+        session->selectRendering("false", {}, {}); session->apply(); backend->report(initial); backend->written();
+        auto saved = initial; saved.preferences = backend->requested;
+        connect(session, &SettingsSession::applyFinished, this, [this] { delete session; session = nullptr; });
+        backend->report(saved); QVERIFY(!session); backend = nullptr;
     }
 private:
     FakeFontBackend *backend = nullptr;

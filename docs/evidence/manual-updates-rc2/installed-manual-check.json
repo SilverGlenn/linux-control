@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "stdout": {
+    "message": "No published candidate releases",
+    "schema": 1,
+    "status": "no_releases"
+  },
+  "stderr_empty": true
+}

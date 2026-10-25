@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-25",
+  "candidate": {
+    "build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+    "revision": "336bc91882cdab8a1625e95de173160a607974d0",
+    "source_archive_sha256": "5aea33c14f38b58e4cfcc2c3e5495403f40a24697ee1bac46d1d379a28c4de47",
+    "source_manifest_sha256": "7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b",
+    "version": "0.1.0-rc.1"
+  },
+  "source_inputs": 463,
+  "integration_owner": "root",
+  "package_owners": {
+    "A": "rc_release",
+    "B": "rc_lifecycle with root/rc_release/rc_shell subsets",
+    "C": "rc_shell",
+    "D": "root",
+    "E": "root"
+  },
+  "preparation_gates": "RC-1 through RC-3 passed for installation for acceptance",
+  "qualification": "not qualified",
+  "full_isolated_suites": 107,
+  "full_elapsed_seconds": 211.67,
+  "focused_suites": 30,
+  "focused_elapsed_seconds": 60.78,
+  "test_isolation": "Private HOME/XDG, offscreen UI, private outer bus without activation directories, private system-bus address; explicit fake/private provider fixtures. No live workflow setters.",
+  "inherited_evidence": "Batch 25 101 suites/410 inputs is historical only, preserved separately. Final RC evidence is the new 107-suite Release run.",
+  "staging": {
+    "stage-normal": {
+      "file_count": 11,
+      "approval_manifest_matches_final_bytes": true
+    },
+    "stage-strip": {
+      "file_count": 11,
+      "approval_manifest_matches_final_bytes": true
+    }
+  },
+  "staged_runtime": {
+    "unrelated_directory": true,
+    "no_development_environment": true,
+    "no_checkout_dependency_in_loader": true,
+    "headless_identity_matches": true,
+    "rpath": [
+      " 0x000000000000001d (RUNPATH)            Library runpath: [$ORIGIN:$ORIGIN/../lib]"
+    ],
+    "aeroqt": "Supplied external dependency via temporary-prefix symlink; not managed or installed by app bundle",
+    "gui_launch": "Not run; remains installed RC-4 acceptance"
+  },
+  "deployment_fixture": {
+    "actual_payload_files": 11,
+    "source_build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+    "staged_install": true,
+    "staged_upgrade": true,
+    "staged_rollback": true,
+    "staged_remove": true,
+    "old_bytes_modes_and_symlinks_restored": true,
+    "candidate_created_files_removed": true,
+    "shared_dependency_and_preferences_preserved": true,
+    "intervening_edit_refused_before_any_mutation": true,
+    "refusal": "Intervening edits; no managed files changed: share/linux-control/mvp-rc-feedback.md",
+    "live_install": false
+  },
+  "installed": {
+    "observed_at": "2026-10-25T15:42:43.870424+08:00",
+    "build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+    "source_manifest_sha256": "7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b",
+    "payload_manifest_sha256": "e020192274e21fbce7009656a380c0b3a3903fe15735f53cd0d86101a1b2af4d",
+    "managed_files": 11,
+    "all_installed_bytes_modes_match": true,
+    "external_aeroqt_unchanged": true,
+    "installed_headless_identity": true,
+    "no_checkout_in_elf_dependencies": true,
+    "elf_library_hashes": 130,
+    "path_lookup": "/home/siru/.local/bin/control",
+    "path_lookup_matches": true,
+    "desktop_exec": "/home/siru/.local/bin/control",
+    "menu_gui_launch": "not run",
+    "fresh_sign_in": "not run",
+    "live_workflows": "not run",
+    "state_directory": "/home/siru/.control-panel-rc-deployment",
+    "qualification": "not qualified"
+  },
+  "visual_review": {
+    "count": 32,
+    "actual_scale_reference": 1,
+    "viewport_sizes": [
+      [
+        1000,
+        650
+      ],
+      [
+        1920,
+        1080
+      ]
+    ],
+    "sound_size": [
+      640,
+      560
+    ],
+    "reviewers": {
+      "root": "Sound (2)",
+      "rc_release": "Input and Background (12)",
+      "rc_lifecycle": "Power (6)",
+      "rc_shell": "Night Light and Aero (12)"
+    },
+    "result": "No blocking readability/clipping issue; fields/errors/actions reachable. Injected viewport harness, not live effect/installed GUI acceptance.",
+    "capture_sha256": {
+      "rc-primary-aero-1000x650-error.png": "1822f5493fa9fde01e5920af820e064f18bf0ffa29f346f876a6bbb80320ad01",
+      "rc-primary-aero-1000x650-overview.png": "8c0d69534595c8c3045f6c3d69c23cd993d39a59d6a937391c447bded18d1174",
+      "rc-primary-aero-1000x650-staged-actions.png": "9a681d1edf4e659564c9cb9388d6fabd89a04c4419a585c384151bfa2b4aa15c",
+      "rc-primary-aero-1920x1080-error.png": "f8a5bc96d2aa5c5f527bfb014afc6415851ae0e69f4ea00d365a42f78ba50c72",
+      "rc-primary-aero-1920x1080-overview.png": "b052f7c57debf1769891d16bad19165b1225a3b43804828ccd7676b959b3effe",
+      "rc-primary-aero-1920x1080-staged-actions.png": "6787d4da714ab85d8e2dfe3eeb485f9a64450cc17b3240280a371c5dee1ba0be",
+      "rc-primary-background-1000x650-error.png": "7ef6ba3ea550a216ad036a4a8134f840d3168367a88400ba266763b40e09d8dc",
+      "rc-primary-background-1000x650-overview.png": "ed019bca0bd26378fa44f7bc73685d61ce3fe39bd4d129e57fe54ba16e4eedcd",
+      "rc-primary-background-1000x650-staged-actions.png": "0e686b4f17b4a68f6ae9f85ce669429b1da77406c6697c449feaf0283911f64d",
+      "rc-primary-background-1920x1080-error.png": "c837c564b65bca9703fa6420a59818c3aebf17fbd1f8c51d997f5d96deb9cb6c",
+      "rc-primary-background-1920x1080-overview.png": "071ec5d7b0c8df9c2817315de463c95f666275c5380af7c14aa99f56da70b737",
+      "rc-primary-background-1920x1080-staged-actions.png": "b104f7ddd1ff6d697793350df448cdd71478b0b4d14c65ef25b92fa79c7e3fe0",
+      "rc-primary-input-1000x650-error.png": "62c5cd8cc9a43cb87bbac4b20fd05ff912cdd9b692aa0597790d7f8932efea8f",
+      "rc-primary-input-1000x650-overview.png": "d54e7a4c23859d64beb5b421bdd60b0319dae824b18809de3ec11e2d7b7a20ae",
+      "rc-primary-input-1000x650-staged-actions.png": "85172a4d505cf3b8631f0653bb7b55f1440a2a8dbf75844d566226ca5d19da35",
+      "rc-primary-input-1920x1080-error.png": "5eb45cdf66e9c83db34c8a89b2519f4feb428dc957a3bffb5b3009af15b14035",
+      "rc-primary-input-1920x1080-overview.png": "b523c58115572a46573c54473c399b93ab6b94961953924af2d9ff71300c6c36",
+      "rc-primary-input-1920x1080-staged-actions.png": "337146623fdbfbbcb2db5b06ba24ad0ddf10a54ca07e61555f234007c41400ef",
+      "rc-primary-night-light-1000x650-error.png": "5171dcd2eb463149240220c7aff79eebc3126f501e553f818d23fa02c26f72e3",
+      "rc-primary-night-light-1000x650-overview.png": "15ba425119e15f8e25df9cbb0920f379376b7000aa5fcc735e77d0a34128eb80",
+      "rc-primary-night-light-1000x650-staged-actions.png": "2fc4328d2e9a5c862241f5958fce771ca4205f773a5e8c43278429809dc18738",
+      "rc-primary-night-light-1920x1080-error.png": "5dfa2dddf91c55f19fdadf072acb7457cfef3323794231762e526a4451de7fac",
+      "rc-primary-night-light-1920x1080-overview.png": "599021a4e9fe3ad3da05ec63230707d7813f5cc96cde90a876b2e4f48ca59e93",
+      "rc-primary-night-light-1920x1080-staged-actions.png": "9430d759255323ea6921c76fedf68b448a19eff2569c12d73207336056272809",
+      "rc-primary-power-1000x650-error.png": "bb105c11de5c4bd68fca5c1692968baecbca852911994c335545b4b0717efcd5",
+      "rc-primary-power-1000x650-overview.png": "5ad8c486f8ed21fd20e53209e0815d08ab121e9d79c6d194593f1de84ed264e8",
+      "rc-primary-power-1000x650-staged-actions.png": "cff08538f5f290168e8beef84498b2ff4a18c0958afe3961fa6e352ed39a282b",
+      "rc-primary-power-1920x1080-error.png": "3d64969d2ee19aca25bd9768e76dc4dd1700b97c779159c108a1cb95dd24016e",
+      "rc-primary-power-1920x1080-overview.png": "8fbf5a2242d759da318adf04c0cf6d59619eabb89fa6342c7c31799a8677a198",
+      "rc-primary-power-1920x1080-staged-actions.png": "40fb60381754ae4803a24e55c727f26643cc86bf2119b89da79a45a2d1bae940",
+      "rc-primary-sound-error.png": "9bd1a712ccd414ec7e109a1b9631ac65d447af2fb5ee71378a0e6f5466626140",
+      "rc-primary-sound-overview.png": "1f17d7111ffc2ebe4bb5c4f016eb26c65a3e496768f15bdd3c0f25ae3feb4e96"
+    }
+  },
+  "charging_policy": {
+    "monitored_paths": [
+      "/sys/bus/platform/devices/VPC2004:00/conservation_mode",
+      "/sys/class/power_supply/BAT0/charge_types",
+      "/var/lib/upower/charging-threshold-status"
+    ],
+    "unchanged_all_checkpoints": true,
+    "original_disabling_actor": "unproved",
+    "live_power_acceptance": "not run",
+    "value_disclosure": "Exact passive baseline values retained in private execution records; unchanged comparison remains recorded."
+  },
+  "monitored_paths": {
+    "count": 59,
+    "unchanged_after_install": 55,
+    "changed_paths": [
+      "<private KSycoca cache path>",
+      "/home/siru/.local/share/applications/linux-controlpanel.desktop",
+      "/home/siru/.local/state/knighttimestaterc",
+      "/home/siru/.local/state/kwinstaterc"
+    ],
+    "first_observed_change": {
+      "/home/siru/.local/state/knighttimestaterc": "after-core",
+      "/home/siru/.local/state/kwinstaterc": "after-core",
+      "<private KSycoca cache path>": "after-install-2",
+      "/home/siru/.local/share/applications/linux-controlpanel.desktop": "after-install-2"
+    },
+    "interpretation": "Installed application desktop entry is an intended managed-file replacement. KNightTime/KWin state drift was observed before install; KSycoca cache drift first observed after installation. Unattributed cache/state changes and indirect effects are not excluded; private bytes retained."
+  },
+  "live_scenarios": {
+    "W1": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    },
+    "W2": {
+      "result": "not run",
+      "blocker": "Only one available physical sink; second output required for default-output change."
+    },
+    "W3": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    },
+    "W4": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    },
+    "W5": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    },
+    "W6": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    },
+    "W7": {
+      "result": "not run",
+      "blocker": "Await coordinated installed acceptance."
+    }
+  },
+  "modified_provider_live_checks": "Font, Keyboard, title-bar action, default terminal and common shortcut not run.",
+  "optional_withheld": "Production display mutations; network connectivity/active-profile writes; untrusted user-local privileged time/login edits. Existing version/ownership guards retained.",
+  "feedback_trial": "Materials supplied; five-day trial not started.",
+  "source_provenance_note": "The immutable source archive captures the pre-qualification worktree. Results documents/evidence are published after testing and are not compiled inputs; all archived code/test/build inputs remained unchanged through the recorded tests and install.",
+  "publication_redaction_note": "25 October 2026 checkpoint: exact charging-policy values and a machine-specific cache identifier omitted from this public summary. Original private result retained; historical result counts, source/payload hashes and qualification status are unchanged."
+}

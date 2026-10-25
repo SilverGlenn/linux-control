@@ -58,8 +58,10 @@ public:
     using QObject::QObject;
     virtual void readCurrent(quint64 token) = 0;
     virtual void writeChanges(quint64 token, const ShortcutsSnapshot &expected, const ShortcutChanges &requested) = 0;
+    virtual void cancel() {} // Running native transactions retain ownership.
 signals:
     void readFinished(quint64 token, bool success, const ShortcutsSnapshot &snapshot, const QString &error);
     void writeFinished(quint64 token, ShortcutsOutcome outcome, const ShortcutsSnapshot &snapshot, const QString &error);
     void externalChange();
+    void operationPending(const QString &message);
 };

@@ -105,6 +105,8 @@ public:
     NetworkRequest::Action action = NetworkRequest::Action::UpdateProfile;
     bool expectedSecret = false;
     bool failAuthentication = false;
+    QString restriction;
+    QString connectivityRestrictionReason() const override { return restriction; }
     void readCurrent() override { emit readFinished(true, current, {}); }
     void scan(const QString &devicePath) override {
         QCOMPARE(devicePath, QStringLiteral("/devices/1")); ++scans;
@@ -157,6 +159,32 @@ public:
 class NetworkPagesTest : public QObject {
     Q_OBJECT
 private slots:
+    void candidateRestrictionDisablesConnectionsAndActiveProfileOnly()
+    {
+        auto *backend=new PageNetworkBackend;
+        backend->restriction=QStringLiteral("Connection changes withheld in this local candidate.");
+        NetworkSettings session(backend); QTRY_VERIFY(session.isReady());
+        NetworkConnectionsPage page(sidebar(),&session,nullptr);
+        auto *disconnect=page.findChild<QPushButton *>("networkDisconnect");
+        auto *connectProfile=page.findChild<QPushButton *>("networkProfileConnect");
+        auto *connectWifi=page.findChild<QPushButton *>("networkWifiConnect");
+        auto *profileName=page.findChild<QPlainTextEdit *>("networkProfileName");
+        auto *support=page.findChild<QLabel *>("networkSupport");
+        auto *profiles=page.findChild<QTreeWidget *>("networkProfiles");
+        auto *apply=page.findChild<QPushButton *>("networkApply");
+        QVERIFY(disconnect); QVERIFY(connectProfile); QVERIFY(connectWifi); QVERIFY(profileName); QVERIFY(support); QVERIFY(profiles); QVERIFY(apply);
+        QVERIFY(session.rollbackAvailable());
+        QVERIFY(!disconnect->isEnabled()); QVERIFY(!connectProfile->isEnabled()); QVERIFY(!connectWifi->isEnabled()); QVERIFY(!profileName->isEnabled());
+        QVERIFY(support->text().contains("local candidate"));
+        choose(profiles,QStringLiteral("/profiles/2"));
+        QVERIFY(profileName->isEnabled());
+        auto preferences=session.stagedPreferences(); preferences.id=QStringLiteral("Retained inactive draft"); session.stagePreferences(preferences);
+        QVERIFY(session.isDirty()); QVERIFY(apply->isEnabled());
+        QCOMPARE(backend->changes,0);
+        NetworkSharingPage overview(sidebar(),&session,nullptr);
+        auto *overviewStatus=overview.findChild<QLabel *>("networkSharingStatus"); QVERIFY(overviewStatus);
+        QVERIFY(overviewStatus->text().contains("local candidate"));
+    }
     void initTestCase()
     {
         if (qEnvironmentVariableIsSet("LINUX_CONTROL_UI_CAPTURE_DIR"))

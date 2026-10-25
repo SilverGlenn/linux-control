@@ -113,7 +113,9 @@ NetworkConnectionsPage::NetworkConnectionsPage(QScrollArea *sidebar, NetworkSett
     Win7::styleSettingsControls(this);
     layout->addWidget(Win7::pageTitle(QStringLiteral("Network Connections")));
     layout->addSpacing(8);
-    layout->addWidget(Win7::bodyLabel(QStringLiteral("Manage Ethernet and Wi-Fi connections. Changes use a timed NetworkManager checkpoint; keep the change when the connection works.")));
+    layout->addWidget(Win7::bodyLabel(session->connectivityRestrictionReason().isEmpty()
+        ? QStringLiteral("Manage Ethernet and Wi-Fi connections. Changes use a timed NetworkManager checkpoint; keep the change when the connection works.")
+        : QStringLiteral("Review adapters, nearby wireless networks and saved connections. In this candidate, only inactive saved profiles can be edited; current connections stay read only.")));
     layout->addSpacing(12);
     auto *tabs = new QTabWidget;
     tabs->setObjectName(QStringLiteral("networkTabs"));
@@ -394,8 +396,10 @@ void NetworkConnectionsPage::updateState()
         row->setText(0, profile.id);
         row->setText(1, profile.type == QStringLiteral("802-3-ethernet") ? QStringLiteral("Ethernet")
             : profile.type == QStringLiteral("802-11-wireless") ? QStringLiteral("Wi-Fi") : profile.type);
-        row->setText(2, profile.editable ? QStringLiteral("Editable") : QStringLiteral("Unsupported"));
-        row->setToolTip(0, profile.reason); Win7::setItemPointSize(row);
+        const bool withheldActive = !m_session->connectivityRestrictionReason().isEmpty()
+            && std::any_of(snapshot.devices.cbegin(),snapshot.devices.cend(),[&profile](const NetworkDevice &device) { return device.activeProfilePath==profile.path; });
+        row->setText(2, withheldActive ? QStringLiteral("Read only in this candidate") : profile.editable ? QStringLiteral("Editable") : QStringLiteral("Unsupported"));
+        row->setToolTip(0, withheldActive ? m_session->connectivityRestrictionReason() : profile.reason); Win7::setItemPointSize(row);
     }
     selectPath(m_profiles, m_session->selectedProfile());
     const auto *profile = snapshot.profile(m_session->selectedProfile());
@@ -421,16 +425,18 @@ void NetworkConnectionsPage::updateState()
     write(m_ipv4, preferences.ipv4); write(m_ipv6, preferences.ipv6);
     const bool idle = m_session->isReady() && !m_session->isBusy() && !m_session->isScanning();
     const bool available = idle && snapshot.serviceAvailable;
-    const bool action = available && !m_session->isDirty() && !m_session->hasConflict() && m_session->rollbackAvailable();
+    const QString connectivityRestriction = m_session->connectivityRestrictionReason();
+    const QString profileRestriction = m_session->selectedProfileEditReason();
+    const bool action = available && !m_session->isDirty() && !m_session->hasConflict() && m_session->rollbackAvailable() && connectivityRestriction.isEmpty();
     m_profiles->setEnabled(available && !m_session->isDirty());
-    m_form->setEnabled(available && profile && profile->editable && !m_session->hasConflict());
+    m_form->setEnabled(available && profile && profile->editable && !m_session->hasConflict() && profileRestriction.isEmpty());
     m_profileDevice->setEnabled(action && m_profileDevice->count() > 0);
     NetworkRequest activation; activation.action = NetworkRequest::Action::ActivateProfile;
     activation.profilePath = m_session->selectedProfile(); activation.devicePath = m_profileDevice->currentData().toString();
     QString activationReason;
     m_profileConnect->setEnabled(action && profile && m_profileDevice->count() > 0
         && NetworkTypes::validateRequest(snapshot, activation, activationReason));
-    m_profileConnect->setToolTip(activationReason);
+    m_profileConnect->setToolTip(connectivityRestriction.isEmpty() ? activationReason : connectivityRestriction);
     const auto *wifiDevice = snapshot.device(m_wifiDevice->currentData().toString());
     const bool wifiEnabled = snapshot.networkingEnabled && snapshot.wirelessEnabled && snapshot.wirelessHardwareEnabled;
     m_scan->setEnabled(available && wifiEnabled && wifiDevice && wifiDevice->managed);
@@ -438,7 +444,7 @@ void NetworkConnectionsPage::updateState()
     m_wifiDevice->setEnabled(available);
     const auto *ap = snapshot.accessPoint(selectedPath(m_accessPoints));
     m_wifiConnect->setEnabled(action && wifiEnabled && wifiDevice && wifiDevice->managed && ap && ap->security != NetworkAccessPoint::Security::Unsupported);
-    m_wifiConnect->setToolTip(ap ? ap->reason : QStringLiteral("Select a wireless network."));
+    m_wifiConnect->setToolTip(!connectivityRestriction.isEmpty() ? connectivityRestriction : ap ? ap->reason : QStringLiteral("Select a wireless network."));
     const auto *selectedAdapter = snapshot.device(selectedDevice());
     m_deviceDetails->setText(selectedAdapter ? QStringLiteral("%1%2%3").arg(
         selectedAdapter->reason,
@@ -448,13 +454,14 @@ void NetworkConnectionsPage::updateState()
         m_deviceDetails->setText(QStringLiteral("This adapter type is read only. Only managed Ethernet and Wi-Fi adapters can be changed here."));
     m_disconnect->setEnabled(action && selectedAdapter && selectedAdapter->managed
         && (selectedAdapter->type == 1 || selectedAdapter->type == 2) && active(selectedAdapter));
+    m_disconnect->setToolTip(connectivityRestriction);
     m_refresh->setEnabled(!m_session->isBusy() && !m_session->isScanning() && !m_session->isDirty());
     const bool selectedProfileActive = profile && std::any_of(snapshot.devices.cbegin(), snapshot.devices.cend(), [profile](const NetworkDevice &device) { return device.activeProfilePath == profile->path; });
     m_apply->setEnabled(available && m_session->isDirty() && !m_session->hasConflict()
-        && (!selectedProfileActive || m_session->rollbackAvailable()) && profile && profile->editable);
+        && (!selectedProfileActive || m_session->rollbackAvailable()) && profile && profile->editable && profileRestriction.isEmpty());
     m_revert->setEnabled(!m_session->isBusy() && !m_session->isScanning()
         && (m_session->isDirty() || m_session->hasConflict()));
-    m_profileSupport->setText(profile ? profile->reason : QStringLiteral("Select a saved connection to edit its properties."));
+    m_profileSupport->setText(profileRestriction.isEmpty() && profile ? profile->reason : profileRestriction);
     m_profileSupport->setVisible(!m_profileSupport->text().isEmpty());
     m_support->setText(m_session->supportText());
     m_support->setVisible(!m_support->text().isEmpty());

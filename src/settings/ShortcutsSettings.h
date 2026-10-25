@@ -48,4 +48,5 @@ private:
     quint64 m_token = 0;
     Phase m_phase = Phase::Idle;
     bool m_ready = false, m_pendingRefresh = false, m_reverting = false, m_keepError = false;
+    bool m_operationPending = false;
 };

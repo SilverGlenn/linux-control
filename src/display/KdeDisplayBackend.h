@@ -9,6 +9,7 @@ public:
     explicit KdeDisplayBackend(QObject *parent = nullptr);
     ~KdeDisplayBackend() override;
     bool rollbackAvailable() const override;
+    QString editRestrictionReason() const override;
     void readCurrent() override;
     void beginPreview(const DisplaySnapshot &baseline, const DisplaySnapshot &requested) override;
     void keepPreview() override;

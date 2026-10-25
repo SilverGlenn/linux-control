@@ -22,6 +22,7 @@ public:
 signals:
     void readFinished(bool success, const AppearanceState &state, const QString &error);
     void writeFinished(bool success, const QString &error);
+    void operationPending(const QString &message);
     void externalChange();
 };
 
@@ -36,6 +37,7 @@ public:
     bool isReady() const { return m_ready; }
     bool canApply() const { return m_ready && m_state.canApply(); }
     QString unavailableReason() const { return m_state.unavailableReason; }
+    QString pendingMessage() const { return m_pendingMessage; }
     static bool isSupportedAction(const QString &action);
 public slots:
     void selectAction(const QString &action);
@@ -53,6 +55,8 @@ private:
     QString m_staged;
     QString m_requested;
     QString m_writeError;
+    QString m_pendingMessage;
+    bool m_reverting = false;
     Phase m_phase = Phase::Idle;
     bool m_ready = false;
     bool m_pendingRefresh = false;

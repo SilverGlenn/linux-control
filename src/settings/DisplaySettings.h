@@ -11,6 +11,7 @@ class DisplayBackend : public QObject {
 public:
     using QObject::QObject;
     virtual bool rollbackAvailable() const = 0;
+    virtual QString editRestrictionReason() const { return {}; }
     virtual void readCurrent() = 0;
     virtual void beginPreview(const DisplaySnapshot &baseline, const DisplaySnapshot &requested) = 0;
     virtual void keepPreview() = 0;
@@ -34,6 +35,7 @@ public:
     const DisplaySnapshot &staged() const { return m_staged; }
     bool isReady() const { return m_ready; }
     bool rollbackAvailable() const { return m_backend->rollbackAvailable(); }
+    QString editRestrictionReason() const { return m_backend->editRestrictionReason(); }
     bool awaitingConfirmation() const { return m_confirming; }
     int remainingSeconds() const;
     int selectedOutput() const { return m_output; }

@@ -783,7 +783,7 @@ void PowerOptionsPage::updatePolicyState()
     const QString support = m_policy->applySupportText();
     m_apply->setEnabled(enabled && m_policy->isDirty() && support.isEmpty()); m_apply->setToolTip(plainToolTip(support));
     m_defaults->setEnabled(enabled); m_revert->setEnabled(!m_policy->isBusy());
-    QString status = m_policy->isBusy() ? tr("Reading or applying KDE power policy…")
+    QString status = m_policy->isBusy() ? support
         : !m_policy->errorText().isEmpty() ? m_policy->errorText()
         : m_policy->isDirty() ? tr("Your power policy changes have not been applied.") : m_policy->resultText();
     if (!support.isEmpty() && !status.contains(support)) status += (status.isEmpty()?QString():QStringLiteral("\n"))+support;

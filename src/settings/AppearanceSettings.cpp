@@ -21,6 +21,10 @@ AppearanceSettings::AppearanceSettings(AppearanceBackend *backend, QObject *pare
     connect(backend, &AppearanceBackend::readFinished, this, &AppearanceSettings::onRead);
     connect(backend, &AppearanceBackend::writeFinished, this, &AppearanceSettings::onWrite);
     connect(backend, &AppearanceBackend::externalChange, this, &AppearanceSettings::refresh);
+    connect(backend, &AppearanceBackend::operationPending, this, [this](const QString &message) {
+        if (m_phase != Phase::Write) return;
+        m_pendingMessage = message; emit stateChanged();
+    });
     m_busy = true;
     QTimer::singleShot(0, this, &AppearanceSettings::read);
 }
@@ -54,8 +58,9 @@ void AppearanceSettings::apply()
             : !m_ready ? tr("The current window behavior could not be read. Revert to retry.")
             : unavailableReason();
         m_keepError = true;
+        QPointer<AppearanceSettings> guard(this);
         emit applyFinished(false);
-        emit stateChanged();
+        if (guard) emit stateChanged();
         return;
     }
     if (!m_dirty) {
@@ -66,22 +71,17 @@ void AppearanceSettings::apply()
     m_error.clear();
     m_result.clear();
     m_keepError = false;
-    m_busy = true;
+    m_busy = true; m_pendingMessage.clear();
     m_phase = Phase::Preflight;
-    emit stateChanged();
-    m_backend->readCurrent();
+    QPointer<AppearanceSettings> guard(this); emit stateChanged();
+    if (guard) m_backend->readCurrent();
 }
 
 void AppearanceSettings::revert()
 {
     if (m_busy)
         return;
-    m_dirty = false;
-    m_conflict = false;
-    m_keepError = false;
-    m_error.clear();
-    m_result.clear();
-    m_staged = appliedAction();
+    m_reverting = true;
     read();
 }
 
@@ -98,9 +98,9 @@ void AppearanceSettings::read()
 {
     m_pendingRefresh = false;
     m_phase = Phase::Refresh;
-    m_busy = true;
-    emit stateChanged();
-    m_backend->readCurrent();
+    m_busy = true; m_pendingMessage.clear();
+    QPointer<AppearanceSettings> guard(this); emit stateChanged();
+    if (guard) m_backend->readCurrent();
 }
 
 void AppearanceSettings::onRead(bool success, const AppearanceState &state, const QString &error)
@@ -131,6 +131,16 @@ void AppearanceSettings::onRead(bool success, const AppearanceState &state, cons
         return;
     }
     const bool readback = m_phase == Phase::Readback;
+    if (!readback && m_reverting) {
+        m_reverting = false;
+        if (valid) {
+            m_dirty = false; m_conflict = false; m_keepError = false;
+            m_error.clear(); m_result.clear();
+        } else {
+            m_error = error.isEmpty() ? tr("Window behavior could not be reloaded; your selection is preserved.") : error;
+            m_keepError = true;
+        }
+    }
     const bool wasDirty = m_dirty;
     const bool changed = m_ready && valid && state.doubleClickAction != appliedAction();
     if (valid) {
@@ -139,6 +149,7 @@ void AppearanceSettings::onRead(bool success, const AppearanceState &state, cons
         if (!wasDirty)
             m_staged = appliedAction();
         m_dirty = m_staged != appliedAction();
+        if (!readback && m_keepError && m_conflict && wasDirty) m_dirty = true;
         if (!readback && changed && wasDirty && m_dirty)
             m_conflict = true;
         if (!m_dirty && !m_keepError)
@@ -150,15 +161,16 @@ void AppearanceSettings::onRead(bool success, const AppearanceState &state, cons
     }
     bool applied = false;
     if (readback) {
-        applied = m_writeSuccess && valid && appliedAction() == m_requested;
+        applied = m_writeSuccess && m_writeError.isEmpty() && valid && appliedAction() == m_requested;
         m_keepError = !applied;
         if (applied) {
             m_error.clear();
             m_result = tr("Window behavior saved. The saved preference and KWin's active title-bar action were verified.");
             m_conflict = false;
         } else {
+            m_staged = m_requested; m_dirty = true;
             m_result.clear();
-            m_error = !m_writeSuccess ? m_writeError
+            m_error = !m_writeSuccess || !m_writeError.isEmpty() ? m_writeError
                 : !valid ? tr("The setting was saved, but readback failed. Revert to reload it. %1").arg(error)
                 : tr("KDE reports a different window behavior. Your selection is still staged.");
             // Another write requires an explicit reconciliation after uncertain apply.
@@ -177,18 +189,20 @@ void AppearanceSettings::onWrite(bool success, const QString &error)
     if (m_phase != Phase::Write)
         return;
     m_writeSuccess = success;
-    m_writeError = error.isEmpty() ? tr("Window behavior could not be saved or reloaded.") : error;
-    m_phase = Phase::Readback;
+    m_writeError = !error.isEmpty() ? error : success ? QString() : tr("Window behavior could not be saved or reloaded.");
+    m_pendingMessage.clear(); m_phase = Phase::Readback;
     m_backend->readCurrent();
 }
 
 void AppearanceSettings::finish(bool completesApply, bool success)
 {
     m_busy = false;
-    m_phase = Phase::Idle;
-    if (completesApply)
-        emit applyFinished(success);
+    m_phase = Phase::Idle; m_pendingMessage.clear();
+    QPointer<AppearanceSettings> guard(this);
+    if (completesApply) emit applyFinished(success);
+    if (!guard) return;
     emit stateChanged();
+    if (!guard) return;
     if (m_pendingRefresh)
         QTimer::singleShot(0, this, [this] { if (m_pendingRefresh && !m_busy) read(); });
 }

@@ -59,10 +59,12 @@ public:
     virtual void readCurrent(quint64 token) = 0;
     virtual void writeChanges(quint64 token, const DefaultAppsSnapshot &expected,
                               const DefaultAppsPreferences &requested) = 0;
+    virtual void cancel() {} // Only unsent work can be canceled.
 signals:
     void readFinished(quint64 token, bool success, const DefaultAppsSnapshot &, const QString &error);
     void writeFinished(quint64 token, DefaultAppsOutcome, const DefaultAppsSnapshot &, const QString &error);
     void externalChange();
+    void operationPending(const QString &message);
 };
 class DefaultAppsSettings final : public SettingsSession {
     Q_OBJECT
@@ -90,6 +92,6 @@ private:
     DefaultAppsSnapshot m_applied;
     DefaultAppsPreferences m_staged, m_requested;
     quint64 m_token = 0;
-    bool m_ready = false, m_writing = false, m_pendingRefresh = false;
+    bool m_ready = false, m_writing = false, m_pendingRefresh = false, m_reverting = false, m_operationPending = false;
     DefaultAppsOutcome m_outcome = DefaultAppsOutcome::Failed;
 };

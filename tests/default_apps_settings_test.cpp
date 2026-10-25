@@ -1,4 +1,5 @@
 #include <QtTest>
+#include <QPointer>
 #include "settings/DefaultAppsSettings.h"
 
 class StagedAppsBackend final : public DefaultAppsBackend {
@@ -64,6 +65,33 @@ private slots:
         QCOMPARE(session->staged().mimeDefaults.value("x-scheme-handler/http"), "old.desktop");
         backend->complete(); QCOMPARE(done.size(), 1); QVERIFY(done[0][0].toBool()); QVERIFY(!session->isDirty());
         QVERIFY(session->resultText().contains("adoption has not been verified"));
+    }
+    void failedAsynchronousDiscardPreservesDraftUntilVerifiedReload() {
+        session->selectMime("text/plain","org.kde.kate.desktop"); session->revert();
+        QVERIFY(session->isBusy()); QVERIFY(session->isDirty());
+        emit backend->readFinished(backend->readToken,false,{},QStringLiteral("Reload denied"));
+        QVERIFY(!session->isBusy()); QVERIFY(session->isDirty()); QVERIFY(session->hasConflict());
+        QCOMPARE(session->staged().mimeDefaults.value("text/plain"),QStringLiteral("org.kde.kate.desktop"));
+        QCOMPARE(session->errorText(),QStringLiteral("Reload denied"));
+        session->revert(); backend->report(); QVERIFY(!session->isDirty()); QVERIFY(!session->hasConflict());
+    }
+    void softDeadlineKeepsBusyAndClearsContinuingMessageAtCompletion() {
+        session->selectMime("text/plain","org.kde.kate.desktop"); session->apply();
+        emit backend->operationPending(QStringLiteral("Saving continues until actual completion"));
+        QVERIFY(session->isBusy()); QVERIFY(session->isDirty()); QVERIFY(session->resultText().contains("continues"));
+        backend->complete(); QVERIFY(!session->isBusy()); QVERIFY(!session->resultText().contains("continues"));
+    }
+    void stateObserverMayDeleteControllerBeforeBackendSubmission() {
+        session->selectMime("text/plain","org.kde.kate.desktop");
+        QPointer<DefaultAppsSettings> guarded=session;
+        connect(session,&SettingsSession::stateChanged,this,[this] { if (session && session->isBusy()) { delete session; session=nullptr; backend=nullptr; } });
+        session->apply(); QVERIFY(!guarded);
+    }
+    void terminalObserverMayDeleteControllerWithoutLateRefresh() {
+        session->selectMime("text/plain","org.kde.kate.desktop"); session->apply(); session->refresh();
+        QPointer<DefaultAppsSettings> guarded=session;
+        connect(session,&SettingsSession::applyFinished,this,[this] { delete session; session=nullptr; backend=nullptr; });
+        backend->complete(); QVERIFY(!guarded); QCoreApplication::processEvents();
     }
     void externalEditsPreserveStagingUntilRevert() {
         session->selectMime("text/plain", "org.kde.kate.desktop");

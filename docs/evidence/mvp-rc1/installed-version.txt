@@ -1,0 +1,4 @@
+Control Panel 0.1.0-rc.1 (0.1.0-rc.1+7584b7fda4e74a21)
+Build: 0.1.0-rc.1+7584b7fda4e74a21
+Source revision: 336bc91882cdab8a1625e95de173160a607974d0
+Source manifest SHA-256: 7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b

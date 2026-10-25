@@ -1,0 +1,3037 @@
+{
+  "entries": {
+    ".gitignore": {
+      "bytes": 27,
+      "mode": 436,
+      "sha256": "dbe47e3f6f4a1b8775ad50fd9160d1bff444f8094382ffeef86d7c8156eda3b2",
+      "type": "file"
+    },
+    "AGENTS.md": {
+      "bytes": 4283,
+      "mode": 436,
+      "sha256": "bba37dd2a50d52b96eda2a46a99614bca3cd518fbda3f99e7672c6fd6199be36",
+      "type": "file"
+    },
+    "CMakeLists.txt": {
+      "bytes": 41252,
+      "mode": 436,
+      "sha256": "ef5412121a4749fee25a562156c8e97ecc64fc8dd84d85bc772fec26c7537876",
+      "type": "file"
+    },
+    "LICENSE": {
+      "bytes": 35149,
+      "mode": 436,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "type": "file"
+    },
+    "README.md": {
+      "bytes": 31546,
+      "mode": 436,
+      "sha256": "cc16ab5e5b5202fabe7ddfec1faa27b1eb49b6ffc7376b63160eec49460f1727",
+      "type": "file"
+    },
+    "cmake/GenerateAeroLoginHelperIdentity.cmake": {
+      "bytes": 400,
+      "mode": 436,
+      "sha256": "76ae67174e7979bb289774f18fc32f1f0bdccad055d211aa01af393908d9f2c3",
+      "type": "file"
+    },
+    "cmake/InstallAeroLoginHelperIdentity.cmake.in": {
+      "bytes": 846,
+      "mode": 436,
+      "sha256": "b06ca4d987b5271c36159c4103d3d44a9ed84fd3ca174ed67574218c5a79ce92",
+      "type": "file"
+    },
+    "docs/audits/aero-login-source-contract.md": {
+      "bytes": 12699,
+      "mode": 436,
+      "sha256": "3184248f952f41abe6f793149c3585104205e384ac6977663cce918cd24956a4",
+      "type": "file"
+    },
+    "docs/audits/kconfig-sync-lifecycle.md": {
+      "bytes": 4362,
+      "mode": 436,
+      "sha256": "d5882debd8230089dfdf28d048be890bfd3948d4d341dd7949e146436b16030f",
+      "type": "file"
+    },
+    "docs/audits/kde-capability-backlog.json": {
+      "bytes": 1841043,
+      "mode": 436,
+      "sha256": "88424957433766318065a41c4a3e9402da488a59d79f77b4524df0c52e677960",
+      "type": "file"
+    },
+    "docs/audits/kde-settings-baseline.json": {
+      "bytes": 53043,
+      "mode": 436,
+      "sha256": "0ec7de9ce963fcba7ba939b36ec0e008d1a733430f993c512bf5d260c83a3b59",
+      "type": "file"
+    },
+    "docs/automatic-updates.md": {
+      "bytes": 512,
+      "mode": 436,
+      "sha256": "126dbfb5a9b739885f6cb3acd429cd6e029fe5b78b677891909c4b4f62fd51cf",
+      "type": "file"
+    },
+    "docs/cloud-development.md": {
+      "bytes": 7379,
+      "mode": 436,
+      "sha256": "881a5ceb6fe4622d5e886d51703174849862e3ed3e8f809f17691e8394e4d534",
+      "type": "file"
+    },
+    "docs/codex-cloud-handoff.md": {
+      "bytes": 5386,
+      "mode": 436,
+      "sha256": "10a54c1a8eb1d0980da2b2156fd3ec7325b7a9493df8fe057f0f5868fc5f08df",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/README.md": {
+      "bytes": 1367,
+      "mode": 436,
+      "sha256": "38dc5563382e43b733c11d4eaf9e37780d4c5b405e40bfc99ffcae35b558581e",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/audio-prerequisite.json": {
+      "bytes": 960,
+      "mode": 436,
+      "sha256": "c305506ad280ad5c3eb18976cfd963acd6c0ce0e56d6ffd21809112acf6a8fe5",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/deployment-validation.json": {
+      "bytes": 517,
+      "mode": 436,
+      "sha256": "acf49ddabc58a14ed4d42a0bd68fd017c7964e21bc0696080078bc7cfd27d2fc",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/deployment-validation.log": {
+      "bytes": 1295,
+      "mode": 436,
+      "sha256": "052b42888ecb65fcdfb3685cf189a386384613944cec15f2cc37d75d4d6ef8c0",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/development-inputs.json": {
+      "bytes": 41916,
+      "mode": 436,
+      "sha256": "a0a09ce6c25801105e7e28be9f5643bf78c19f044e79766cb0bfdb09b4164399",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/final-input-proof.json": {
+      "bytes": 1318,
+      "mode": 436,
+      "sha256": "31442427cccf3fd9fab7a950d093f505db40098093dc028fa4b4c5a00ea19ba1",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/focused-ctest.log": {
+      "bytes": 3467,
+      "mode": 436,
+      "sha256": "d8db297ee1911a113493db6c27e3907f80296318d51470e27181d22a48f86ce7",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/full-ctest.log": {
+      "bytes": 12175,
+      "mode": 436,
+      "sha256": "e79496dd92f86d4592c37de88c2016ad4ba0101c73ffa386db175bf1fba48d22",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/installed-loader.txt": {
+      "bytes": 11026,
+      "mode": 436,
+      "sha256": "32392adf8e042f62c040495e15c9e4d2b01f03616898016b962ef7b710a521a8",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/installed-validation.json": {
+      "bytes": 833,
+      "mode": 436,
+      "sha256": "fe9228748c888ffa9237d6cf99798e65679154ee350f819e4a6b93f5d7f84a7e",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/installed-version.txt": {
+      "bytes": 238,
+      "mode": 436,
+      "sha256": "8e162257da4b47465e4b9264e1e9f9588068233e6c7cd422d5b19b7f99010be1",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/package-versions.json": {
+      "bytes": 5911,
+      "mode": 436,
+      "sha256": "95368af723d14cf03a3ccd3056f929e32ce5d344875e42eb7eb26a4634e081ec",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/payload-manifest.json": {
+      "bytes": 4285,
+      "mode": 436,
+      "sha256": "e020192274e21fbce7009656a380c0b3a3903fe15735f53cd0d86101a1b2af4d",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/primary-ui-fixtures.log": {
+      "bytes": 2241,
+      "mode": 436,
+      "sha256": "6886f29b46088486c951ed58c24c671f33a51bbf61dcb646447c7a14c9719b48",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/rc-primary-aero-1000x650-staged-actions.png": {
+      "bytes": 85035,
+      "mode": 436,
+      "sha256": "9a681d1edf4e659564c9cb9388d6fabd89a04c4419a585c384151bfa2b4aa15c",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/rc-primary-power-1000x650-error.png": {
+      "bytes": 135244,
+      "mode": 436,
+      "sha256": "bb105c11de5c4bd68fca5c1692968baecbca852911994c335545b4b0717efcd5",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/rc-primary-sound-error.png": {
+      "bytes": 44676,
+      "mode": 436,
+      "sha256": "9bd1a712ccd414ec7e109a1b9631ac65d447af2fb5ee71378a0e6f5466626140",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/release-build.log": {
+      "bytes": 29066,
+      "mode": 436,
+      "sha256": "c9fd651e95b4ba331d668895f1548de4f9d788733e8d044de1d913535c68e91c",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/runtime-library-hashes.json": {
+      "bytes": 15593,
+      "mode": 436,
+      "sha256": "791a638df9794dad088f9f9387cf4026a36e33df94ddf868c31b68a72997de86",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/source-manifest.json": {
+      "bytes": 89709,
+      "mode": 436,
+      "sha256": "7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/staged-validation.json": {
+      "bytes": 5472,
+      "mode": 436,
+      "sha256": "46858d90d6eadaf15b8326a53183be0208b9cd7b1f13f6428c1cf1cfe21ff554",
+      "type": "file"
+    },
+    "docs/evidence/mvp-rc1/validation-summary.json": {
+      "bytes": 10674,
+      "mode": 436,
+      "sha256": "4b7ed803149af2dc12c3c336552086dff58167ad9c70c286c8f196acefd82fac",
+      "type": "file"
+    },
+    "docs/kde-batch10-input.md": {
+      "bytes": 6977,
+      "mode": 436,
+      "sha256": "ce02f5808b514eb3571177d0cd52347b4cc00cd508e106caf06ffe68bacf85d1",
+      "type": "file"
+    },
+    "docs/kde-batch11-keyboard.md": {
+      "bytes": 5716,
+      "mode": 436,
+      "sha256": "15e4ec27ae36f04a1c01f814bdb4f48acac08748f34677144efdecad2efcd730",
+      "type": "file"
+    },
+    "docs/kde-batch12-default-apps.md": {
+      "bytes": 8055,
+      "mode": 436,
+      "sha256": "5a5ba5d695bcc03e77b7a5af570f75a2e1d40594a057d32fde60764b65437855",
+      "type": "file"
+    },
+    "docs/kde-batch13-shortcuts.md": {
+      "bytes": 14146,
+      "mode": 436,
+      "sha256": "1ad84879e4469cc52180a3f23b5632a4c2bd1ea2d48792ca51b97d14582dc399",
+      "type": "file"
+    },
+    "docs/kde-batch14-layout-shortcuts.md": {
+      "bytes": 9169,
+      "mode": 436,
+      "sha256": "aeab29c1fe55e79744188fd3e66f47c94857a66339ec790b823b092184ce574a",
+      "type": "file"
+    },
+    "docs/kde-batch14-standard-shortcuts.md": {
+      "bytes": 10211,
+      "mode": 436,
+      "sha256": "26fb560d21e5a61c2bf7cbbf5d94d6671d19ef1d2ba13473bf11bdbcabffc61e",
+      "type": "file"
+    },
+    "docs/kde-batch15-custom-shortcuts.md": {
+      "bytes": 17987,
+      "mode": 436,
+      "sha256": "884fc779f11ee684ea16adc06189acfac48e21d9a021a540fbd53cffc62ac171",
+      "type": "file"
+    },
+    "docs/kde-batch15-shortcut-schemes.md": {
+      "bytes": 12399,
+      "mode": 436,
+      "sha256": "d392889965488d9fde9c1b772a43053f44eef5bea52686a2a4df6a3759f29b3b",
+      "type": "file"
+    },
+    "docs/kde-batch16-shortcut-imports.md": {
+      "bytes": 7257,
+      "mode": 436,
+      "sha256": "491fb5ce2fe4d1b5fc3bcc53daa94cc2eda24a07d21336bb4d1fb03268db1fba",
+      "type": "file"
+    },
+    "docs/kde-batch17-display-power.md": {
+      "bytes": 9163,
+      "mode": 436,
+      "sha256": "51431d73818d5130ca0e6df1e2cf28f70faa40bb9e4d2f602dda22b9ebb3ddbb",
+      "type": "file"
+    },
+    "docs/kde-batch18-defaults-custom-values.md": {
+      "bytes": 10473,
+      "mode": 436,
+      "sha256": "635893e997fd862bfcc163a0841111a5359c31918e98789c7454b1f2dc22cd33",
+      "type": "file"
+    },
+    "docs/kde-batch19-night-light.md": {
+      "bytes": 11440,
+      "mode": 436,
+      "sha256": "e21fcad0437bedef7fc06721462c19599d2bd1e281d029921aceae7991736198",
+      "type": "file"
+    },
+    "docs/kde-batch20-day-night.md": {
+      "bytes": 9869,
+      "mode": 436,
+      "sha256": "09f97faf5ccbaea8de9f3b761ec543ebb9b02943cf7da16aa22d29666d87f08a",
+      "type": "file"
+    },
+    "docs/kde-batch21-screen-locking.md": {
+      "bytes": 11230,
+      "mode": 436,
+      "sha256": "3d3ec3f3ed6369020db0e4b89c8fd2fae6b92cb803eb2b6fafea4ba690217fba",
+      "type": "file"
+    },
+    "docs/kde-batch22-aero-login.md": {
+      "bytes": 11011,
+      "mode": 436,
+      "sha256": "2ee1fdeb7b30ec58466802c831cf18c5706e0fd142dc80e48574e9bd1a286c3d",
+      "type": "file"
+    },
+    "docs/kde-batch23-save-lifecycle.md": {
+      "bytes": 6770,
+      "mode": 436,
+      "sha256": "74618e6a9c1733d5bce595d9feca41f526d53a394d84d7e4280fa1ee759a224d",
+      "type": "file"
+    },
+    "docs/kde-batch24-shared-file-jobs.md": {
+      "bytes": 6677,
+      "mode": 436,
+      "sha256": "2eab03049a65d997e17146d452fcbb5767d3a2be1d9395ed88c67a516176f3c5",
+      "type": "file"
+    },
+    "docs/kde-batch25-power-file-jobs.md": {
+      "bytes": 5438,
+      "mode": 436,
+      "sha256": "45ae519c7f2e62d13ad4d301c67455af3ad9457fd37e06b8ba796b40a5689ad9",
+      "type": "file"
+    },
+    "docs/kde-batch4-integration.md": {
+      "bytes": 5823,
+      "mode": 436,
+      "sha256": "9ae0b636bf3f6adeef0c3f2d4ba2534757786ca531131930f22d207a14495ee9",
+      "type": "file"
+    },
+    "docs/kde-batch5-backend-proofs.md": {
+      "bytes": 8553,
+      "mode": 436,
+      "sha256": "596864fdb9644c866a7a7eee14b5354e081fef35552798ca54addaad53d45e07",
+      "type": "file"
+    },
+    "docs/kde-batch6-personalization.md": {
+      "bytes": 9349,
+      "mode": 436,
+      "sha256": "58cd69fdd8a405ab3fb6491fdd23aa8c3b1aa05051eafdb48e5adabe2cdbd700",
+      "type": "file"
+    },
+    "docs/kde-batch7-aero.md": {
+      "bytes": 5832,
+      "mode": 436,
+      "sha256": "87c2784fd04ce79c486bf7e60c9cedb435c9a631d57caa3d510b69a065681ac1",
+      "type": "file"
+    },
+    "docs/kde-batch8-networking.md": {
+      "bytes": 9997,
+      "mode": 436,
+      "sha256": "dd18c148cf7bfadf6c2d6933cf8cff6444873d2f2dd2d718075ca19dc48687cd",
+      "type": "file"
+    },
+    "docs/kde-batch9-audio.md": {
+      "bytes": 5614,
+      "mode": 436,
+      "sha256": "f32c21de5d7d3aee792f3a113c0193793dc7fc1c2740c5802f59a6d45fa1b1e7",
+      "type": "file"
+    },
+    "docs/kde-parity-status.md": {
+      "bytes": 32383,
+      "mode": 436,
+      "sha256": "ee13346d63f145da7205baf887d9bd06055c4f0e91b7374c9565f9e3712e6c3f",
+      "type": "file"
+    },
+    "docs/kde-settings-replacement-plan.md": {
+      "bytes": 56648,
+      "mode": 436,
+      "sha256": "6d2b71d589717ba179264281cf038481b65d5790493ce1b9c6e12bff034a4cff",
+      "type": "file"
+    },
+    "docs/local-rc-install.md": {
+      "bytes": 11579,
+      "mode": 436,
+      "sha256": "61580341f660a754912b46b1e4affa50fc188fe30523bc88fe8b8b0f60ed3a77",
+      "type": "file"
+    },
+    "docs/manual-update-validation.md": {
+      "bytes": 643,
+      "mode": 436,
+      "sha256": "1c0472bf8172905ddbae3f6ec1f92290090910382cc408ce423361b34bcfdd01",
+      "type": "file"
+    },
+    "docs/manual-updates.md": {
+      "bytes": 8798,
+      "mode": 436,
+      "sha256": "fe04c73c5b72973bb5232546bd5c7a113a7c102500475b61267dc8290610d35a",
+      "type": "file"
+    },
+    "docs/mvp-rc-feedback.md": {
+      "bytes": 1349,
+      "mode": 436,
+      "sha256": "a2e312a4c2aa10e4180b5fc2705c4175c41b9794cf7491671882d47be83d61c4",
+      "type": "file"
+    },
+    "docs/mvp-rc-known-limitations.md": {
+      "bytes": 6962,
+      "mode": 436,
+      "sha256": "a0b3b871447be66372017c22de60367599d9fd810ca694469b2e04925e5cd7f9",
+      "type": "file"
+    },
+    "docs/mvp-rc1-qualification.md": {
+      "bytes": 7572,
+      "mode": 436,
+      "sha256": "a0feb333831836a71b1ed7e919107c3c27e2fdb81c5615f9d80583e965ef3818",
+      "type": "file"
+    },
+    "docs/mvp-rc1-review.md": {
+      "bytes": 8426,
+      "mode": 436,
+      "sha256": "8e2f4dd4532b0d3b26c4a1111497888fe00abd944efcd07d390cd40a2e133577",
+      "type": "file"
+    },
+    "docs/mvp-rc2-aero-keyboard.md": {
+      "bytes": 6827,
+      "mode": 436,
+      "sha256": "d2049314e550e2490d55d00d014bc46b0592bbecfbc4d5840525b84c5853107f",
+      "type": "file"
+    },
+    "docs/mvp-rc2-font.md": {
+      "bytes": 6939,
+      "mode": 436,
+      "sha256": "e07061ff6c8409f8acc478f36a2a4a8343ce71984be54633ed3cbc0772440be9",
+      "type": "file"
+    },
+    "docs/mvp-rc3-shell.md": {
+      "bytes": 8505,
+      "mode": 436,
+      "sha256": "fbe10025280010708150a3831058741a472cd97756f6c16bbdeb86a95ebcf967",
+      "type": "file"
+    },
+    "docs/mvp-release-candidate.md": {
+      "bytes": 24230,
+      "mode": 436,
+      "sha256": "3dcbb57f16737e3191cfc0c6b3b02428f1e67dab32ab387e90881f773a4d27e5",
+      "type": "file"
+    },
+    "linux-controlpanel.desktop": {
+      "bytes": 259,
+      "mode": 436,
+      "sha256": "bcc46fd53678f3d10c0739dbbb5922ec7a93e10b706d8dd62b0b9ea350a11e51",
+      "type": "file"
+    },
+    "src/data/AppearanceAndPersonalization.cpp": {
+      "bytes": 2441,
+      "mode": 436,
+      "sha256": "fcc0a7970841eee219a9f1e13aa8c5f983869744a488aa13535331c01ec6e4ac",
+      "type": "file"
+    },
+    "src/data/AppearanceAndPersonalization.h": {
+      "bytes": 176,
+      "mode": 436,
+      "sha256": "4cd41ea13254279c0084ea80984e57ef535695b98de2245e89c4d180c7b1c58e",
+      "type": "file"
+    },
+    "src/data/Branding.cpp": {
+      "bytes": 6212,
+      "mode": 436,
+      "sha256": "8752fa550a7738ca391817a442def5b39bee2a6c77db80b736c48aa0a11962c6",
+      "type": "file"
+    },
+    "src/data/Branding.h": {
+      "bytes": 3474,
+      "mode": 436,
+      "sha256": "1ce22e52a05ec2291bf39b9e1e09701c9cc957e872725533ebbfdf8127a10694",
+      "type": "file"
+    },
+    "src/data/Categories.cpp": {
+      "bytes": 3028,
+      "mode": 436,
+      "sha256": "1f9a2db0dee60e98b0dcff4c1cd3c51bb0dca047f0ff95670d674c59f529ea05",
+      "type": "file"
+    },
+    "src/data/Categories.h": {
+      "bytes": 799,
+      "mode": 436,
+      "sha256": "611405a47e795842c1e88cfe9c86b78bf5ee4637cec70e09a33695ace5cc27f7",
+      "type": "file"
+    },
+    "src/data/ClockLanguageRegion.cpp": {
+      "bytes": 844,
+      "mode": 436,
+      "sha256": "cfbba1699691f493f51906d82bc0262c53bdc8d7ea191163082a49462e9aa29d",
+      "type": "file"
+    },
+    "src/data/ClockLanguageRegion.h": {
+      "bytes": 164,
+      "mode": 436,
+      "sha256": "02595ebe1434756cd5c123a90ae937afe171852b8a8021e0eab46024b54ce122",
+      "type": "file"
+    },
+    "src/data/ConfFile.h": {
+      "bytes": 1673,
+      "mode": 436,
+      "sha256": "c1def79f79dc85d416c931f0d8c63052025a0695ab851d49e3ec668042a1b5ce",
+      "type": "file"
+    },
+    "src/data/EaseOfAccess.cpp": {
+      "bytes": 706,
+      "mode": 436,
+      "sha256": "59bc96fca29ed93389862dea4722e83058117a915e4294bb7b5ee77b74900f4b",
+      "type": "file"
+    },
+    "src/data/EaseOfAccess.h": {
+      "bytes": 144,
+      "mode": 436,
+      "sha256": "85f71d7b55a27362105bf7e7d77c33107a785e7db58302761b930eb87b427b1c",
+      "type": "file"
+    },
+    "src/data/FirewallStatus.h": {
+      "bytes": 3529,
+      "mode": 436,
+      "sha256": "a8416a32f148510f284754795a4b319ca2d7dd9dbb598fdb5f52aef44f964911",
+      "type": "file"
+    },
+    "src/data/HardwareAndSound.cpp": {
+      "bytes": 1848,
+      "mode": 436,
+      "sha256": "a8c7233b12c87ebf3720b7fdd6baa87b583beb0e590c6ce543fc5e958236eb1c",
+      "type": "file"
+    },
+    "src/data/HardwareAndSound.h": {
+      "bytes": 152,
+      "mode": 436,
+      "sha256": "9319d3359753531b97c579f777fa66ef58792886d4f45b23f78b52c407ffbf1b",
+      "type": "file"
+    },
+    "src/data/NetworkAndInternet.cpp": {
+      "bytes": 1077,
+      "mode": 436,
+      "sha256": "39f17702234145df258d94c052c34d77b94a49c00588e8ed7f0a4aff8bd3358b",
+      "type": "file"
+    },
+    "src/data/NetworkAndInternet.h": {
+      "bytes": 156,
+      "mode": 436,
+      "sha256": "9fbe025ba68fb26bd0c65cc6964bd52b48d75877d79a88d0386319c9fae6ec69",
+      "type": "file"
+    },
+    "src/data/Programs.cpp": {
+      "bytes": 1102,
+      "mode": 436,
+      "sha256": "4da3f59474156c3ce807fa3e95fe80c1bd775a3deb619bd815aa9e93aa4d33a9",
+      "type": "file"
+    },
+    "src/data/Programs.h": {
+      "bytes": 134,
+      "mode": 436,
+      "sha256": "3f19c2ec05e7e1fc622ab1f0bbb055774ae0027d340591e61cd6fd0431ebcca4",
+      "type": "file"
+    },
+    "src/data/SystemAndSecurity.cpp": {
+      "bytes": 2361,
+      "mode": 436,
+      "sha256": "b025a74bf417068edb20328ffddc1ba196b9abc2bc766896b080c20dd55f32bd",
+      "type": "file"
+    },
+    "src/data/SystemAndSecurity.h": {
+      "bytes": 154,
+      "mode": 436,
+      "sha256": "5789c0649a322d42c1c7d20679c174d05335b15395caf9ba0c89c3017e2226c4",
+      "type": "file"
+    },
+    "src/data/UpdateCheckStatus.h": {
+      "bytes": 1067,
+      "mode": 436,
+      "sha256": "47b4f15e3b3389a910ec2b54431a016f6e7b6f31551f87a22d857e65989b081d",
+      "type": "file"
+    },
+    "src/data/UserAccounts.cpp": {
+      "bytes": 544,
+      "mode": 436,
+      "sha256": "0780a3ef06c403ff7f2701eb8d45d36ba12ae9726a185fef0f67d871b3ac1c12",
+      "type": "file"
+    },
+    "src/data/UserAccounts.h": {
+      "bytes": 161,
+      "mode": 436,
+      "sha256": "0074f9d5827d7f892b487ed099c4201604c12ecf876da19da45de3431f216968",
+      "type": "file"
+    },
+    "src/data/WindowsTimeZones.cpp": {
+      "bytes": 7024,
+      "mode": 436,
+      "sha256": "20a6da4f8acc76ce81d36c87a5b927bc45e9ac2124d379a4556d5456560fe66b",
+      "type": "file"
+    },
+    "src/data/WindowsTimeZones.h": {
+      "bytes": 918,
+      "mode": 436,
+      "sha256": "8bc9e36d4d3cc68c52650821828e13d24b0ebf487648b4494b722f63f95dfecc",
+      "type": "file"
+    },
+    "src/devices/DeviceData.h": {
+      "bytes": 534,
+      "mode": 436,
+      "sha256": "a3d5c5dcedad043794b1e928c08f2a61ce7059685f8e7010fcced620dd114ed7",
+      "type": "file"
+    },
+    "src/devices/DeviceOps.h": {
+      "bytes": 541,
+      "mode": 436,
+      "sha256": "1df293ed020b8d4c7686e3cd5bf59c3bd1ef9e724f59aa5a34a53ffba1ed5769",
+      "type": "file"
+    },
+    "src/devices/DeviceUtils.h": {
+      "bytes": 2017,
+      "mode": 436,
+      "sha256": "ba213932f05cb60015bc9b4a2a3e0e340443568f1bf1f3ce3c9e0900d2363d52",
+      "type": "file"
+    },
+    "src/devices/KnownDriverDates.h": {
+      "bytes": 1271,
+      "mode": 436,
+      "sha256": "8141b78684696ef0ddd89c05c647cba1b5efdabea96c7ed7b0a5885631310a65",
+      "type": "file"
+    },
+    "src/devices/PrinterScanner.cpp": {
+      "bytes": 2042,
+      "mode": 436,
+      "sha256": "cb4a041c34b4abd0353767ccff14cda7468457a20ddd438c3884c15838d0d4b1",
+      "type": "file"
+    },
+    "src/devices/PrinterScanner.h": {
+      "bytes": 830,
+      "mode": 436,
+      "sha256": "6fd183b2d886bce826186f61a1f2c94a1372a2f9085943b37a7e3dcbc4ccd632",
+      "type": "file"
+    },
+    "src/devices/SysfsScanner.cpp": {
+      "bytes": 83941,
+      "mode": 436,
+      "sha256": "0e43a70e5519da32807580cc4392ff2e49f13a80cda986c7c5e652bdd6b9b62a",
+      "type": "file"
+    },
+    "src/devices/SysfsScanner.h": {
+      "bytes": 78,
+      "mode": 436,
+      "sha256": "637177ef0725cc36010a85c6423346720c328581f93173716252abc2627ea9f7",
+      "type": "file"
+    },
+    "src/display/DisplayGuard.cpp": {
+      "bytes": 17832,
+      "mode": 436,
+      "sha256": "ead81e83c1953da27eb3436d6782f914220d4d2c1343456159b2480ae447433f",
+      "type": "file"
+    },
+    "src/display/DisplayProtocol.cpp": {
+      "bytes": 22997,
+      "mode": 436,
+      "sha256": "72036c99212ec9879cd76412d9f7752750265bb335a937d36f902d5363ecc033",
+      "type": "file"
+    },
+    "src/display/DisplayProtocol.h": {
+      "bytes": 3502,
+      "mode": 436,
+      "sha256": "122aad2f7a1354367ac50a16d4340f120de334ad945f7b73e781c5dcfab306d9",
+      "type": "file"
+    },
+    "src/display/KdeDisplayBackend.cpp": {
+      "bytes": 7791,
+      "mode": 436,
+      "sha256": "795cd58f9a869d6a2a3260a561beae2ac54748ed97b567ae3465210100069691",
+      "type": "file"
+    },
+    "src/display/KdeDisplayBackend.h": {
+      "bytes": 781,
+      "mode": 436,
+      "sha256": "de650a14f2390d80b0bc10be4b482f1d4ed0e87a3841aaea2d27cff375f36294",
+      "type": "file"
+    },
+    "src/keyboard/KeyboardPreview.cpp": {
+      "bytes": 22277,
+      "mode": 436,
+      "sha256": "91401ad86ea562349be586f991e9edb08b9005c6fa104184081e7b5635f52ce4",
+      "type": "file"
+    },
+    "src/keyboard/KeyboardPreview.h": {
+      "bytes": 1447,
+      "mode": 436,
+      "sha256": "c0a24fae95ad063a7423bd39010d29bd5a8d6a26f5e90cb732f80c766af0463f",
+      "type": "file"
+    },
+    "src/login/AeroLoginChild.h": {
+      "bytes": 1291,
+      "mode": 436,
+      "sha256": "238ee86e42330aa1ae2aeb75a7a15a4350c963ebfacbb23c534cf769e0f174f8",
+      "type": "file"
+    },
+    "src/login/AeroLoginFiles.cpp": {
+      "bytes": 42701,
+      "mode": 436,
+      "sha256": "8481d7379e66b2ec3c2d56bce421d7901282c9a2b0abd0f12a7daabe54cb95fe",
+      "type": "file"
+    },
+    "src/login/AeroLoginFiles.h": {
+      "bytes": 1739,
+      "mode": 436,
+      "sha256": "451e2a6fed49ff55253e716d573bc1b7baf91b34e5d087a77826dffd3a3be69e",
+      "type": "file"
+    },
+    "src/login/AeroLoginHelper.cpp": {
+      "bytes": 7530,
+      "mode": 436,
+      "sha256": "38dd812ffd5baa40672e9fc2228dde94bc3f15edb797637a75a98fd69d572dbe",
+      "type": "file"
+    },
+    "src/login/AeroLoginProtocol.cpp": {
+      "bytes": 10952,
+      "mode": 436,
+      "sha256": "896e72dfe9500f5a2dfcf9bb9cf04f4045fdaed767d64f2994a38ead4ba425a7",
+      "type": "file"
+    },
+    "src/login/AeroLoginProtocol.h": {
+      "bytes": 767,
+      "mode": 436,
+      "sha256": "dd1811bd6a0e227d903cde54fad5d6bccdeb92dc7fcff2d8cfc3923ebfbf84a4",
+      "type": "file"
+    },
+    "src/login/org.linuxcontrol.aerologin.policy.in": {
+      "bytes": 824,
+      "mode": 436,
+      "sha256": "13834c829e9221970ad89206a7aadc903a653e8b07e300912e273797734f37af",
+      "type": "file"
+    },
+    "src/main.cpp": {
+      "bytes": 5785,
+      "mode": 436,
+      "sha256": "e85ec525dadf443316a7586ab87e90b7100be514566f460721d85ad825c78aa3",
+      "type": "file"
+    },
+    "src/operations/ControlPanelUpdateService.cpp": {
+      "bytes": 10641,
+      "mode": 436,
+      "sha256": "40933eaac5e4f7fba120e45ff2b9991c3ad4833ce0c655004ec8f3194b8d97b6",
+      "type": "file"
+    },
+    "src/operations/ControlPanelUpdateService.h": {
+      "bytes": 1631,
+      "mode": 436,
+      "sha256": "8d9a646f1e267feb5e35d819414dc83be362c64a21fcbd4d0b240366cb34f871",
+      "type": "file"
+    },
+    "src/operations/OperationManager.cpp": {
+      "bytes": 4690,
+      "mode": 436,
+      "sha256": "bff6e8799e937e6e3ab81116efaf74ec9db6ea022ae7104f230b75be1e7ecb82",
+      "type": "file"
+    },
+    "src/operations/OperationManager.h": {
+      "bytes": 2825,
+      "mode": 436,
+      "sha256": "f5eab2884aa508f17b5970e1e25a8d654d0324c07645bcd99d1b75d9a01b2646",
+      "type": "file"
+    },
+    "src/operations/SettingsFileReservations.cpp": {
+      "bytes": 7427,
+      "mode": 436,
+      "sha256": "f208962287d60b79432aa3528afa7ca8d039a2d3515c42bb5c7b79306da7f718",
+      "type": "file"
+    },
+    "src/operations/SettingsFileReservations.h": {
+      "bytes": 1546,
+      "mode": 436,
+      "sha256": "7abe428036c865ab77837a4c4365f5849c8de76047571df0d5bbc1a5d36ddaca",
+      "type": "file"
+    },
+    "src/operations/SharedLoad.h": {
+      "bytes": 3526,
+      "mode": 436,
+      "sha256": "2c12170e911ec33938538305c188c25d277e4c428baa06fe5c0f4543d19c78d3",
+      "type": "file"
+    },
+    "src/operations/UpdateService.cpp": {
+      "bytes": 15777,
+      "mode": 436,
+      "sha256": "dd99b9c2e7e7bdad8b684afdb0a2c5dbbb618974d92dc8d99b73a054147faf92",
+      "type": "file"
+    },
+    "src/operations/UpdateService.h": {
+      "bytes": 1933,
+      "mode": 436,
+      "sha256": "539d8b2033f781035b968c2a2a9582d58acb24cfab984414d5bd5ca642e180fc",
+      "type": "file"
+    },
+    "src/packages/PackageSimulationService.cpp": {
+      "bytes": 19326,
+      "mode": 436,
+      "sha256": "47c7e92ed57ac601c72e39a733656ef8f9608ebcea1e3530cab4b58fd0959964",
+      "type": "file"
+    },
+    "src/packages/PackageSimulationService.h": {
+      "bytes": 3210,
+      "mode": 436,
+      "sha256": "42878b12c3888cf8a9b13d171c4b36b083f971ed33b3538212b0d81ceeae09e5",
+      "type": "file"
+    },
+    "src/packages/ProgramsService.cpp": {
+      "bytes": 26389,
+      "mode": 436,
+      "sha256": "77b6f4640b96d6a10bdfbd4fcfc8cc5b8f96dc9b1b9924f9b2830d3eca153d12",
+      "type": "file"
+    },
+    "src/packages/ProgramsService.h": {
+      "bytes": 1751,
+      "mode": 436,
+      "sha256": "663481f7b995ba6d13decffbbd847f43d0e5b7a8fb2091e0578022d35ff1df70",
+      "type": "file"
+    },
+    "src/perf/WeiBenchmark.cpp": {
+      "bytes": 20750,
+      "mode": 436,
+      "sha256": "fb2b151f17b2dc1580311757964e2f9e5742161767bec56e1294c851b80578ec",
+      "type": "file"
+    },
+    "src/perf/WeiBenchmark.h": {
+      "bytes": 3595,
+      "mode": 436,
+      "sha256": "47ad7aea5a2364cd8c9e89cd8a884e1f9db63869b6b3f16ddb9fbee8a7c7620a",
+      "type": "file"
+    },
+    "src/perf/WeiScoring.h": {
+      "bytes": 3626,
+      "mode": 436,
+      "sha256": "eee02732826ee4b986f78b0ff651999a109a69fae6705a123a398acc71d21f48",
+      "type": "file"
+    },
+    "src/platform/accounts/AccountsBackend.cpp": {
+      "bytes": 16193,
+      "mode": 436,
+      "sha256": "03eb0d7ea5b52a281a56c58874230317add074924c2d70ffc380c0647923e8c7",
+      "type": "file"
+    },
+    "src/platform/accounts/AccountsBackend.h": {
+      "bytes": 2584,
+      "mode": 436,
+      "sha256": "6ac00db677168494e7e2c0c15907143e38c68a50a571adeca4ae19d0254e0468",
+      "type": "file"
+    },
+    "src/platform/apps/DefaultAppsBackend.cpp": {
+      "bytes": 44246,
+      "mode": 436,
+      "sha256": "78f723b8cd2321dad67db3d76bd414b813e786f7d20d3762698dedc8166b1808",
+      "type": "file"
+    },
+    "src/platform/apps/DefaultAppsBackend.h": {
+      "bytes": 2016,
+      "mode": 436,
+      "sha256": "44bdba599f55ab5d8afb0617569cd72af43ec796131ca39436c97f2720216503",
+      "type": "file"
+    },
+    "src/platform/audio/AudioBackend.cpp": {
+      "bytes": 25291,
+      "mode": 436,
+      "sha256": "a0b7d3cf6fc0e25d510ffba38865bc6f1710d52578cb1bc968acce0acfe2e67c",
+      "type": "file"
+    },
+    "src/platform/audio/AudioBackend.h": {
+      "bytes": 1971,
+      "mode": 436,
+      "sha256": "dcde9207c5360a3a98ae4c8f9e7c0d4491d27c8148c9cd6b5c9ee8cdb908cf3c",
+      "type": "file"
+    },
+    "src/platform/input/InputBackend.cpp": {
+      "bytes": 23030,
+      "mode": 436,
+      "sha256": "2f6cd55bcca8d6a226b443f0d803e88af929d49d8e1dc5257b24c21922d81271",
+      "type": "file"
+    },
+    "src/platform/input/InputBackend.h": {
+      "bytes": 2365,
+      "mode": 436,
+      "sha256": "e9b5ab5c60be3b27e25b03f6c3b96f679bd8d63c555ee6c1a1bcbf42beed415f",
+      "type": "file"
+    },
+    "src/platform/kde/AeroEffectBackend.cpp": {
+      "bytes": 16176,
+      "mode": 436,
+      "sha256": "67e7fbcb613786e644618a9ee956c7cdad0adbd1fe6826632b46ef47a0e2d298",
+      "type": "file"
+    },
+    "src/platform/kde/AeroEffectBackend.h": {
+      "bytes": 2603,
+      "mode": 436,
+      "sha256": "8242610ac970868279c6ac5b92d16cfd86dc6fda558fdbab9356c0ceb6fbd289",
+      "type": "file"
+    },
+    "src/platform/kde/AeroLoginBackend.cpp": {
+      "bytes": 21176,
+      "mode": 436,
+      "sha256": "229ae3abbc6e0075f4a25ab8533e9d992667136005df0e2b1c90470400bc3fd8",
+      "type": "file"
+    },
+    "src/platform/kde/AeroLoginBackend.h": {
+      "bytes": 2942,
+      "mode": 436,
+      "sha256": "094b41e064630b5130b6b85bed4b5e4f9cc136fa8d652d960988b4b4e0738f61",
+      "type": "file"
+    },
+    "src/platform/kde/AeroThemeBackend.cpp": {
+      "bytes": 40158,
+      "mode": 436,
+      "sha256": "48273e2e5cd9852727b18a5002e9fb949b039e7d807fd0ca3911a453f4ed7b02",
+      "type": "file"
+    },
+    "src/platform/kde/AeroThemeBackend.h": {
+      "bytes": 2695,
+      "mode": 436,
+      "sha256": "ecf584cdd97a95784844bd653845258636b108243e003c767c29cc1d42cbff1c",
+      "type": "file"
+    },
+    "src/platform/kde/AppearanceBackend.cpp": {
+      "bytes": 31306,
+      "mode": 436,
+      "sha256": "384953b1feb5002e7d6f571ce184155202eefb5f5b21913a3cd07a670b32b20b",
+      "type": "file"
+    },
+    "src/platform/kde/AppearanceBackend.h": {
+      "bytes": 2674,
+      "mode": 436,
+      "sha256": "0947c53729ffefc8220ff5bb83507a40e018156f41e1fcbe0c9367fa170ee2be",
+      "type": "file"
+    },
+    "src/platform/kde/FontBackend.cpp": {
+      "bytes": 48086,
+      "mode": 436,
+      "sha256": "7c2c2c6e0704afbc9c339e3a024a796e60c68a7cbdcedd2931a7cbf9d770f15f",
+      "type": "file"
+    },
+    "src/platform/kde/FontBackend.h": {
+      "bytes": 2779,
+      "mode": 436,
+      "sha256": "7cdd900b436120667639435a01e413be564f04b6deba0cd0783023687fbaa1b9",
+      "type": "file"
+    },
+    "src/platform/kde/NightLightBackend.cpp": {
+      "bytes": 52745,
+      "mode": 436,
+      "sha256": "46ecf4628c867399419f02618154e59a4cfdc23b8e1890a3b814fa0f56357ee8",
+      "type": "file"
+    },
+    "src/platform/kde/NightLightBackend.h": {
+      "bytes": 3620,
+      "mode": 436,
+      "sha256": "8a24c83a8d9c31c982210724be8c44742db5b979c7509257d4eb04ea410aa656",
+      "type": "file"
+    },
+    "src/platform/kde/NightTimeBackend.cpp": {
+      "bytes": 41414,
+      "mode": 436,
+      "sha256": "87e1ccc637543a9bc522b907d6c77ec39d70fdda8477bc3485b378f3d95290b0",
+      "type": "file"
+    },
+    "src/platform/kde/NightTimeBackend.h": {
+      "bytes": 2383,
+      "mode": 436,
+      "sha256": "1372d65310f1781218ba06b1fd9d66082a380a943bc918268a7d6c6e9747404a",
+      "type": "file"
+    },
+    "src/platform/kde/PowerPolicyBackend.cpp": {
+      "bytes": 76335,
+      "mode": 436,
+      "sha256": "3f92a51194e7b63a42ab6b3d7afaf782a6e5c4bcbae292df701854978eeae8fc",
+      "type": "file"
+    },
+    "src/platform/kde/PowerPolicyBackend.h": {
+      "bytes": 5311,
+      "mode": 436,
+      "sha256": "3b109fd8abfc6170663120dcfec321d8dc923c96b1f1a3df8d0a12fed10476a3",
+      "type": "file"
+    },
+    "src/platform/kde/ScreenLockAppearance.cpp": {
+      "bytes": 8115,
+      "mode": 436,
+      "sha256": "2e541dca3d2584adc907b1758342213abfd7d90197362e09fcba2625225a7b47",
+      "type": "file"
+    },
+    "src/platform/kde/ScreenLockAppearance.h": {
+      "bytes": 1044,
+      "mode": 436,
+      "sha256": "edd42afc04e702ca0be7a438124feed19ecaf25a29ae1a9bfce51efc25f4d6a5",
+      "type": "file"
+    },
+    "src/platform/kde/ScreenLockBackend.cpp": {
+      "bytes": 47475,
+      "mode": 436,
+      "sha256": "1c1cfd7474dcfe60879152cd0c8b6e6ef3ce3da5ae4a150b98a7f549be1f9195",
+      "type": "file"
+    },
+    "src/platform/kde/ScreenLockBackend.h": {
+      "bytes": 2414,
+      "mode": 436,
+      "sha256": "0b47dede7d3e65acfbe4506900c8bbf932771950926dca8f2c2e1923ed095c70",
+      "type": "file"
+    },
+    "src/platform/kde/ThemeComponentBackend.cpp": {
+      "bytes": 13460,
+      "mode": 436,
+      "sha256": "3e277aa04d6f480e3bbe9392a5f487a7a07acb94c8d96bec0bad04b85dfe6123",
+      "type": "file"
+    },
+    "src/platform/kde/ThemeComponentBackend.h": {
+      "bytes": 2017,
+      "mode": 436,
+      "sha256": "4106cf12d50610562b7be1ea266aa81bd7ad838cd36bf44f92ceb86dd5c8f2f8",
+      "type": "file"
+    },
+    "src/platform/kde/WallpaperBackend.cpp": {
+      "bytes": 13264,
+      "mode": 436,
+      "sha256": "efdc119816c36e48b4004e9bb99718664454a69ff52d346040f0711a2ccdc1e2",
+      "type": "file"
+    },
+    "src/platform/kde/WallpaperBackend.h": {
+      "bytes": 1847,
+      "mode": 436,
+      "sha256": "e8c86d283ac58166b71659f6ceedcd298795d5d5127c422ca1bafa38458e337f",
+      "type": "file"
+    },
+    "src/platform/keyboard/KeyboardBackend.cpp": {
+      "bytes": 40955,
+      "mode": 436,
+      "sha256": "eca761f2a75422dc1f01cf33250cb94b95da3f4568e6aa5e6d323bc2055c76e3",
+      "type": "file"
+    },
+    "src/platform/keyboard/KeyboardBackend.h": {
+      "bytes": 2108,
+      "mode": 436,
+      "sha256": "a154911daccad49018b6edeab72e8cc4ec0146482020abafe30a7bf8958d9847",
+      "type": "file"
+    },
+    "src/platform/location/NightTimeLocation.cpp": {
+      "bytes": 5105,
+      "mode": 436,
+      "sha256": "443990dd21c62cef03251e26f20d64a4dc3833d53ae3b8e54a1e67678c3d45ed",
+      "type": "file"
+    },
+    "src/platform/location/NightTimeLocation.h": {
+      "bytes": 1679,
+      "mode": 436,
+      "sha256": "c4f0c3a77d81e3b0e7155a9b6504f6b3c38c8c8cc8a769e391bceb56eb608565",
+      "type": "file"
+    },
+    "src/platform/network/NetworkManagerBackend.cpp": {
+      "bytes": 75011,
+      "mode": 436,
+      "sha256": "dabfce2934e8129ddc4bf3fea515712ccd14d1c05223d8357732796c46e7e82e",
+      "type": "file"
+    },
+    "src/platform/network/NetworkManagerBackend.h": {
+      "bytes": 3575,
+      "mode": 436,
+      "sha256": "75165ae39b77e390cfad8e90852b685e94497a991f0bc5fa0d9d9503def22d02",
+      "type": "file"
+    },
+    "src/platform/shortcuts/CustomShortcutsBackend.cpp": {
+      "bytes": 78214,
+      "mode": 436,
+      "sha256": "a5bbcbfa0451f71d3998cb98daac0e0de1ad686528be9a7bcb7eddb269ebb7df",
+      "type": "file"
+    },
+    "src/platform/shortcuts/CustomShortcutsBackend.h": {
+      "bytes": 2482,
+      "mode": 436,
+      "sha256": "4a7a4df66dfca704dd9773b0ae7470db9ba572bc63abb8a172bd3f46db5d6788",
+      "type": "file"
+    },
+    "src/platform/shortcuts/ShortcutsBackend.cpp": {
+      "bytes": 59129,
+      "mode": 436,
+      "sha256": "1de3a7164c067d19b3387408bd8499c6ddc20d9ccc52da1e98eb6def2f512631",
+      "type": "file"
+    },
+    "src/platform/shortcuts/ShortcutsBackend.h": {
+      "bytes": 2813,
+      "mode": 436,
+      "sha256": "920d74f59444fbb0302a53f66defe82fc3f874bc61f74c986f5a5134cc1d7a98",
+      "type": "file"
+    },
+    "src/platform/shortcuts/StandardShortcutsBackend.cpp": {
+      "bytes": 30068,
+      "mode": 436,
+      "sha256": "e5dee0679aa903742033fa7a27591b2ffb8cc0e690af9c4980244c2a8cb97b32",
+      "type": "file"
+    },
+    "src/platform/shortcuts/StandardShortcutsBackend.h": {
+      "bytes": 2178,
+      "mode": 436,
+      "sha256": "030bf70c3f0d326436569fe19a6dec11f6079e4d4ab8fa22768c135eb16b4935",
+      "type": "file"
+    },
+    "src/release/BuildIdentity.h": {
+      "bytes": 402,
+      "mode": 436,
+      "sha256": "46a40f75ef053577bf5ebe604070cc37132f7176aa66f4760b2f5900952b1253",
+      "type": "file"
+    },
+    "src/release/ControlBuildIdentity.h.in": {
+      "bytes": 334,
+      "mode": 436,
+      "sha256": "0356a65246060c630b2ca6dff81453591cf3ad7d72bd1937caa9f5ea9e3e2773",
+      "type": "file"
+    },
+    "src/release/InstallationLock.cpp": {
+      "bytes": 6179,
+      "mode": 436,
+      "sha256": "e81aafa3683beccf2bfd4078d883b4e6b77e07178a8e3afca9a72379ee873af6",
+      "type": "file"
+    },
+    "src/release/InstallationLock.h": {
+      "bytes": 841,
+      "mode": 436,
+      "sha256": "d066421b9973c0894a05309be813787e06a33e5c3474087ba2c97448ba80d715",
+      "type": "file"
+    },
+    "src/release/LocalRcPolicy.h": {
+      "bytes": 804,
+      "mode": 436,
+      "sha256": "e8da3f311c2c20dc4c81b8180e1ed879f822da7ed7770825c15e709325425e74",
+      "type": "file"
+    },
+    "src/release/linux-controlpanel.desktop.in": {
+      "bytes": 375,
+      "mode": 436,
+      "sha256": "ba16acccb5e1bd53660ed18e90beaefb2c3a14fcac77b89713242819adecbd16",
+      "type": "file"
+    },
+    "src/settings/AccountSettings.cpp": {
+      "bytes": 9575,
+      "mode": 436,
+      "sha256": "3bd54da41c099461eae6ea7b976a8cf72f6840745e23d51caf98c63b13777b84",
+      "type": "file"
+    },
+    "src/settings/AccountSettings.h": {
+      "bytes": 3017,
+      "mode": 436,
+      "sha256": "fb62b2f0bd48ba76ca7af07ac47b4b2ce0a915c3b28068c3da6387450b15e0f1",
+      "type": "file"
+    },
+    "src/settings/AeroEffectSettings.cpp": {
+      "bytes": 5583,
+      "mode": 436,
+      "sha256": "094e96e550f379c748179e073be1962e948dc2cacda32281d21cf1263752c240",
+      "type": "file"
+    },
+    "src/settings/AeroEffectSettings.h": {
+      "bytes": 2129,
+      "mode": 436,
+      "sha256": "d357558e85e1d6d26bc31de44ed3a178eb1ab0e187988af33728395444d99133",
+      "type": "file"
+    },
+    "src/settings/AeroLoginSettings.cpp": {
+      "bytes": 11166,
+      "mode": 436,
+      "sha256": "f0ddb7c9a37c096c6fec4133b80862730e7966b9bf21bbda21f1b67b490502ee",
+      "type": "file"
+    },
+    "src/settings/AeroLoginSettings.h": {
+      "bytes": 5861,
+      "mode": 436,
+      "sha256": "c44e80c6865b1c43d608c16800a2fa9eb4b3994eab887c47e3404df37604db2c",
+      "type": "file"
+    },
+    "src/settings/AeroLoginTypes.cpp": {
+      "bytes": 17037,
+      "mode": 436,
+      "sha256": "664a403b1914658c1b742b51714607123d907425b3b617d4c73227e7eef1da75",
+      "type": "file"
+    },
+    "src/settings/AeroThemeContract.cpp": {
+      "bytes": 17314,
+      "mode": 436,
+      "sha256": "5f47ba2622f5d273871355380c000378f1edaa4e2097f5bf3e969a8dee69e3eb",
+      "type": "file"
+    },
+    "src/settings/AeroThemeContract.h": {
+      "bytes": 1145,
+      "mode": 436,
+      "sha256": "92aa8e42b7c756135c42f320449c17538cce023eedef5732f3f95ec820e2256e",
+      "type": "file"
+    },
+    "src/settings/AeroThemeSettings.cpp": {
+      "bytes": 10137,
+      "mode": 436,
+      "sha256": "044ec7b77be42b0e4638b52047f0272fb3f9e78bf2221bdc68ea551797d9b858",
+      "type": "file"
+    },
+    "src/settings/AeroThemeSettings.h": {
+      "bytes": 2874,
+      "mode": 436,
+      "sha256": "073c928ee9a996094361e30499015b95de5ee25f92f2299dbba1313df911290a",
+      "type": "file"
+    },
+    "src/settings/AppearanceSettings.cpp": {
+      "bytes": 7218,
+      "mode": 436,
+      "sha256": "fead4129ea95caf3094e6b0d79d1bbf14e685d8566d4725dc2e5c8df24ba4b86",
+      "type": "file"
+    },
+    "src/settings/AppearanceSettings.h": {
+      "bytes": 2433,
+      "mode": 436,
+      "sha256": "d830f8adc40004d695a5d01f67f221f0b80183979464a3b249ddbbc10effb530",
+      "type": "file"
+    },
+    "src/settings/AudioSettings.cpp": {
+      "bytes": 13614,
+      "mode": 436,
+      "sha256": "1187289eb3ffded1f95329e072084735aa06506fbc75788d7793d01d1ff716ed",
+      "type": "file"
+    },
+    "src/settings/AudioSettings.h": {
+      "bytes": 3905,
+      "mode": 436,
+      "sha256": "b792afe099138d5c5e8c818aafdaf5839684977d46f29b330fff0b6cc512130b",
+      "type": "file"
+    },
+    "src/settings/ColorSchemeSettings.cpp": {
+      "bytes": 13126,
+      "mode": 436,
+      "sha256": "c782f9470663fbc2fb46717e1de296b6bb0d5faf0ca0c5c64f9803550a62a452",
+      "type": "file"
+    },
+    "src/settings/ColorSchemeSettings.h": {
+      "bytes": 1873,
+      "mode": 436,
+      "sha256": "21607672a432fa587e79df44a306abce0c744bf943364d50316c415d1b11fe70",
+      "type": "file"
+    },
+    "src/settings/CustomShortcutsSettings.cpp": {
+      "bytes": 21553,
+      "mode": 436,
+      "sha256": "276333572ef6a3d6ccf2a76b1b8a8baab35b5f2352c125a0623c3757f6ebfd88",
+      "type": "file"
+    },
+    "src/settings/CustomShortcutsSettings.h": {
+      "bytes": 4136,
+      "mode": 436,
+      "sha256": "2d44a93bf9c667bcab6ed2366a0dd4cf3d9c43277d3a7b9a9236a91f920d73fc",
+      "type": "file"
+    },
+    "src/settings/DefaultAppsSettings.cpp": {
+      "bytes": 14995,
+      "mode": 436,
+      "sha256": "1bb97fc356819165b373d9d4b2c690ab2efc7260f233715e8007bd365bbee668",
+      "type": "file"
+    },
+    "src/settings/DefaultAppsSettings.h": {
+      "bytes": 4319,
+      "mode": 436,
+      "sha256": "f3f4f583709ea7fd4461155945a1f3df0d42c79e63601c181f76ef199b7c309c",
+      "type": "file"
+    },
+    "src/settings/DisplaySettings.cpp": {
+      "bytes": 11371,
+      "mode": 436,
+      "sha256": "4e0e25e7bab580a09020fddf0f23caeee8e1432d868b68d8423437b4a4808f8f",
+      "type": "file"
+    },
+    "src/settings/DisplaySettings.h": {
+      "bytes": 3016,
+      "mode": 436,
+      "sha256": "3bb5edcae88f76f84071f12523148fc0546ff3432be2ba3df7cabec6cd918038",
+      "type": "file"
+    },
+    "src/settings/FontSettings.cpp": {
+      "bytes": 9059,
+      "mode": 436,
+      "sha256": "6835a6f49993637b16516f812318833d33ad70fe4e414cef540320f08309fac8",
+      "type": "file"
+    },
+    "src/settings/FontSettings.h": {
+      "bytes": 3159,
+      "mode": 436,
+      "sha256": "867267c550ea9b6661629026fb5d7819d70a37d7bc1e70f89459b09d47456801",
+      "type": "file"
+    },
+    "src/settings/InputSettings.cpp": {
+      "bytes": 15713,
+      "mode": 436,
+      "sha256": "a49b02f833155a141666c02ca8be4f6300c8b41134d9f42dbbc7f764d7dd7438",
+      "type": "file"
+    },
+    "src/settings/InputSettings.h": {
+      "bytes": 3255,
+      "mode": 436,
+      "sha256": "b459900c039c384722f1681fbfd3b6b94a04e85f77b23582e53bca2bea05bd16",
+      "type": "file"
+    },
+    "src/settings/KeyboardSettings.cpp": {
+      "bytes": 24705,
+      "mode": 436,
+      "sha256": "5841adb95de4dbe8cbdd6ab2738f7bec621ca33ff2f480563d774b0026ec77aa",
+      "type": "file"
+    },
+    "src/settings/KeyboardSettings.h": {
+      "bytes": 3510,
+      "mode": 436,
+      "sha256": "0f54028c587106a90ecd4d7f7efde3ad5909f9849c410c31ccb3499ace09cecf",
+      "type": "file"
+    },
+    "src/settings/NetworkSettings.cpp": {
+      "bytes": 14127,
+      "mode": 436,
+      "sha256": "a50202d297093a6485baf49e0f1eeacb7cd773b1d5baf70ff37bb73903b884e5",
+      "type": "file"
+    },
+    "src/settings/NetworkSettings.h": {
+      "bytes": 3090,
+      "mode": 436,
+      "sha256": "63151533eca5861ab235746a8049514366a0d40a2cdbeb1ce7baff0e7cc6ae83",
+      "type": "file"
+    },
+    "src/settings/NetworkTypes.cpp": {
+      "bytes": 26389,
+      "mode": 436,
+      "sha256": "fd6251df81e7f9963b78c0928be991f1b06ffce4bd785f9845592dfaf3b07171",
+      "type": "file"
+    },
+    "src/settings/NetworkTypes.h": {
+      "bytes": 4553,
+      "mode": 436,
+      "sha256": "54f1da492f51c83ace0174f9fafe48fa812c146af805d29d3b194a87de158685",
+      "type": "file"
+    },
+    "src/settings/NightLightSettings.cpp": {
+      "bytes": 22765,
+      "mode": 436,
+      "sha256": "869eed055b43a8ccb5cc858cb450397cb8a43d4cc5eb5c234486d3628332524c",
+      "type": "file"
+    },
+    "src/settings/NightLightSettings.h": {
+      "bytes": 6230,
+      "mode": 436,
+      "sha256": "17104a761530fc8d158bcce4dff9693063352f632f46cd68156a2930782b0ac6",
+      "type": "file"
+    },
+    "src/settings/NightTimeForecast.cpp": {
+      "bytes": 4412,
+      "mode": 436,
+      "sha256": "28551614f40ed0cfdb3e7359826ad9a2baa9c6e290b2f0c958f8a98a7954a53e",
+      "type": "file"
+    },
+    "src/settings/NightTimeForecast.h": {
+      "bytes": 1516,
+      "mode": 436,
+      "sha256": "9abf4834448eeaba037ce2e6b3bab5782b1b85c1f2bace34b1dca3250575d14f",
+      "type": "file"
+    },
+    "src/settings/NightTimeSettings.cpp": {
+      "bytes": 30213,
+      "mode": 436,
+      "sha256": "367d4cbcf2e75fc5efbcc781285c8a45396d494e144f060ee002c665f243fac6",
+      "type": "file"
+    },
+    "src/settings/NightTimeSettings.h": {
+      "bytes": 6331,
+      "mode": 436,
+      "sha256": "0845bac926e1979cd409c9da8124f7aa8712e208c9520ced162830bd7ee06414",
+      "type": "file"
+    },
+    "src/settings/PowerPolicyFields.cpp": {
+      "bytes": 24105,
+      "mode": 436,
+      "sha256": "3eadedb20208f5e77f569f2592b692f5ef38ab93269dd1e703028dfdeef77c17",
+      "type": "file"
+    },
+    "src/settings/PowerPolicyFields.h": {
+      "bytes": 1729,
+      "mode": 436,
+      "sha256": "fcf8b8b0617b26776feed5ef6a707aa2843eb337596b107734ff554feca69234",
+      "type": "file"
+    },
+    "src/settings/PowerPolicySettings.cpp": {
+      "bytes": 25010,
+      "mode": 436,
+      "sha256": "fdd80008a13e3ff50688c38471baf3d250c187730a238e33f9484780eb119e91",
+      "type": "file"
+    },
+    "src/settings/PowerPolicySettings.h": {
+      "bytes": 7998,
+      "mode": 436,
+      "sha256": "1fc366cd538bb3c5ddd103a982cb81b9c21d03533b0dd1cbcc3af21de89f7572",
+      "type": "file"
+    },
+    "src/settings/PowerProfileService.cpp": {
+      "bytes": 7079,
+      "mode": 436,
+      "sha256": "145d0d76fac668341cf6706bf0f24fd0bd9a7f04545664d2f860287e065d991c",
+      "type": "file"
+    },
+    "src/settings/PowerProfileService.h": {
+      "bytes": 2161,
+      "mode": 436,
+      "sha256": "777451dcf192d48d007c9a74a2aca26071f47d92f012ecd6b00f6491c1a01b87",
+      "type": "file"
+    },
+    "src/settings/ScreenLockSettings.cpp": {
+      "bytes": 24482,
+      "mode": 436,
+      "sha256": "67cf66a302402b8574a05b8593800dc79c94d42abb5dcbe6c8a20f9d537fd40a",
+      "type": "file"
+    },
+    "src/settings/ScreenLockSettings.h": {
+      "bytes": 5169,
+      "mode": 436,
+      "sha256": "83f54c42e588c5d73af25e41078198b33b72f116a11c0499cb3240781e00f47d",
+      "type": "file"
+    },
+    "src/settings/SettingsSession.h": {
+      "bytes": 920,
+      "mode": 436,
+      "sha256": "149398860a4af88f15eb3a7966abd23f7861301491e25b5ec3d3d345b75b9fa2",
+      "type": "file"
+    },
+    "src/settings/ShortcutImportCoordinator.cpp": {
+      "bytes": 23381,
+      "mode": 436,
+      "sha256": "a5108b215662f2167269124ee281e16fcf646f0c2ec866efd945741535566acc",
+      "type": "file"
+    },
+    "src/settings/ShortcutImportCoordinator.h": {
+      "bytes": 4360,
+      "mode": 436,
+      "sha256": "ffff6d4f5ca0b84ad7c65e46feeaeefe108472ed719e48e948e7769b192e62e0",
+      "type": "file"
+    },
+    "src/settings/ShortcutScheme.cpp": {
+      "bytes": 28592,
+      "mode": 436,
+      "sha256": "391b914bcdf3fd6608a71e10730fec4babad1726736cd85b958e1ca23dfe84e3",
+      "type": "file"
+    },
+    "src/settings/ShortcutScheme.h": {
+      "bytes": 1942,
+      "mode": 436,
+      "sha256": "c7e2b37c0ad8e55dbee9ec36e4a35d603db6cdec64dc188f59489f7e38e8b7a1",
+      "type": "file"
+    },
+    "src/settings/ShortcutsSettings.cpp": {
+      "bytes": 13672,
+      "mode": 436,
+      "sha256": "afa402fbcc1a94828b96ce59d54ae1e1d19f33df88c8930f83429b946b85095f",
+      "type": "file"
+    },
+    "src/settings/ShortcutsSettings.h": {
+      "bytes": 2414,
+      "mode": 436,
+      "sha256": "dfef1aa51e5c7378eb4f3452afb02a6b12811085bd35cea18e356d49fb4ca856",
+      "type": "file"
+    },
+    "src/settings/ShortcutsTypes.cpp": {
+      "bytes": 5873,
+      "mode": 436,
+      "sha256": "951e61e7eb7c566cc09fee88f36b6a3220d0d427915b1497e10f9c800ab66872",
+      "type": "file"
+    },
+    "src/settings/ShortcutsTypes.h": {
+      "bytes": 2860,
+      "mode": 436,
+      "sha256": "feff7a060de649b6727d3b3e06b9810eec660c416f6e4e39c38e4d3e262b64ef",
+      "type": "file"
+    },
+    "src/settings/ThemeComponentSettings.cpp": {
+      "bytes": 7907,
+      "mode": 436,
+      "sha256": "cdb4c110c447e49d5df795944e61e446e343a1ec712d8620e9933ce2c4f20e8a",
+      "type": "file"
+    },
+    "src/settings/ThemeComponentSettings.h": {
+      "bytes": 2821,
+      "mode": 436,
+      "sha256": "b14c691e43db5ef4d1da75a64e1f8b7ee53dc1cd09777d0200fc957bd26bd149",
+      "type": "file"
+    },
+    "src/settings/UserFontService.cpp": {
+      "bytes": 16409,
+      "mode": 436,
+      "sha256": "82e9d4d3f7e2844e358f339ec2cc98db659888a0788f8e16fc1c75f049b07a88",
+      "type": "file"
+    },
+    "src/settings/UserFontService.h": {
+      "bytes": 1938,
+      "mode": 436,
+      "sha256": "309f03cdc5005bef7db13dc2e5c4832a997db598c861622e4d19f4631eae5f6a",
+      "type": "file"
+    },
+    "src/settings/WallpaperSettings.cpp": {
+      "bytes": 6881,
+      "mode": 436,
+      "sha256": "0fad06cf387ecbf8c2c9f659c1c8dffe4d08cad5d90fdb14f812595f79b0a042",
+      "type": "file"
+    },
+    "src/settings/WallpaperSettings.h": {
+      "bytes": 2308,
+      "mode": 436,
+      "sha256": "00b4bc261cdd7b784198bf9b670150fc2471dc4a9f699df45ec6fa802ac26fbe",
+      "type": "file"
+    },
+    "src/time/TimeSync.cpp": {
+      "bytes": 13736,
+      "mode": 436,
+      "sha256": "ceec89e1725d508a096f7686d4759417d7802085f0736ea4536e6fc62e6a3e8c",
+      "type": "file"
+    },
+    "src/time/TimeSync.h": {
+      "bytes": 1171,
+      "mode": 436,
+      "sha256": "332b5ff660eefeed5393dff9884633df404eb4b07f6d0b4a06512faafdf66626",
+      "type": "file"
+    },
+    "src/time/TimeSyncConfig.cpp": {
+      "bytes": 9819,
+      "mode": 436,
+      "sha256": "c64b86fbcb0edd6dba779ef03e913e4b86aa9127a615f42df8e23df1350cf820",
+      "type": "file"
+    },
+    "src/time/TimeSyncConfig.h": {
+      "bytes": 1492,
+      "mode": 436,
+      "sha256": "cf04246412ee6bfab19060476abc7529528b7bd8ddf6de5430e431e78a60bfc7",
+      "type": "file"
+    },
+    "src/time/TimeSyncHelper.cpp": {
+      "bytes": 5935,
+      "mode": 436,
+      "sha256": "1d826245624270561905264a4f3271e830e94d8c7f17fefb65a2dfe2d929b94d",
+      "type": "file"
+    },
+    "src/time/org.linuxcontrol.time.policy.in": {
+      "bytes": 781,
+      "mode": 436,
+      "sha256": "c173ece2abf2de07738585a4ac9f52e37cf4d9de86c5e142cd21010db1d84949",
+      "type": "file"
+    },
+    "src/ui/ActionCatalog.cpp": {
+      "bytes": 54361,
+      "mode": 436,
+      "sha256": "39fd0bec87866e14094110306a17818dd8eaecafec53a559fc67c0d472358a7b",
+      "type": "file"
+    },
+    "src/ui/ActionCatalog.h": {
+      "bytes": 708,
+      "mode": 436,
+      "sha256": "93890711b2a2d0bede1e5af93b8a8af596ddd4bce156b002a733d766c79504b1",
+      "type": "file"
+    },
+    "src/ui/ActionId.h": {
+      "bytes": 5188,
+      "mode": 436,
+      "sha256": "0d55995a599ed6335a5e63e97bcc1aa76125bd0e9a6af62d9a3b48271617bdd0",
+      "type": "file"
+    },
+    "src/ui/AnalogClock.h": {
+      "bytes": 2848,
+      "mode": 436,
+      "sha256": "bbd6be4b5d567ecbed5aca27f5a6e829c9f635e3b0251b1b67ad9517a5863e92",
+      "type": "file"
+    },
+    "src/ui/ApplicationStyleGuard.h": {
+      "bytes": 2278,
+      "mode": 436,
+      "sha256": "8fc982696b4eecb038643516dde16737f7ea9fc09e3b94dfbaea7460589ebd62",
+      "type": "file"
+    },
+    "src/ui/CatalogView.cpp": {
+      "bytes": 11779,
+      "mode": 436,
+      "sha256": "281c7a600731a039a7741f57fc189d4ebb14792f40f2c47f2952a8692218c31c",
+      "type": "file"
+    },
+    "src/ui/CatalogView.h": {
+      "bytes": 641,
+      "mode": 436,
+      "sha256": "4487e9fac8756c463b4f2d0813753466395c4b4249d94b4776a237a86f5c4207",
+      "type": "file"
+    },
+    "src/ui/CategoryWidget.cpp": {
+      "bytes": 2856,
+      "mode": 436,
+      "sha256": "f442e5cfb6f1cf8f2d4a3364b6643936828358e24fa1390d4fe7cd0a0d15d088",
+      "type": "file"
+    },
+    "src/ui/CategoryWidget.h": {
+      "bytes": 559,
+      "mode": 436,
+      "sha256": "e65ab35420ef33fda57f8bd2f80cf65d77359ee4954859c81cc18ffbfca91910",
+      "type": "file"
+    },
+    "src/ui/Commands.h": {
+      "bytes": 3154,
+      "mode": 436,
+      "sha256": "0342b20396269f32ce7e67bd03042b3fac7b495dbc8b41ee95d2e56d0ac6f118",
+      "type": "file"
+    },
+    "src/ui/DeviceItem.h": {
+      "bytes": 1141,
+      "mode": 436,
+      "sha256": "06259052a21973e4f928d3ef0d4b62b132a3ba3ca61beacb63c6e7903dde9c91",
+      "type": "file"
+    },
+    "src/ui/IconHelper.h": {
+      "bytes": 3059,
+      "mode": 436,
+      "sha256": "15cd4dbfc3a94298da8e476ad4379622103f01b407f5e5a3903eb56e37597d03",
+      "type": "file"
+    },
+    "src/ui/LevelMeter.h": {
+      "bytes": 1188,
+      "mode": 436,
+      "sha256": "5ea31f74878451166b00e7e5c33bda3096d5f2b73b97570401b8c37f0395b299",
+      "type": "file"
+    },
+    "src/ui/LinkLabel.h": {
+      "bytes": 7032,
+      "mode": 436,
+      "sha256": "f6318220861f4732a6b98c49f4d2af9557a4fe6b6aaf719e727f9aa0f06f05c3",
+      "type": "file"
+    },
+    "src/ui/MainWindow.cpp": {
+      "bytes": 74635,
+      "mode": 436,
+      "sha256": "b816b475a37ba7aca6a59eb327eeaf26308012e2f73a21a60ea0d8c83b1f6287",
+      "type": "file"
+    },
+    "src/ui/MainWindow.h": {
+      "bytes": 5139,
+      "mode": 436,
+      "sha256": "e9ce86260f9df03ec7bc4d4f1fa91525c8d881171cd0ee82a1205dd43f815087",
+      "type": "file"
+    },
+    "src/ui/PageId.h": {
+      "bytes": 4086,
+      "mode": 436,
+      "sha256": "f4e681968020a68db8c8de52f932b4da845ef660cc6d6177c12f99ab1afc48b2",
+      "type": "file"
+    },
+    "src/ui/PageRegistry.cpp": {
+      "bytes": 4070,
+      "mode": 436,
+      "sha256": "c5e7448ce77048aa04c5cf68b1b6add301f99f1c84bf4666e79e63d4ad9b6c6f",
+      "type": "file"
+    },
+    "src/ui/PageRegistry.h": {
+      "bytes": 915,
+      "mode": 436,
+      "sha256": "c0fd5e2f4aa1352e0111288df018c442196a7b9d39c62e8ff68397e1f67497c1",
+      "type": "file"
+    },
+    "src/ui/SettingsNavigationGuard.cpp": {
+      "bytes": 2468,
+      "mode": 436,
+      "sha256": "ee9dc09f5791607ede618b405c2a5e044696a3a5013ce3b621a4cd9b0043d58d",
+      "type": "file"
+    },
+    "src/ui/SettingsNavigationGuard.h": {
+      "bytes": 985,
+      "mode": 436,
+      "sha256": "a770bfeb16a6d201189b904d7caca0a56f11150ecb2b7da8d0b0bffb21022db6",
+      "type": "file"
+    },
+    "src/ui/Win7FormStyle.cpp": {
+      "bytes": 332,
+      "mode": 436,
+      "sha256": "79116a4fb8326cb394ad0d974d142ac0b91138b33f5ca889410668801c4afac8",
+      "type": "file"
+    },
+    "src/ui/Win7FormStyle.h": {
+      "bytes": 2632,
+      "mode": 436,
+      "sha256": "fc0ba3c7f5755f42026fba77113a4c31812ae00015b04e7aab0e128fdd0cb498",
+      "type": "file"
+    },
+    "src/ui/Win7Ui.h": {
+      "bytes": 23400,
+      "mode": 436,
+      "sha256": "4f1368c542233470ab13b6e25ba3fd7240d06a2ddeef2885b39c17d4d09bd287",
+      "type": "file"
+    },
+    "src/ui/assets/check.svg": {
+      "bytes": 215,
+      "mode": 436,
+      "sha256": "12085a7d92c30692b09ee2b5692481008250ae8e9459b404d2b98a648756b97c",
+      "type": "file"
+    },
+    "src/ui/assets/spin-down.svg": {
+      "bytes": 125,
+      "mode": 436,
+      "sha256": "a2493301a8d313cc3cb1fb2697d91439a69985236f80532bd1726b92a503e5dc",
+      "type": "file"
+    },
+    "src/ui/assets/spin-up.svg": {
+      "bytes": 125,
+      "mode": 436,
+      "sha256": "1c5665e633ef005d7bac74923579f4a89e06ab1c57facaf7f8a52bbbfd3dc2cb",
+      "type": "file"
+    },
+    "src/ui/assets/worldmap-attribution.txt": {
+      "bytes": 570,
+      "mode": 436,
+      "sha256": "aff49d65b0e121fab542d3b7b3d4c198b6f46fb7ca0f443b6bbe23d03bdef370",
+      "type": "file"
+    },
+    "src/ui/assets/worldmap.png": {
+      "bytes": 147850,
+      "mode": 436,
+      "sha256": "7363fcde4dfb04211995d4231320ca28556edf5d7b4e3334514266551009ef27",
+      "type": "file"
+    },
+    "src/ui/dialogs/DateTimeDialog.cpp": {
+      "bytes": 34639,
+      "mode": 436,
+      "sha256": "736e0ccda5216617aa3c1671da007919dfa40cba05685ed50c0c6308534c48f8",
+      "type": "file"
+    },
+    "src/ui/dialogs/DateTimeDialog.h": {
+      "bytes": 2888,
+      "mode": 436,
+      "sha256": "2b8e495a08724146cb01b7ea961042acd0355bb6884582e8472869a89d809a98",
+      "type": "file"
+    },
+    "src/ui/dialogs/DevicePropertiesDialog.cpp": {
+      "bytes": 11389,
+      "mode": 436,
+      "sha256": "9489f3f4bec1fefaf833bf289e85f85890afc8dce566b3a81f3e52c19930d3f5",
+      "type": "file"
+    },
+    "src/ui/dialogs/DevicePropertiesDialog.h": {
+      "bytes": 735,
+      "mode": 436,
+      "sha256": "5fbdb8c50fd67772f75fd32b68a1975bfa8f7b6bac20a2f94b468dd2631f0102",
+      "type": "file"
+    },
+    "src/ui/dialogs/LinverConfigDialog.cpp": {
+      "bytes": 3285,
+      "mode": 436,
+      "sha256": "91f7bd293414a8c803530f26bf3be3828c80551afc388ebf23356bf7064de474",
+      "type": "file"
+    },
+    "src/ui/dialogs/LinverConfigDialog.h": {
+      "bytes": 905,
+      "mode": 436,
+      "sha256": "3969afcff705314aba1627a41b7e08101739cf1919b125fff472a944badcd0df",
+      "type": "file"
+    },
+    "src/ui/dialogs/ShortcutSchemeDialog.cpp": {
+      "bytes": 43448,
+      "mode": 436,
+      "sha256": "136a4a20496b0e5c7c99f274b7725894e69c76cfcb98cda207773a06dd0cba7c",
+      "type": "file"
+    },
+    "src/ui/dialogs/ShortcutSchemeDialog.h": {
+      "bytes": 3762,
+      "mode": 436,
+      "sha256": "152e71f038b84cafcb87492f720f50d74dc3309936d1f5e582262ba160e900f7",
+      "type": "file"
+    },
+    "src/ui/dialogs/SoundDialog.cpp": {
+      "bytes": 33621,
+      "mode": 436,
+      "sha256": "0c1e1ae08bd5018ce031d2f40b1f6883ba6c7108665817ce629998eb3cbd510b",
+      "type": "file"
+    },
+    "src/ui/dialogs/SoundDialog.h": {
+      "bytes": 2169,
+      "mode": 436,
+      "sha256": "4cc3a799858246a19a03a6a05d44c04f2eba312c12af0be4ab3cb7ec66c1f772",
+      "type": "file"
+    },
+    "src/ui/pages/ActionCenterPage.cpp": {
+      "bytes": 12158,
+      "mode": 436,
+      "sha256": "7e8b68c09802a292c1b4a26531b993ee6f6cdac51debd5feb0ea4dba79d6232b",
+      "type": "file"
+    },
+    "src/ui/pages/ActionCenterPage.h": {
+      "bytes": 2294,
+      "mode": 436,
+      "sha256": "19d2ec0a578defb58a0bbd1fd8646f11701e2e3402c35fcdf5d470b9905a2038",
+      "type": "file"
+    },
+    "src/ui/pages/AeroEffectsPage.cpp": {
+      "bytes": 6435,
+      "mode": 436,
+      "sha256": "4339f56ef8c71b6a143fa5378a4a10bb7f59565fbf2e12098aad1ae698ae5b66",
+      "type": "file"
+    },
+    "src/ui/pages/AeroEffectsPage.h": {
+      "bytes": 718,
+      "mode": 436,
+      "sha256": "a60bbb157ba47fdedfd66229f3999140f112e0aa1549673c4fded6a9c94ff31d",
+      "type": "file"
+    },
+    "src/ui/pages/AeroLoginPage.cpp": {
+      "bytes": 34348,
+      "mode": 436,
+      "sha256": "d2df53f8d5825ed5d3f08e7efe759858bb126768ee14cce1af4e8db67986ebec",
+      "type": "file"
+    },
+    "src/ui/pages/AeroLoginPage.h": {
+      "bytes": 1816,
+      "mode": 436,
+      "sha256": "f90d3279c65193901330d9d2560ffaefa74c444f9f71495d64c319c0602b5da3",
+      "type": "file"
+    },
+    "src/ui/pages/CustomShortcutsPage.cpp": {
+      "bytes": 14507,
+      "mode": 436,
+      "sha256": "6bea182fee19666e2ba19044d46985f78a7c6d796a38dbc026f6a1e14bb432c5",
+      "type": "file"
+    },
+    "src/ui/pages/CustomShortcutsPage.h": {
+      "bytes": 1215,
+      "mode": 436,
+      "sha256": "c300dc0c4aec44c34446e4c62f841fa7e989ba8372ef634a87b036dd7b5e1997",
+      "type": "file"
+    },
+    "src/ui/pages/DefaultAppsPage.cpp": {
+      "bytes": 12677,
+      "mode": 436,
+      "sha256": "6ce5c1da677db4ed17f499887991df633a671445c1f22c3e9919d3fc97ea6051",
+      "type": "file"
+    },
+    "src/ui/pages/DefaultAppsPage.h": {
+      "bytes": 1030,
+      "mode": 436,
+      "sha256": "b4d309b59ba9d378850271c02caae6cf2bda04ae8edc2f0ac124fec346a68601",
+      "type": "file"
+    },
+    "src/ui/pages/DesktopBackgroundPage.cpp": {
+      "bytes": 8080,
+      "mode": 436,
+      "sha256": "9edec3e2ef4ac9e9b8fa6d02aeae7fbc2e004c8ce8361a2af4c197e4ebc4a317",
+      "type": "file"
+    },
+    "src/ui/pages/DesktopBackgroundPage.h": {
+      "bytes": 787,
+      "mode": 436,
+      "sha256": "e8d4d2d5756c0f14462a73c50d607bb1b07344fc987ed918cb6bb5dcb72ffdc7",
+      "type": "file"
+    },
+    "src/ui/pages/DevicesAndPrintersPage.cpp": {
+      "bytes": 15356,
+      "mode": 436,
+      "sha256": "a9a782bdd389267e81d7980c1469adad507f54ff093e4ff4ee4b2502eb479fde",
+      "type": "file"
+    },
+    "src/ui/pages/DevicesAndPrintersPage.h": {
+      "bytes": 2017,
+      "mode": 436,
+      "sha256": "7a55504bdd9c78291f3b7603f8c781d6ef77eac178a2d48eff809505b9e7f1db",
+      "type": "file"
+    },
+    "src/ui/pages/DisplayPage.cpp": {
+      "bytes": 30624,
+      "mode": 436,
+      "sha256": "6a99e27537ed512a5dd2ec9d8bbe9542748034d4334a8f020abbb35e1266569c",
+      "type": "file"
+    },
+    "src/ui/pages/DisplayPage.h": {
+      "bytes": 1271,
+      "mode": 436,
+      "sha256": "c7591ea26d71e0a524909248da131090ae7c1c9d24f692874361c2623bc292ee",
+      "type": "file"
+    },
+    "src/ui/pages/EaseOfAccessPage.cpp": {
+      "bytes": 6218,
+      "mode": 436,
+      "sha256": "a3075f97c9a7394e0dec08eb2c8f5dffbc56d86b5593f2be6932798b21168312",
+      "type": "file"
+    },
+    "src/ui/pages/EaseOfAccessPage.h": {
+      "bytes": 1057,
+      "mode": 436,
+      "sha256": "628bd5247972ea2b3c381c9a8a14efb5d78fea650a51e7c963d949710a156eca",
+      "type": "file"
+    },
+    "src/ui/pages/FirewallPage.cpp": {
+      "bytes": 12464,
+      "mode": 436,
+      "sha256": "af8cec88104bf3964b4728c1eaab2dbc40a8407adff631673fb5949946361471",
+      "type": "file"
+    },
+    "src/ui/pages/FirewallPage.h": {
+      "bytes": 1839,
+      "mode": 436,
+      "sha256": "e8a7dbd346318d776813204f0a9e76667c49e90a13ac673000a168d47f0b595e",
+      "type": "file"
+    },
+    "src/ui/pages/FontSettingsPage.cpp": {
+      "bytes": 8342,
+      "mode": 436,
+      "sha256": "8939c172d201a9858eb9f1b9ba959d7cedcf309561128198552dc5dba913069a",
+      "type": "file"
+    },
+    "src/ui/pages/FontSettingsPage.h": {
+      "bytes": 787,
+      "mode": 436,
+      "sha256": "fb59f6cb0c2fbce4d1da901f53f56033474f41bfba1dbfac5a0f6127064c0c63",
+      "type": "file"
+    },
+    "src/ui/pages/FontsPage.cpp": {
+      "bytes": 19094,
+      "mode": 436,
+      "sha256": "d4091e4ec2e0eac7451643419b89a7cb2e0bf797b38e51137b0c0b63c401f8de",
+      "type": "file"
+    },
+    "src/ui/pages/FontsPage.h": {
+      "bytes": 1112,
+      "mode": 436,
+      "sha256": "4fdc95ecc97e1c16520abbccad4b074e3625ef49c6b0c066dd466c428050d9d2",
+      "type": "file"
+    },
+    "src/ui/pages/InputDevicesPage.cpp": {
+      "bytes": 13026,
+      "mode": 436,
+      "sha256": "d9482d989015d2fba27d4ebd4c26ea0263135e14378b170da547c50a50356a34",
+      "type": "file"
+    },
+    "src/ui/pages/InputDevicesPage.h": {
+      "bytes": 1068,
+      "mode": 436,
+      "sha256": "4ab58cb69601960fc934ae1f87d8d8cc2b02be9e0f5334e04b999d1a077b1eed",
+      "type": "file"
+    },
+    "src/ui/pages/InstalledUpdatesPage.cpp": {
+      "bytes": 10492,
+      "mode": 436,
+      "sha256": "509b66f7d5fe129f2a577cf6a7d57340a058f52e3567b93081ede428ea7ce07a",
+      "type": "file"
+    },
+    "src/ui/pages/InstalledUpdatesPage.h": {
+      "bytes": 2154,
+      "mode": 436,
+      "sha256": "be3ff2590d02239c3bf17531d95a38d291f9831ef96936aa26373d926d7a3069",
+      "type": "file"
+    },
+    "src/ui/pages/KeyboardPage.cpp": {
+      "bytes": 29601,
+      "mode": 436,
+      "sha256": "5b02d2332b485c4a3121e812aa8219a0499a0e60fe8523bb91127ed87b3dfcc2",
+      "type": "file"
+    },
+    "src/ui/pages/KeyboardPage.h": {
+      "bytes": 1556,
+      "mode": 436,
+      "sha256": "f3e1596c26d7d4572f53ff5f0e3e24af4740836ec7f5ee4ab7cb0fc5c688f3c7",
+      "type": "file"
+    },
+    "src/ui/pages/LinuxUpdatePage.cpp": {
+      "bytes": 42540,
+      "mode": 436,
+      "sha256": "2255e4d61d04323d0c3dbce3107dd97c471111970d9ce4efd0d5d78988208f84",
+      "type": "file"
+    },
+    "src/ui/pages/LinuxUpdatePage.h": {
+      "bytes": 5338,
+      "mode": 436,
+      "sha256": "f2b5c715f99dea30de4f3d95117da0b8d0d8e0f5852de26d4179c9d43858fde0",
+      "type": "file"
+    },
+    "src/ui/pages/NetworkConnectionsPage.cpp": {
+      "bytes": 29155,
+      "mode": 436,
+      "sha256": "ca010d86c892c433aacf1eec43da6aaa224d8576c0e0694611a90723c3d079b2",
+      "type": "file"
+    },
+    "src/ui/pages/NetworkConnectionsPage.h": {
+      "bytes": 1879,
+      "mode": 436,
+      "sha256": "2ee512dc47c715cf6f956049c4231ba6ae66a11d31eafbcd0ec0b67800c15d2b",
+      "type": "file"
+    },
+    "src/ui/pages/NetworkSharingPage.cpp": {
+      "bytes": 8932,
+      "mode": 436,
+      "sha256": "0857ffe4c7932eebbfb7d918aceea14203a4d64ec1db813fb90bf24d6053c12e",
+      "type": "file"
+    },
+    "src/ui/pages/NetworkSharingPage.h": {
+      "bytes": 821,
+      "mode": 436,
+      "sha256": "291c9f4333df70de3997c899997538686ddfa7e5d5927f8ed16f20633241d38c",
+      "type": "file"
+    },
+    "src/ui/pages/NightLightPage.cpp": {
+      "bytes": 33681,
+      "mode": 436,
+      "sha256": "31e945b74ed2afbbdeaeb833719f46002e8d2f00c62bd2f6ae8de3aac946dca3",
+      "type": "file"
+    },
+    "src/ui/pages/NightLightPage.h": {
+      "bytes": 2718,
+      "mode": 436,
+      "sha256": "9f31012a1eb9f6764befbef04a539fecf6db6e0ea17eb112f55875003c15e8c9",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimeMapWidget.cpp": {
+      "bytes": 6803,
+      "mode": 436,
+      "sha256": "d8e59b35133008a1709e517f5f74a0f9cf24cec10123a28912439c85d880f7c3",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimeMapWidget.h": {
+      "bytes": 1416,
+      "mode": 436,
+      "sha256": "f25da679c78482b06bf418615026580275f566cb5c80d15c972603e6817a7eb0",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimePage.cpp": {
+      "bytes": 42479,
+      "mode": 436,
+      "sha256": "a40c83f60a408c15d670cdac0a17b79f5e497ee10cf8e6eb3ef30206d694114b",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimePage.h": {
+      "bytes": 2926,
+      "mode": 436,
+      "sha256": "b841db7be45264ad6d3b72c34b2a81c7c8f4fe3b395c5e25bdc2233770e64675",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimePreviewWidget.cpp": {
+      "bytes": 3749,
+      "mode": 436,
+      "sha256": "ed32776b497cfdd890276230edb31d946186d4e76d196c07d61ea487d80b889f",
+      "type": "file"
+    },
+    "src/ui/pages/NightTimePreviewWidget.h": {
+      "bytes": 674,
+      "mode": 436,
+      "sha256": "b29c8c097542dd20af6aee3cdde97d0cc9f928920ef1ce6f3e7409999c636ab3",
+      "type": "file"
+    },
+    "src/ui/pages/PackagePreviewPage.cpp": {
+      "bytes": 6192,
+      "mode": 436,
+      "sha256": "e8dd484716562323bb54ec91613af744e9c48e0bf2cea3eb2e967e7353bf9aa6",
+      "type": "file"
+    },
+    "src/ui/pages/PackagePreviewPage.h": {
+      "bytes": 807,
+      "mode": 436,
+      "sha256": "1cf487a19a4491009b4e88877a174e8fa506cb4f7df03e5ddc04f89b8b03a5e9",
+      "type": "file"
+    },
+    "src/ui/pages/PerformancePage.cpp": {
+      "bytes": 18744,
+      "mode": 436,
+      "sha256": "de93e93b4ed585bf6fd7ffcbfc2f83384855c6dc1a5fe8d7fce66a31a3aed3c7",
+      "type": "file"
+    },
+    "src/ui/pages/PerformancePage.h": {
+      "bytes": 2276,
+      "mode": 436,
+      "sha256": "87ac88cf30bb12b97732f28f1f43e0562e87468beda43093e6b5161c952e90f6",
+      "type": "file"
+    },
+    "src/ui/pages/PersonalizationPage.cpp": {
+      "bytes": 20709,
+      "mode": 436,
+      "sha256": "b8d3cf9afa29ed64bae7ba640f607d109262dbb8220a1a86803e56d01d52aa51",
+      "type": "file"
+    },
+    "src/ui/pages/PersonalizationPage.h": {
+      "bytes": 972,
+      "mode": 436,
+      "sha256": "90c2d2c15fc5cdcd80dc6fc70143217d37ea70d525aac70061101ac1fc3e553a",
+      "type": "file"
+    },
+    "src/ui/pages/PowerOptionsPage.cpp": {
+      "bytes": 64293,
+      "mode": 436,
+      "sha256": "c7bead9165ab3d803ba981417c68738f7aefaac9e717c48af262fc1523ef357c",
+      "type": "file"
+    },
+    "src/ui/pages/PowerOptionsPage.h": {
+      "bytes": 5939,
+      "mode": 436,
+      "sha256": "cfa86a24a40172b7bb03a34d00e97ff4cec2411b4de3928ba0d4b00f091007e2",
+      "type": "file"
+    },
+    "src/ui/pages/ProgramsFeaturesPage.cpp": {
+      "bytes": 13245,
+      "mode": 436,
+      "sha256": "f72ae5940bc9d9a0395487b38d836c42bcad5d83d4c472f99d3059d0f0dec3c0",
+      "type": "file"
+    },
+    "src/ui/pages/ProgramsFeaturesPage.h": {
+      "bytes": 2113,
+      "mode": 436,
+      "sha256": "5035eaaae1c03835b3bd1765b752195e9a5ebb47007ced76a24860b874ae3c18",
+      "type": "file"
+    },
+    "src/ui/pages/ScreenLockPage.cpp": {
+      "bytes": 34579,
+      "mode": 436,
+      "sha256": "d89c8a8caa790c7348dff23cd9d1e07aa3ef5b28b18c0f9fa447897885991a86",
+      "type": "file"
+    },
+    "src/ui/pages/ScreenLockPage.h": {
+      "bytes": 1897,
+      "mode": 436,
+      "sha256": "1eb9cb4ac825153fee712e26d49adb25434d2e853c09ee21dfafdbb6564f6dce",
+      "type": "file"
+    },
+    "src/ui/pages/ShortcutsPage.cpp": {
+      "bytes": 27105,
+      "mode": 436,
+      "sha256": "fb380eedf4073fd21da44f315d288912805502b46a31fa767f3f4fb1d693032b",
+      "type": "file"
+    },
+    "src/ui/pages/ShortcutsPage.h": {
+      "bytes": 2986,
+      "mode": 436,
+      "sha256": "c87aca0bc5d81bed72e4a6bb0b06f0be2d75df0e8870c1245a64a9f71e64332c",
+      "type": "file"
+    },
+    "src/ui/pages/SystemPage.cpp": {
+      "bytes": 18054,
+      "mode": 436,
+      "sha256": "e85ae6b618908001b67ff447962f7ecefa19e865990c00169ae44374e43ba72f",
+      "type": "file"
+    },
+    "src/ui/pages/SystemPage.h": {
+      "bytes": 2485,
+      "mode": 436,
+      "sha256": "6842b9e3b139a0d303b9d6840796bf6bc8b07d98e0f140b17f5968b6e6cfeb0e",
+      "type": "file"
+    },
+    "src/ui/pages/ThemeComponentsPage.cpp": {
+      "bytes": 6795,
+      "mode": 436,
+      "sha256": "e9f5f8aca94939f9bc37e8986db602956b02193a21b2425c4a99ffcc188023c9",
+      "type": "file"
+    },
+    "src/ui/pages/ThemeComponentsPage.h": {
+      "bytes": 804,
+      "mode": 436,
+      "sha256": "fbc112e4520d15c0faaaf44fc704e1f3028aa2c4faca36810332d5897dd5d26d",
+      "type": "file"
+    },
+    "src/ui/pages/UserAccountsPage.cpp": {
+      "bytes": 11210,
+      "mode": 436,
+      "sha256": "ed7dcbff9ca6036df0172f4056fa02a66ee8e773c92d577618ab7ae3fa7fcb40",
+      "type": "file"
+    },
+    "src/ui/pages/UserAccountsPage.h": {
+      "bytes": 1270,
+      "mode": 436,
+      "sha256": "e3954734ae8e4c327524008b21a844b884662560624d5511434d2cce1eba9a47",
+      "type": "file"
+    },
+    "src/ui/pages/WindowBehaviorPage.cpp": {
+      "bytes": 6485,
+      "mode": 436,
+      "sha256": "3611d699303e8950815f454eb88ebc984f5605e8b593259d9b679d1dd2fa4b06",
+      "type": "file"
+    },
+    "src/ui/pages/WindowBehaviorPage.h": {
+      "bytes": 752,
+      "mode": 436,
+      "sha256": "f3f040527d18a0654077a862584088c09f797b9abdaf7c412eb690b72095c091",
+      "type": "file"
+    },
+    "tests/account_backend_test.cpp": {
+      "bytes": 15063,
+      "mode": 436,
+      "sha256": "7b7c92a38c0d91432d27b7c843e1a100f63b8582221830c743f80f4e7b3d8ab1",
+      "type": "file"
+    },
+    "tests/account_settings_test.cpp": {
+      "bytes": 10527,
+      "mode": 436,
+      "sha256": "c4a8f8bb9bbdbac5e6a57ff3459ce005d154aa4979dfee889ae3f76e1ad56bd7",
+      "type": "file"
+    },
+    "tests/action_catalog_test.cpp": {
+      "bytes": 18542,
+      "mode": 436,
+      "sha256": "d119034c680881e89b1847f70c7f385819e7fc66ff7e696fda0447fb0bc83151",
+      "type": "file"
+    },
+    "tests/aero_effect_backend_test.cpp": {
+      "bytes": 10377,
+      "mode": 436,
+      "sha256": "fcbc7945aa79d2a14d2b1b7b089b106d5e3561a70d1ab972989d5f540ab9842d",
+      "type": "file"
+    },
+    "tests/aero_effect_settings_test.cpp": {
+      "bytes": 8318,
+      "mode": 436,
+      "sha256": "12c85c44c23d6fa838f4eb77554af2b2611762f1a4efda0b91b29e8af58c4bad",
+      "type": "file"
+    },
+    "tests/aero_login_auth_test.cpp": {
+      "bytes": 6999,
+      "mode": 436,
+      "sha256": "2d91a9c3465037f2abd742c32807c8ab33068628c01f12130dba203c149f1d97",
+      "type": "file"
+    },
+    "tests/aero_login_backend_test.cpp": {
+      "bytes": 12424,
+      "mode": 436,
+      "sha256": "74e0fbafd65377fb893fdba353699a2013115ef757141d52aba3d77a5374d4bb",
+      "type": "file"
+    },
+    "tests/aero_login_files_test.cpp": {
+      "bytes": 26651,
+      "mode": 436,
+      "sha256": "e60ec9e4e7c4d3f22fdcab7023198a0d044ea26e1947d0ff6a7d74c6bb808007",
+      "type": "file"
+    },
+    "tests/aero_login_fixture.h": {
+      "bytes": 2385,
+      "mode": 436,
+      "sha256": "3b7b5cf54e61ad41f1b96d3b2e83bba8b2baed4e4d1e1bc1756892c5392d4a43",
+      "type": "file"
+    },
+    "tests/aero_login_helper_test.cpp": {
+      "bytes": 2946,
+      "mode": 436,
+      "sha256": "4d79f0615776c8a3639430952d25dfdecfb835974e04936f485b6a9c510a91e0",
+      "type": "file"
+    },
+    "tests/aero_login_page_test.cpp": {
+      "bytes": 19032,
+      "mode": 436,
+      "sha256": "61f14aa0e73fb637588653f0456afce146fcf5f4aaafe8304ce8bf6e18f01ad9",
+      "type": "file"
+    },
+    "tests/aero_login_probe.cpp": {
+      "bytes": 1562,
+      "mode": 436,
+      "sha256": "9d48fe4df61fbd5fd4fac4b5a2f55e6eb8bef8a277be437d21d8b7358cd74a31",
+      "type": "file"
+    },
+    "tests/aero_login_protocol_test.cpp": {
+      "bytes": 8145,
+      "mode": 436,
+      "sha256": "2600fc3ba93bd974c18de8acad78e3edac19117c7d7f96dbd2a8e1eb71f93ffd",
+      "type": "file"
+    },
+    "tests/aero_login_settings_test.cpp": {
+      "bytes": 19139,
+      "mode": 436,
+      "sha256": "1c2efa5f5f3b5a45d0bf4b8dc143ceac662e44ec5fd1aad84eef0b15b6bfb569",
+      "type": "file"
+    },
+    "tests/aero_theme_backend_test.cpp": {
+      "bytes": 32416,
+      "mode": 436,
+      "sha256": "13dae23c9d9b4a3ede3c674a4da98f74182a2e40e8dccac1ba18305428af3bda",
+      "type": "file"
+    },
+    "tests/aero_theme_contract_test.cpp": {
+      "bytes": 5683,
+      "mode": 436,
+      "sha256": "68b44737963c195b51a34683c99663d45508b15f3b7bafb24aef611450e3bf06",
+      "type": "file"
+    },
+    "tests/aero_theme_fixture.h": {
+      "bytes": 973,
+      "mode": 436,
+      "sha256": "7501af29ef08dee86efbfce6a762bcca0f135920eedd2f9266149b8a2cc4cced",
+      "type": "file"
+    },
+    "tests/aero_theme_settings_test.cpp": {
+      "bytes": 10988,
+      "mode": 436,
+      "sha256": "b4290f62115c2c62718202c0b33416b1fa460d4469945cc84700e6fd185f9d43",
+      "type": "file"
+    },
+    "tests/appearance_async_test.cpp": {
+      "bytes": 13850,
+      "mode": 436,
+      "sha256": "a9329f79907a0a826db2847d7317d47a7425b45f6c758e53c82acc4938dbfb26",
+      "type": "file"
+    },
+    "tests/appearance_backend_test.cpp": {
+      "bytes": 8437,
+      "mode": 436,
+      "sha256": "f9ed41736c0323b125af04fa8f818213297c055a25b5df1b075f234b18d11d0f",
+      "type": "file"
+    },
+    "tests/appearance_settings_test.cpp": {
+      "bytes": 10918,
+      "mode": 436,
+      "sha256": "53fdbaf3d9f57b8a2d0d53b0e9af0139256edcc72e560416961424f0994f0fbf",
+      "type": "file"
+    },
+    "tests/audio_backend_probe.cpp": {
+      "bytes": 1482,
+      "mode": 436,
+      "sha256": "337a121dd168b3523c500f3b8783f61919946c37b2091fafece20dca7cf6f218",
+      "type": "file"
+    },
+    "tests/audio_backend_test.cpp": {
+      "bytes": 21684,
+      "mode": 436,
+      "sha256": "84b29a105e4e9abcc36ba88c4c97c3515247da77621b55b3f089b2d33eab01ff",
+      "type": "file"
+    },
+    "tests/audio_dialog_test.cpp": {
+      "bytes": 23296,
+      "mode": 436,
+      "sha256": "a1993c8e1714c5922d62bf0fe02c85c64059d880e4da8229034ccc7f48939511",
+      "type": "file"
+    },
+    "tests/audio_fixture.h": {
+      "bytes": 4542,
+      "mode": 436,
+      "sha256": "7fac9262c736642dd201faefde47f5de5e3cd43be0318cd967e7d7622c381015",
+      "type": "file"
+    },
+    "tests/audio_settings_test.cpp": {
+      "bytes": 7170,
+      "mode": 436,
+      "sha256": "54615e61fd8428c49eb209ad1d03b695f76db20ce3c399ea26b345adddc581be",
+      "type": "file"
+    },
+    "tests/benchmark_lifecycle_test.cpp": {
+      "bytes": 2253,
+      "mode": 436,
+      "sha256": "8eec65718ab6de420c3a5b6ba10fbb91572400da283c6de9c861368764559ae2",
+      "type": "file"
+    },
+    "tests/bootstrap_manual_updater_test.py": {
+      "bytes": 4241,
+      "mode": 436,
+      "sha256": "232b184facc463d098493283da258711a91b8be24f0c3d2158167dc5c5e93041",
+      "type": "file"
+    },
+    "tests/catalog_view_test.cpp": {
+      "bytes": 8859,
+      "mode": 436,
+      "sha256": "ba1136ae5ca9e92a4dd70a54f72fc407e79cb6fb440c71a8067d0284831732b7",
+      "type": "file"
+    },
+    "tests/control_panel_update_service_test.cpp": {
+      "bytes": 12164,
+      "mode": 436,
+      "sha256": "ae7242036940b8f4ba08c222d9e71cd12541cd31e504f89c43fdcb28b175d791",
+      "type": "file"
+    },
+    "tests/control_panel_update_test.py": {
+      "bytes": 31229,
+      "mode": 436,
+      "sha256": "910c3539a8f0baa3c027a292cd3efba68da31b8c54ae637ed92eca7200f92244",
+      "type": "file"
+    },
+    "tests/custom_shortcuts_backend_probe.cpp": {
+      "bytes": 3412,
+      "mode": 436,
+      "sha256": "144648ddf58858d5bc990198cbab08f564275dd4f679e69ecf47e77c76a11036",
+      "type": "file"
+    },
+    "tests/custom_shortcuts_backend_test.cpp": {
+      "bytes": 58518,
+      "mode": 436,
+      "sha256": "3a80f886eb6f8380578e0fd6795cc66c136d6d73b1ba6e04da2efab00e265b4a",
+      "type": "file"
+    },
+    "tests/custom_shortcuts_page_test.cpp": {
+      "bytes": 8865,
+      "mode": 436,
+      "sha256": "3b221e15a19aff2397b00e19456acdbcd251d24f2ed5ee74f13ff9dab09b8c3a",
+      "type": "file"
+    },
+    "tests/custom_shortcuts_settings_test.cpp": {
+      "bytes": 22560,
+      "mode": 436,
+      "sha256": "3a7f6bac4bfcbed8ed8c0efa4de0c0e067c85d4448e39373e80bcc7023c36751",
+      "type": "file"
+    },
+    "tests/date_time_dialog_test.cpp": {
+      "bytes": 4603,
+      "mode": 436,
+      "sha256": "09d91b364377f97743199c34fb21c7cec3b4dbe304ee9f88af5a884faebadb58",
+      "type": "file"
+    },
+    "tests/default_apps_backend_test.cpp": {
+      "bytes": 25152,
+      "mode": 436,
+      "sha256": "6756dc3f7b8b9502918194f3339c9491d053d04b5a9d7c01fc2b711cdeae89dc",
+      "type": "file"
+    },
+    "tests/default_apps_page_test.cpp": {
+      "bytes": 5769,
+      "mode": 436,
+      "sha256": "2206f0463d6eaa4051276db2d877932c7f66e9517964278d5b7ca9f7729b7be5",
+      "type": "file"
+    },
+    "tests/default_apps_probe.cpp": {
+      "bytes": 2333,
+      "mode": 436,
+      "sha256": "6c139836fa4a1c6d8c99f1717855a4aa4ec40ccdf55c186b041775fe986cf646",
+      "type": "file"
+    },
+    "tests/default_apps_settings_test.cpp": {
+      "bytes": 8543,
+      "mode": 436,
+      "sha256": "76fee93a5c61deac49a61a40693b29768484982896098122ee144c10d656b1ad",
+      "type": "file"
+    },
+    "tests/display_fake_doctor.cpp": {
+      "bytes": 4859,
+      "mode": 436,
+      "sha256": "3c2895d54a8ca03b7b4e15b6ecf6f3f318034a690a634035e8dc4e65f7550eb6",
+      "type": "file"
+    },
+    "tests/display_fixture.h": {
+      "bytes": 3514,
+      "mode": 436,
+      "sha256": "7b45d9941976b5b11c7b3a5fc142c28c35ce3137e1cf13d05f9653456ad23f1b",
+      "type": "file"
+    },
+    "tests/display_guard_test.cpp": {
+      "bytes": 16226,
+      "mode": 436,
+      "sha256": "f89cadad08ed9ee50f6eac564b67533e6119bd8e04a8417632f705161bbbadba",
+      "type": "file"
+    },
+    "tests/display_page_test.cpp": {
+      "bytes": 20010,
+      "mode": 436,
+      "sha256": "e56f2ddbf0f6062a93e93cd4cbb7b1894b363267a76dd06b95120204c9e3adeb",
+      "type": "file"
+    },
+    "tests/display_power_probe.cpp": {
+      "bytes": 6674,
+      "mode": 436,
+      "sha256": "9af0065eee82c4db94e38457516db9763143957e84d7009a90b7a89c902ae75f",
+      "type": "file"
+    },
+    "tests/display_protocol_test.cpp": {
+      "bytes": 17192,
+      "mode": 436,
+      "sha256": "fb172f95090b6b9352aba4cbb32816d2a783ce5ae8e2232a828e3bd9738b3227",
+      "type": "file"
+    },
+    "tests/display_settings_test.cpp": {
+      "bytes": 14073,
+      "mode": 436,
+      "sha256": "af649ffd7d418b1a6ea07965fa642e77799dfe70ee358f4cea71c4516babb0be",
+      "type": "file"
+    },
+    "tests/fixtures/apt-3.2.0-fullupgrade-simulation.txt": {
+      "bytes": 1446,
+      "mode": 436,
+      "sha256": "771d9e54d5f741e7dc4a5c28cb050cd9ffa32bb22e6e5600fd09e9bc11ab0cb8",
+      "type": "file"
+    },
+    "tests/font_async_test.cpp": {
+      "bytes": 16332,
+      "mode": 436,
+      "sha256": "0b89d6e48db216fdc11894a226c27d56ee75d0a4bfb0051ed029a627eeaabc01",
+      "type": "file"
+    },
+    "tests/font_backend_test.cpp": {
+      "bytes": 17999,
+      "mode": 436,
+      "sha256": "0050daaea9937ae36c2b8b3ddea4f07188f89af452fff4485dcc6c32623e6974",
+      "type": "file"
+    },
+    "tests/font_browser_test.cpp": {
+      "bytes": 3920,
+      "mode": 436,
+      "sha256": "6aef31a51371a5a88886faa20fd2b4a34341b24d43f19a381fedca01df265cc9",
+      "type": "file"
+    },
+    "tests/font_settings_test.cpp": {
+      "bytes": 10907,
+      "mode": 436,
+      "sha256": "6cf02eea6c1e634cc57572a6ef1473b0149f7b17d9ec0a696ac004ce590cd517",
+      "type": "file"
+    },
+    "tests/input_backend_probe.cpp": {
+      "bytes": 1945,
+      "mode": 436,
+      "sha256": "792b139f14c8528c6a1529f431e908443d7921d83ff65c4ef141614cd3fa0aa6",
+      "type": "file"
+    },
+    "tests/input_backend_test.cpp": {
+      "bytes": 15927,
+      "mode": 436,
+      "sha256": "473fc81b1f40dce23c759c4fa07c1efc6998ca5db43232bd142afcb175f91e1f",
+      "type": "file"
+    },
+    "tests/input_fixture.h": {
+      "bytes": 1538,
+      "mode": 436,
+      "sha256": "ef8a79c75383c228f0c2eb08e5a29c72cce3b3c73bf09068ffad03bfaba89637",
+      "type": "file"
+    },
+    "tests/input_page_test.cpp": {
+      "bytes": 6727,
+      "mode": 436,
+      "sha256": "4affeffa36e9cecf73ce53e9b7a24f169284b241f5430c44faecacb6484c3a66",
+      "type": "file"
+    },
+    "tests/input_settings_test.cpp": {
+      "bytes": 7522,
+      "mode": 436,
+      "sha256": "6d4c60d918550cecf8bea3feee6a439be0fd49402a7e5d762e22852ba1ee1edf",
+      "type": "file"
+    },
+    "tests/installation_lock_test.cpp": {
+      "bytes": 6239,
+      "mode": 436,
+      "sha256": "54e1d1c1b07547d3c09f1d940f891bca553c2978581a42b460e4e0d6d13e2344",
+      "type": "file"
+    },
+    "tests/kde_backend_probe.cpp": {
+      "bytes": 8070,
+      "mode": 436,
+      "sha256": "66bf00ace94465e2266006521d048f60616f8881b606a22a92eb9a20ab527cbf",
+      "type": "file"
+    },
+    "tests/kde_integration_test.cpp": {
+      "bytes": 83673,
+      "mode": 436,
+      "sha256": "5c70feaeee7965e25685202c750d8c256c19aed803d00580741ec5a2ed2900d8",
+      "type": "file"
+    },
+    "tests/keyboard_backend_probe.cpp": {
+      "bytes": 2173,
+      "mode": 436,
+      "sha256": "836ca15c512e61486f0c867815438642ced0aa004740bfb2a15250c79fd7c2cd",
+      "type": "file"
+    },
+    "tests/keyboard_backend_test.cpp": {
+      "bytes": 29697,
+      "mode": 436,
+      "sha256": "a3566c5e2ffa50d67d35920c633ebb0f70a36c6da61c2cfc1938ea25feb48209",
+      "type": "file"
+    },
+    "tests/keyboard_page_test.cpp": {
+      "bytes": 18171,
+      "mode": 436,
+      "sha256": "4b0f0b51e15cd31c75f68ea4c097246808301eee2dd856c1a4aec7f6f150c6ed",
+      "type": "file"
+    },
+    "tests/keyboard_preview_test.cpp": {
+      "bytes": 7733,
+      "mode": 436,
+      "sha256": "a1b57cf88c717c914b32f32d077a89877f35cf0ec2a1b1df1fa2ea72d1f86762",
+      "type": "file"
+    },
+    "tests/keyboard_settings_test.cpp": {
+      "bytes": 20902,
+      "mode": 436,
+      "sha256": "b3c4732d8d4232de91b0ed7ad1c77fb98048046e99987d302763c43b59ac26c7",
+      "type": "file"
+    },
+    "tests/main_window_lifecycle_test.cpp": {
+      "bytes": 14669,
+      "mode": 436,
+      "sha256": "6cc34604239390c3442ca8902827f84186ff83454838780f2cdec24148436bf1",
+      "type": "file"
+    },
+    "tests/make_update_release_test.py": {
+      "bytes": 12471,
+      "mode": 436,
+      "sha256": "f2fd8cb3851a3a2da2a9502b7526458a3644d2e573b0670ed6bada15fd09d75f",
+      "type": "file"
+    },
+    "tests/navigation_guard_test.cpp": {
+      "bytes": 4732,
+      "mode": 436,
+      "sha256": "06c7d0b31a79ce498ebb39c0c91ce11d41afb0b1ff95ea0b9eaeafc962848bc4",
+      "type": "file"
+    },
+    "tests/network_backend_probe.cpp": {
+      "bytes": 2268,
+      "mode": 436,
+      "sha256": "fb72b30f1e2736b3c0f00460f53a268c9eeebbff06cb5699fc73607a4d292070",
+      "type": "file"
+    },
+    "tests/network_backend_test.cpp": {
+      "bytes": 40895,
+      "mode": 436,
+      "sha256": "7c906d0834287604a5c667fd62b80b12ae908efcb2df6e6ad3757442389d3833",
+      "type": "file"
+    },
+    "tests/network_fixture.h": {
+      "bytes": 3043,
+      "mode": 436,
+      "sha256": "ac7eeb4ae9f06010dd0065a0ada05081be625a4ecc8ee394b68516c99bccf42d",
+      "type": "file"
+    },
+    "tests/network_pages_test.cpp": {
+      "bytes": 22137,
+      "mode": 436,
+      "sha256": "a251c8b6c2d63803127fb67b8e8f5b4086932cbe43606e4f28dc583c513cb53c",
+      "type": "file"
+    },
+    "tests/network_settings_test.cpp": {
+      "bytes": 13252,
+      "mode": 436,
+      "sha256": "6087a758a92b8f84f2cd3ee4a0a50baa3460314124bdc5691ababbc6ead22c22",
+      "type": "file"
+    },
+    "tests/network_types_test.cpp": {
+      "bytes": 17858,
+      "mode": 436,
+      "sha256": "186ed0370f9c4251905416ad0d34534f363c6eef1252b9a9fb33a62b953b879e",
+      "type": "file"
+    },
+    "tests/night_light_async_test.cpp": {
+      "bytes": 17346,
+      "mode": 436,
+      "sha256": "d7b1249f94005f4d5bdffe5f56d9a7d19dcbe6395be5ce23e404a61a0a97ed51",
+      "type": "file"
+    },
+    "tests/night_light_backend_test.cpp": {
+      "bytes": 20180,
+      "mode": 436,
+      "sha256": "d4838641aee6b2b07b5c067c02ccdd7c6224c2051df8d8acefeb39d6cabfcbfe",
+      "type": "file"
+    },
+    "tests/night_light_dbus_test.cpp": {
+      "bytes": 22189,
+      "mode": 436,
+      "sha256": "f0549ce04d5d06a3df9bf09ede1478a5ea3c716b8c917fa7406065ba5d3f2938",
+      "type": "file"
+    },
+    "tests/night_light_fixture.h": {
+      "bytes": 2514,
+      "mode": 436,
+      "sha256": "b9d452d1ecd58c66feeb638877aba68847eeeb805167d62dc235ba6f37d56fb9",
+      "type": "file"
+    },
+    "tests/night_light_page_test.cpp": {
+      "bytes": 29329,
+      "mode": 436,
+      "sha256": "565b19864be71dc145806e7ee47753cc966f85e61d5ffa3d502c9381d2fe791d",
+      "type": "file"
+    },
+    "tests/night_light_probe.cpp": {
+      "bytes": 2572,
+      "mode": 436,
+      "sha256": "f11ace3ff16256898ad787be452f938872297fc6990b01a0b73f9e64acbcf224",
+      "type": "file"
+    },
+    "tests/night_light_settings_test.cpp": {
+      "bytes": 15317,
+      "mode": 436,
+      "sha256": "ca09d108a65ba6c1ab51f61e6fdc79425ee96e34d8202fec60acb94640afaa97",
+      "type": "file"
+    },
+    "tests/night_time_async_test.cpp": {
+      "bytes": 19744,
+      "mode": 436,
+      "sha256": "3efa676093335c3fa10b4f8efd610a852a65576de8e6711e55c9dd831f617f28",
+      "type": "file"
+    },
+    "tests/night_time_backend_test.cpp": {
+      "bytes": 24031,
+      "mode": 436,
+      "sha256": "a6b809e056764d10cd7141e65973136fbe455053bfed8d1f65f46060d0d0adad",
+      "type": "file"
+    },
+    "tests/night_time_dbus_test.cpp": {
+      "bytes": 10309,
+      "mode": 436,
+      "sha256": "2bbcc0f5139d391fa8d12fa3c89b9fbbdde99739d072a0b7aba6ddfc3b5d1163",
+      "type": "file"
+    },
+    "tests/night_time_fixture.h": {
+      "bytes": 1875,
+      "mode": 436,
+      "sha256": "da1a780bf18c5f911c6e95d2768cf75b1fcb1891df171046012a9ae1dad6b299",
+      "type": "file"
+    },
+    "tests/night_time_forecast_test.cpp": {
+      "bytes": 4893,
+      "mode": 436,
+      "sha256": "ebf36181a3d8fac3748f2cedde336768699292cce093886d1066a1e60db43b1b",
+      "type": "file"
+    },
+    "tests/night_time_location_test.cpp": {
+      "bytes": 6369,
+      "mode": 436,
+      "sha256": "050df9f3ef409940241cd96834452be57ec865f7cf0d98ddb99ebb9920815b66",
+      "type": "file"
+    },
+    "tests/night_time_page_test.cpp": {
+      "bytes": 26815,
+      "mode": 436,
+      "sha256": "c04e6a673f57168acd89c3ac471a9ad2ac16ea9d9f85ddc16d014f8987185c09",
+      "type": "file"
+    },
+    "tests/night_time_probe.cpp": {
+      "bytes": 2829,
+      "mode": 436,
+      "sha256": "371cc26edd48ceff83cf1a05dcd4d7ea616876c565a6a107d800da69f5b9036c",
+      "type": "file"
+    },
+    "tests/night_time_settings_test.cpp": {
+      "bytes": 17357,
+      "mode": 436,
+      "sha256": "585129fbab4444e689eca4666bfc8e86ac0c662fc8f8f53aec4c7e2500ba16e8",
+      "type": "file"
+    },
+    "tests/operation_test.cpp": {
+      "bytes": 5807,
+      "mode": 436,
+      "sha256": "9e3c0c999f2f3485fd81d2cc67f58b5d7c8169e7d3d2705b21f80084efd879a2",
+      "type": "file"
+    },
+    "tests/package_simulation_test.cpp": {
+      "bytes": 15272,
+      "mode": 436,
+      "sha256": "ae96b3db1f519198854a4efc67482f2b72ed6f840153a6754f68030e1be5de81",
+      "type": "file"
+    },
+    "tests/package_status_test.cpp": {
+      "bytes": 8040,
+      "mode": 436,
+      "sha256": "8a8ebe51b63b4f350f36747430a813be08a25c23a43616efbdc9d7453b261d3f",
+      "type": "file"
+    },
+    "tests/personalization_test.cpp": {
+      "bytes": 8519,
+      "mode": 436,
+      "sha256": "6c3334270d38abe78ff45095601f21aac1e741028811c677355f3c2a42d86dda",
+      "type": "file"
+    },
+    "tests/power_lifecycle_test.cpp": {
+      "bytes": 2924,
+      "mode": 436,
+      "sha256": "5daf2e3a32284568fc64ee44eaf9c758cea2c011645e5b252db60e9ac8d96678",
+      "type": "file"
+    },
+    "tests/power_policy_async_test.cpp": {
+      "bytes": 25204,
+      "mode": 436,
+      "sha256": "bb50572868efd1784887a219d28e7e847df6008597804a3bde72f9f0e4bef0d4",
+      "type": "file"
+    },
+    "tests/power_policy_backend_test.cpp": {
+      "bytes": 37568,
+      "mode": 436,
+      "sha256": "e9fc2966d2f329223cb7af3e49a7f313f8a068926f135fff1a8ec3fad9f5129f",
+      "type": "file"
+    },
+    "tests/power_policy_dbus_test.cpp": {
+      "bytes": 21422,
+      "mode": 436,
+      "sha256": "d4385e74db289c2f6ae6bdc83ea50f6daa84e27734cc4051eb4d34c0104d6b8c",
+      "type": "file"
+    },
+    "tests/power_policy_fixture.h": {
+      "bytes": 4368,
+      "mode": 436,
+      "sha256": "3e6e0e9e785d08b12d3c5c4da4351217237f519c9d368d5cf2ceee44b623c208",
+      "type": "file"
+    },
+    "tests/power_policy_page_test.cpp": {
+      "bytes": 32406,
+      "mode": 436,
+      "sha256": "42c53cf9f5bc5c93cb1591798cb67e41a44c4bb9b78f42181ea13b8a941c3627",
+      "type": "file"
+    },
+    "tests/power_policy_test.cpp": {
+      "bytes": 34011,
+      "mode": 436,
+      "sha256": "0a84ccf3505a178d1e6a4e8ab980b766c0f94d645e12304bbbf30814a2bdbcb4",
+      "type": "file"
+    },
+    "tests/programs_lifecycle_test.cpp": {
+      "bytes": 3332,
+      "mode": 436,
+      "sha256": "de433d3522271f3d870fc47a584217fb8a3efda6018c71157890414926849ef0",
+      "type": "file"
+    },
+    "tests/rc_bundle_test.py": {
+      "bytes": 19016,
+      "mode": 436,
+      "sha256": "1bc5eb8351ce09f2585787046ce426a2b0cdc8f6a50386e3d6968013dc8e97e9",
+      "type": "file"
+    },
+    "tests/rc_file_jobs_integration_test.cpp": {
+      "bytes": 18873,
+      "mode": 436,
+      "sha256": "ee301f3a46b7910cb38e95e81e51b074942ca0c80b72f76f29b7fc25a104c720",
+      "type": "file"
+    },
+    "tests/rc_primary_ui_test.cpp": {
+      "bytes": 18189,
+      "mode": 436,
+      "sha256": "61694b4cf0b34f4eb61da3672d33e46eac2e90a0839c92bff818b9128443de24",
+      "type": "file"
+    },
+    "tests/release_identity_test.py": {
+      "bytes": 2805,
+      "mode": 436,
+      "sha256": "a5bbb1b6bf45abc85e2094ff3e9cae86fc165b5538573d622a7362926b182e61",
+      "type": "file"
+    },
+    "tests/screen_lock_appearance_test.cpp": {
+      "bytes": 7474,
+      "mode": 436,
+      "sha256": "3eceb7b85fa813d1e99de5e2c8ec6e3ec825dc259ea5009a8a69454769ae9edf",
+      "type": "file"
+    },
+    "tests/screen_lock_async_test.cpp": {
+      "bytes": 18732,
+      "mode": 436,
+      "sha256": "19f354607712a95f179b28c809239d87d0b0ca2d14fe189caf467fb7883688c5",
+      "type": "file"
+    },
+    "tests/screen_lock_backend_test.cpp": {
+      "bytes": 19523,
+      "mode": 436,
+      "sha256": "b6682680b519dcc78ba63091d910a13cfac12608d0eb99f4748be219e8283f5a",
+      "type": "file"
+    },
+    "tests/screen_lock_dbus_test.cpp": {
+      "bytes": 14337,
+      "mode": 436,
+      "sha256": "b316e201a3c5265f4300923eb40e958a3a43303bcef9e4f689d62f927beca782",
+      "type": "file"
+    },
+    "tests/screen_lock_fixture.h": {
+      "bytes": 1619,
+      "mode": 436,
+      "sha256": "42b5c09e289a9d4f333404eabf3dbacdcbe2803c6f4bda5f5818c48f82f6b380",
+      "type": "file"
+    },
+    "tests/screen_lock_page_test.cpp": {
+      "bytes": 24423,
+      "mode": 436,
+      "sha256": "142fb3bf941b17894ff115f6fb66af3ae148ae81647b82ddded8ec76102bd250",
+      "type": "file"
+    },
+    "tests/screen_lock_probe.cpp": {
+      "bytes": 2865,
+      "mode": 436,
+      "sha256": "a03bb21033672291de37ca35ba55f70612c06a9e387bd0e4175903f8b8a4d454",
+      "type": "file"
+    },
+    "tests/screen_lock_settings_test.cpp": {
+      "bytes": 14914,
+      "mode": 436,
+      "sha256": "bf9d9b4ff996e52bc08b7ec17ec16728d971210566d34eb439099732a60fa1d6",
+      "type": "file"
+    },
+    "tests/settings_file_jobs_integration_test.cpp": {
+      "bytes": 12253,
+      "mode": 436,
+      "sha256": "9e1c7a0cacf9c5eac300ef737e380bcf8ca4f05ff9c28a7ddc57c7c3b73c0088",
+      "type": "file"
+    },
+    "tests/settings_file_reservations_test.cpp": {
+      "bytes": 6660,
+      "mode": 436,
+      "sha256": "f23a7e6a139f8d3d05ccea8c300a420e457bacd213768c653060c752c95866bd",
+      "type": "file"
+    },
+    "tests/settings_session_test.cpp": {
+      "bytes": 9387,
+      "mode": 436,
+      "sha256": "400b7a6b6f910ddea389794dd1d75a10a05975b18344904fb155423c890fe65e",
+      "type": "file"
+    },
+    "tests/shared_load_test.cpp": {
+      "bytes": 2874,
+      "mode": 436,
+      "sha256": "bddab379b1d1d87d36469fc7c7b36a7d4253f6b9d241cd1054f4e85fb56c4754",
+      "type": "file"
+    },
+    "tests/shell_navigation_test.cpp": {
+      "bytes": 11080,
+      "mode": 436,
+      "sha256": "e84c2fc5e49ba89b2968f6c5a6a5dbc93b24b155faef826917efa159efd98f1f",
+      "type": "file"
+    },
+    "tests/shortcut_import_coordinator_test.cpp": {
+      "bytes": 22581,
+      "mode": 436,
+      "sha256": "ad0b950a5c86058dc834d6948b84e186ce9b74d2f55ee5437577aa202387cf5d",
+      "type": "file"
+    },
+    "tests/shortcut_scheme_dialog_test.cpp": {
+      "bytes": 39207,
+      "mode": 436,
+      "sha256": "1001fae30c6ca1a4704d5177cda7e43f41ad5782ea89b5d7d450adc7f5b4d337",
+      "type": "file"
+    },
+    "tests/shortcut_scheme_test.cpp": {
+      "bytes": 21568,
+      "mode": 436,
+      "sha256": "b17ab1e903f34ec46ebc4f42b3bed16de13b7c5e70180d46ff8607d04d31ab48",
+      "type": "file"
+    },
+    "tests/shortcuts_backend_probe.cpp": {
+      "bytes": 2857,
+      "mode": 436,
+      "sha256": "8acf746ffbe495a758c8d4fafcb124193e154268aab197b6217d0bdc07dc1ccd",
+      "type": "file"
+    },
+    "tests/shortcuts_backend_test.cpp": {
+      "bytes": 44990,
+      "mode": 436,
+      "sha256": "b4410aec10730b136c3814e0d9f084c11b75333bb7041272b9d81bcd4656cd19",
+      "type": "file"
+    },
+    "tests/shortcuts_page_test.cpp": {
+      "bytes": 43932,
+      "mode": 436,
+      "sha256": "edceb2f1a12ed345581dd3040cb72e9ec28fafbdfa4359e1427c371937412628",
+      "type": "file"
+    },
+    "tests/shortcuts_settings_test.cpp": {
+      "bytes": 19911,
+      "mode": 436,
+      "sha256": "f4d38b9186a368a24e9c9f20a6f578d002a5a6931d25ae620c8daf2576e7ace8",
+      "type": "file"
+    },
+    "tests/standard_shortcuts_backend_probe.cpp": {
+      "bytes": 4405,
+      "mode": 436,
+      "sha256": "26490faf70a13fe92fab60c207b1852ea7b2b6d239a2c01fc53b241082c1f7b1",
+      "type": "file"
+    },
+    "tests/standard_shortcuts_backend_test.cpp": {
+      "bytes": 22470,
+      "mode": 436,
+      "sha256": "2a1e627df45ba31f3c59137edf92dbd80eb964d84a19d18ae39c81f1ecd9bc38",
+      "type": "file"
+    },
+    "tests/status_test.cpp": {
+      "bytes": 6591,
+      "mode": 436,
+      "sha256": "989cb88d53601bdc72e3c36fcab573d93a8dc91ed25accf5faa5b906478771de",
+      "type": "file"
+    },
+    "tests/style_guard_test.cpp": {
+      "bytes": 1870,
+      "mode": 436,
+      "sha256": "9a96a682989f82c9c0c918f04dd8c079f70ec3b777d38aa22f2304fc73c25454",
+      "type": "file"
+    },
+    "tests/theme_component_backend_test.cpp": {
+      "bytes": 9330,
+      "mode": 436,
+      "sha256": "7a94154c04e7d82487b05ef1be8d2653ec662580ea75e9666f0b5192d8691db1",
+      "type": "file"
+    },
+    "tests/theme_component_settings_test.cpp": {
+      "bytes": 10036,
+      "mode": 436,
+      "sha256": "2f2a148c91b536cf4c336685c2e9daa6cbe20b21da1565d00c9dfe0ba0a01a90",
+      "type": "file"
+    },
+    "tests/time_config_test.cpp": {
+      "bytes": 10969,
+      "mode": 436,
+      "sha256": "38cea20e9e034a5713252575a84e77f543556d96e26c472ec4d6c1ae5d004561",
+      "type": "file"
+    },
+    "tests/timesync_test.cpp": {
+      "bytes": 11493,
+      "mode": 436,
+      "sha256": "65b3c27ad8f32e54b4a3361d6d12b7f48f5a1bb96ad2ef1b52465b01157990c8",
+      "type": "file"
+    },
+    "tests/ui_controls_test.cpp": {
+      "bytes": 9534,
+      "mode": 436,
+      "sha256": "1efc9b03311e3a86c781ba2299e4859e3fa23aac77e26e7e04ba311023b1ea75",
+      "type": "file"
+    },
+    "tests/update_lifecycle_test.cpp": {
+      "bytes": 6731,
+      "mode": 436,
+      "sha256": "55abe3feb42a53893945bdf79a8d5ec37b7fd6a2f592c9e6d9cf0f2470091a98",
+      "type": "file"
+    },
+    "tests/user_font_service_test.cpp": {
+      "bytes": 8980,
+      "mode": 436,
+      "sha256": "05ab094a68a831d5832f040af0ee1541d1610267978df4044f65443b016f3323",
+      "type": "file"
+    },
+    "tests/wallpaper_test.cpp": {
+      "bytes": 10678,
+      "mode": 436,
+      "sha256": "88ec8a5f5552ed9c05a37198e273af0e48f4b61e4e434ac691fcb1949c102aa1",
+      "type": "file"
+    },
+    "tools/bootstrap_manual_updater.py": {
+      "bytes": 6489,
+      "mode": 436,
+      "sha256": "da6818b29e87f301bcf315046838ce2a2993be5b260d967575eee6c24fcf4f8b",
+      "type": "file"
+    },
+    "tools/control_panel_update.py": {
+      "bytes": 43752,
+      "mode": 436,
+      "sha256": "7d8ec6fbbe656e5da901e957fee080595afb53f7473741db133ed4e8932b25c5",
+      "type": "file"
+    },
+    "tools/install_lock.py": {
+      "bytes": 4888,
+      "mode": 436,
+      "sha256": "6898dd8f7d48d14d9a3db49da5af84784d8d6c79fd8e22d2387091a0092aa82c",
+      "type": "file"
+    },
+    "tools/make_update_release.py": {
+      "bytes": 15423,
+      "mode": 436,
+      "sha256": "a91848a1aa27e8566591aa4afaad9b2e1ffbd664974fbb37203fd5c01e085543",
+      "type": "file"
+    },
+    "tools/rc_bundle.py": {
+      "bytes": 25698,
+      "mode": 436,
+      "sha256": "72e0f919306a975d0c3b1bd0f664ad6dda90b560264738dc031ca1aea11fcbe6",
+      "type": "file"
+    },
+    "tools/run_isolated_tests.py": {
+      "bytes": 2807,
+      "mode": 436,
+      "sha256": "ed1fd304b69dd4006b046bf52808b3158bd19767bfed0e2dffa89f3134430062",
+      "type": "file"
+    }
+  },
+  "revision": "336bc91882cdab8a1625e95de173160a607974d0",
+  "schema": 1,
+  "version": "0.1.0-rc.2"
+}

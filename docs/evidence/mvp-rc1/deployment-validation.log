@@ -1,0 +1,6 @@
+{"operation": "install/upgrade", "transaction": "a0638fbe1a184a1fa547147ad2712e76", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 11}
+{"operation": "rollback", "transaction": "5dac767609ea4be08c7754575c5e809c", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 0}
+{"operation": "install/upgrade", "transaction": "3a28acee73254e7e805903bc705d3c39", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 11}
+{"operation": "install/upgrade", "transaction": "7ab5d268d6c64b9e97156a77177b5b41", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 11}
+{"operation": "rollback", "transaction": "350cd7896ebc4946bb18fa5719c1ed1d", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 11}
+{"operation": "remove", "transaction": "e686ef40dee94abea4a1521952f5c41d", "destination": "/home/siru/Projects/linux-control/build/mvp-rc1-validation/install-fixture-root/home/siru/.local", "managed_paths": 0}

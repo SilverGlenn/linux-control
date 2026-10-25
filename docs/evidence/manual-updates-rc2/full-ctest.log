@@ -1,0 +1,229 @@
+Test project /home/siru/Projects/linux-control/build/manual-updater-work/release
+        Start   1: rc_bundle
+  1/112 Test   #1: rc_bundle ........................   Passed    0.65 sec
+        Start   2: control_panel_update
+  2/112 Test   #2: control_panel_update .............   Passed    0.77 sec
+        Start   3: bootstrap_manual_updater
+  3/112 Test   #3: bootstrap_manual_updater .........   Passed    0.17 sec
+        Start   4: make_update_release
+  4/112 Test   #4: make_update_release ..............   Passed    1.48 sec
+        Start   5: installation_lock
+  5/112 Test   #5: installation_lock ................   Passed    0.20 sec
+        Start   6: release_identity
+  6/112 Test   #6: release_identity .................   Passed    0.47 sec
+        Start   7: aero_login_settings
+  7/112 Test   #7: aero_login_settings ..............   Passed    0.12 sec
+        Start   8: aero_login_protocol
+  8/112 Test   #8: aero_login_protocol ..............   Passed    0.08 sec
+        Start   9: aero_login_files
+  9/112 Test   #9: aero_login_files .................   Passed    0.51 sec
+        Start  10: aero_login_backend
+ 10/112 Test  #10: aero_login_backend ...............   Passed    1.35 sec
+        Start  11: aero_login_auth
+ 11/112 Test  #11: aero_login_auth ..................   Passed    0.07 sec
+        Start  12: aero_login_page
+ 12/112 Test  #12: aero_login_page ..................   Passed    1.17 sec
+        Start  13: aero_login_helper
+ 13/112 Test  #13: aero_login_helper ................   Passed    0.44 sec
+        Start  14: screen_lock_settings
+ 14/112 Test  #14: screen_lock_settings .............   Passed    0.04 sec
+        Start  15: screen_lock_backend
+ 15/112 Test  #15: screen_lock_backend ..............   Passed   45.43 sec
+        Start  16: screen_lock_dbus
+ 16/112 Test  #16: screen_lock_dbus .................   Passed    3.07 sec
+        Start  17: screen_lock_async
+ 17/112 Test  #17: screen_lock_async ................   Passed    2.66 sec
+        Start  18: screen_lock_page
+ 18/112 Test  #18: screen_lock_page .................   Passed    0.47 sec
+        Start  19: screen_lock_appearance
+ 19/112 Test  #19: screen_lock_appearance ...........   Passed    0.06 sec
+        Start  20: night_time_settings
+ 20/112 Test  #20: night_time_settings ..............   Passed    0.04 sec
+        Start  21: night_time_backend
+ 21/112 Test  #21: night_time_backend ...............   Passed    0.50 sec
+        Start  22: night_time_async
+ 22/112 Test  #22: night_time_async .................   Passed    3.00 sec
+        Start  23: night_time_dbus
+ 23/112 Test  #23: night_time_dbus ..................   Passed    1.97 sec
+        Start  24: night_time_page
+ 24/112 Test  #24: night_time_page ..................   Passed    0.66 sec
+        Start  25: night_time_forecast
+ 25/112 Test  #25: night_time_forecast ..............   Passed    0.04 sec
+        Start  26: night_time_location
+ 26/112 Test  #26: night_time_location ..............   Passed    1.11 sec
+        Start  27: night_light_settings
+ 27/112 Test  #27: night_light_settings .............   Passed   14.50 sec
+        Start  28: night_light_backend
+ 28/112 Test  #28: night_light_backend ..............   Passed    0.61 sec
+        Start  29: night_light_async
+ 29/112 Test  #29: night_light_async ................   Passed    2.05 sec
+        Start  30: night_light_dbus
+ 30/112 Test  #30: night_light_dbus .................   Passed    7.04 sec
+        Start  31: night_light_page
+ 31/112 Test  #31: night_light_page .................   Passed    0.35 sec
+        Start  32: settings_file_reservations
+ 32/112 Test  #32: settings_file_reservations .......   Passed    0.02 sec
+        Start  33: settings_file_jobs_integration
+ 33/112 Test  #33: settings_file_jobs_integration ...   Passed    6.56 sec
+        Start  34: audio_settings
+ 34/112 Test  #34: audio_settings ...................   Passed    0.06 sec
+        Start  35: audio_backend
+ 35/112 Test  #35: audio_backend ....................   Passed   30.20 sec
+        Start  36: audio_dialog
+ 36/112 Test  #36: audio_dialog .....................   Passed    0.43 sec
+        Start  37: shortcuts_settings
+ 37/112 Test  #37: shortcuts_settings ...............   Passed    0.05 sec
+        Start  38: shortcuts_backend
+ 38/112 Test  #38: shortcuts_backend ................   Passed    4.05 sec
+        Start  39: shortcuts_page
+ 39/112 Test  #39: shortcuts_page ...................   Passed    3.62 sec
+        Start  40: keyboard_preview
+ 40/112 Test  #40: keyboard_preview .................   Passed    0.74 sec
+        Start  41: standard_shortcuts_backend
+ 41/112 Test  #41: standard_shortcuts_backend .......   Passed    1.13 sec
+        Start  42: shortcut_scheme
+ 42/112 Test  #42: shortcut_scheme ..................   Passed    0.05 sec
+        Start  43: shortcut_scheme_dialog
+ 43/112 Test  #43: shortcut_scheme_dialog ...........   Passed    1.07 sec
+        Start  44: custom_shortcuts_backend
+ 44/112 Test  #44: custom_shortcuts_backend .........   Passed    1.40 sec
+        Start  45: custom_shortcuts_settings
+ 45/112 Test  #45: custom_shortcuts_settings ........   Passed    0.05 sec
+        Start  46: custom_shortcuts_page
+ 46/112 Test  #46: custom_shortcuts_page ............   Passed    0.28 sec
+        Start  47: shortcut_import_coordinator
+ 47/112 Test  #47: shortcut_import_coordinator ......   Passed    0.06 sec
+        Start  48: keyboard_settings
+ 48/112 Test  #48: keyboard_settings ................   Passed    0.05 sec
+        Start  49: keyboard_backend
+ 49/112 Test  #49: keyboard_backend .................   Passed    2.85 sec
+        Start  50: keyboard_page
+ 50/112 Test  #50: keyboard_page ....................   Passed    0.92 sec
+        Start  51: default_apps_settings
+ 51/112 Test  #51: default_apps_settings ............   Passed    0.04 sec
+        Start  52: default_apps_backend
+ 52/112 Test  #52: default_apps_backend .............   Passed    0.99 sec
+        Start  53: default_apps_page
+ 53/112 Test  #53: default_apps_page ................   Passed    0.34 sec
+        Start  54: input_settings
+ 54/112 Test  #54: input_settings ...................   Passed    0.04 sec
+        Start  55: input_backend
+ 55/112 Test  #55: input_backend ....................   Passed    0.47 sec
+        Start  56: input_page
+ 56/112 Test  #56: input_page .......................   Passed    0.37 sec
+        Start  57: network_types
+ 57/112 Test  #57: network_types ....................   Passed    0.02 sec
+        Start  58: network_settings
+ 58/112 Test  #58: network_settings .................   Passed    1.06 sec
+        Start  59: network_backend
+ 59/112 Test  #59: network_backend ..................   Passed   19.83 sec
+        Start  60: network_pages
+ 60/112 Test  #60: network_pages ....................   Passed    0.75 sec
+        Start  61: aero_theme_settings
+ 61/112 Test  #61: aero_theme_settings ..............   Passed    0.06 sec
+        Start  62: aero_theme_backend
+ 62/112 Test  #62: aero_theme_backend ...............   Passed   15.48 sec
+        Start  63: aero_theme_contract
+ 63/112 Test  #63: aero_theme_contract ..............   Passed    0.05 sec
+        Start  64: wallpaper
+ 64/112 Test  #64: wallpaper ........................   Passed    0.15 sec
+        Start  65: theme_component_settings
+ 65/112 Test  #65: theme_component_settings .........   Passed    0.06 sec
+        Start  66: theme_component_backend
+ 66/112 Test  #66: theme_component_backend ..........   Passed    0.38 sec
+        Start  67: font_settings
+ 67/112 Test  #67: font_settings ....................   Passed    0.10 sec
+        Start  68: font_backend
+ 68/112 Test  #68: font_backend .....................   Passed    3.91 sec
+        Start  69: font_browser
+ 69/112 Test  #69: font_browser .....................   Passed    0.45 sec
+        Start  70: user_font_service
+ 70/112 Test  #70: user_font_service ................   Passed    1.87 sec
+        Start  71: account_settings
+ 71/112 Test  #71: account_settings .................   Passed    0.16 sec
+        Start  72: account_backend
+ 72/112 Test  #72: account_backend ..................   Passed    2.85 sec
+        Start  73: aero_effect_settings
+ 73/112 Test  #73: aero_effect_settings .............   Passed    0.10 sec
+        Start  74: aero_effect_backend
+ 74/112 Test  #74: aero_effect_backend ..............   Passed    0.39 sec
+        Start  75: package_simulation
+ 75/112 Test  #75: package_simulation ...............   Passed    0.33 sec
+        Start  76: style_guard
+ 76/112 Test  #76: style_guard ......................   Passed    0.10 sec
+        Start  77: timesync
+ 77/112 Test  #77: timesync .........................   Passed    0.03 sec
+        Start  78: time_config
+ 78/112 Test  #78: time_config ......................   Passed    0.12 sec
+        Start  79: status
+ 79/112 Test  #79: status ...........................   Passed    0.01 sec
+        Start  80: ui_controls
+ 80/112 Test  #80: ui_controls ......................   Passed    0.06 sec
+        Start  81: date_time_dialog
+ 81/112 Test  #81: date_time_dialog .................   Passed    0.24 sec
+        Start  82: package_status
+ 82/112 Test  #82: package_status ...................   Passed    0.39 sec
+        Start  83: control_panel_update_service
+ 83/112 Test  #83: control_panel_update_service .....   Passed    1.80 sec
+        Start  84: navigation_guard
+ 84/112 Test  #84: navigation_guard .................   Passed    0.04 sec
+        Start  85: programs_lifecycle
+ 85/112 Test  #85: programs_lifecycle ...............   Passed    0.35 sec
+        Start  86: action_catalog
+ 86/112 Test  #86: action_catalog ...................   Passed    0.09 sec
+        Start  87: catalog_view
+ 87/112 Test  #87: catalog_view .....................   Passed    0.49 sec
+        Start  88: shell_navigation
+ 88/112 Test  #88: shell_navigation .................   Passed    4.10 sec
+        Start  89: operations
+ 89/112 Test  #89: operations .......................   Passed    0.86 sec
+        Start  90: update_lifecycle
+ 90/112 Test  #90: update_lifecycle .................   Passed    1.00 sec
+        Start  91: power_lifecycle
+ 91/112 Test  #91: power_lifecycle ..................   Passed    0.04 sec
+        Start  92: benchmark_lifecycle
+ 92/112 Test  #92: benchmark_lifecycle ..............   Passed    0.08 sec
+        Start  93: settings_session
+ 93/112 Test  #93: settings_session .................   Passed    0.04 sec
+        Start  94: personalization
+ 94/112 Test  #94: personalization ..................   Passed    0.34 sec
+        Start  95: shared_load
+ 95/112 Test  #95: shared_load ......................   Passed    0.01 sec
+        Start  96: main_window_lifecycle
+ 96/112 Test  #96: main_window_lifecycle ............   Passed    1.81 sec
+        Start  97: kde_integration
+ 97/112 Test  #97: kde_integration ..................   Passed   44.06 sec
+        Start  98: display_protocol
+ 98/112 Test  #98: display_protocol .................   Passed    0.03 sec
+        Start  99: display_settings
+ 99/112 Test  #99: display_settings .................   Passed    1.23 sec
+        Start 100: display_page
+100/112 Test #100: display_page .....................   Passed    1.82 sec
+        Start 101: display_guard
+101/112 Test #101: display_guard ....................   Passed    9.08 sec
+        Start 102: appearance_settings
+102/112 Test #102: appearance_settings ..............   Passed    0.11 sec
+        Start 103: appearance_backend
+103/112 Test #103: appearance_backend ...............   Passed    0.83 sec
+        Start 104: appearance_async
+104/112 Test #104: appearance_async .................   Passed    2.89 sec
+        Start 105: font_async
+105/112 Test #105: font_async .......................   Passed    2.05 sec
+        Start 106: rc_file_jobs_integration
+106/112 Test #106: rc_file_jobs_integration .........   Passed    6.42 sec
+        Start 107: rc_primary_ui
+107/112 Test #107: rc_primary_ui ....................   Passed    3.19 sec
+        Start 108: power_policy
+108/112 Test #108: power_policy .....................   Passed    0.19 sec
+        Start 109: power_policy_page
+109/112 Test #109: power_policy_page ................   Passed    0.72 sec
+        Start 110: power_policy_dbus
+110/112 Test #110: power_policy_dbus ................   Passed    6.41 sec
+        Start 111: power_policy_backend
+111/112 Test #111: power_policy_backend .............   Passed    2.79 sec
+        Start 112: power_policy_async
+112/112 Test #112: power_policy_async ...............   Passed    4.15 sec
+
+100% tests passed, 0 tests failed out of 112
+
+Total Test time (real) = 292.92 sec

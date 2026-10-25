@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
-project(ControlPanel LANGUAGES CXX)
+project(ControlPanel VERSION 0.1.0 LANGUAGES CXX)
+
+set(CONTROL_RELEASE_VERSION "0.1.0-rc.1" CACHE STRING "Local candidate version")
+set(CONTROL_BUILD_ID "unqualified-unrecorded" CACHE STRING "Frozen candidate build identity")
+set(CONTROL_SOURCE_REVISION "unrecorded" CACHE STRING "Source baseline revision")
+set(CONTROL_SOURCE_MANIFEST_SHA256 "unrecorded" CACHE STRING "Full candidate source manifest SHA-256")
+foreach(identity_field IN ITEMS CONTROL_RELEASE_VERSION CONTROL_BUILD_ID CONTROL_SOURCE_REVISION CONTROL_SOURCE_MANIFEST_SHA256)
+    if(NOT "${${identity_field}}" MATCHES "^[A-Za-z0-9][A-Za-z0-9._+\\-]*$")
+        message(FATAL_ERROR "${identity_field} must be a nonempty safe identity string")
+    endif()
+endforeach()
+configure_file(src/release/ControlBuildIdentity.h.in generated/ControlBuildIdentity.h @ONLY)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,6 +41,9 @@ find_package(AeroQt REQUIRED)
 find_package(Cups REQUIRED)
 
 include(GNUInstallDirs)
+get_filename_component(CONTROL_INSTALL_HOME "${CMAKE_INSTALL_PREFIX}" DIRECTORY)
+set(CONTROL_SELF_UPDATE_TOOL_PATH "${CONTROL_INSTALL_HOME}/.control-panel-updater/runtime/control_panel_update.py")
+configure_file(src/release/linux-controlpanel.desktop.in linux-controlpanel.desktop @ONLY)
 set(CONTROL_AERO_LOGIN_HELPER_PATH "${CMAKE_INSTALL_FULL_LIBEXECDIR}/controlpanel-aero-login-helper")
 set(CONTROL_AERO_LOGIN_POLICY_PATH "${CMAKE_INSTALL_FULL_DATADIR}/polkit-1/actions/org.linuxcontrol.aerologin.policy")
 set(CONTROL_AERO_LOGIN_MANIFEST_PATH "${CMAKE_INSTALL_FULL_DATADIR}/linux-control/aero-login-helper.json")
@@ -63,9 +77,12 @@ target_link_libraries(control_time PUBLIC Qt6::Core Qt6::Network)
 add_library(control_operations STATIC
     src/operations/SettingsFileReservations.h src/operations/SettingsFileReservations.cpp
     src/operations/OperationManager.cpp src/operations/UpdateService.cpp
+    src/operations/ControlPanelUpdateService.h src/operations/ControlPanelUpdateService.cpp
     src/packages/ProgramsService.cpp
     src/packages/PackageSimulationService.h src/packages/PackageSimulationService.cpp)
-target_include_directories(control_operations PUBLIC src)
+target_include_directories(control_operations PUBLIC src "${CMAKE_CURRENT_BINARY_DIR}/generated")
+target_compile_definitions(control_operations PRIVATE
+    CONTROL_SELF_UPDATE_TOOL_PATH="${CONTROL_SELF_UPDATE_TOOL_PATH}")
 target_link_libraries(control_operations PUBLIC Qt6::Core Qt6::Concurrent)
 
 # KNightTime's public header requires C++20. Keep that requirement inside
@@ -215,6 +232,7 @@ add_library(control_ui STATIC
 )
 
 target_include_directories(control_ui PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/generated"
     src/ui
     src/ui/pages
     src/ui/dialogs
@@ -256,7 +274,8 @@ qt_add_resources(control_ui nighttime_map
     BASE "src/ui/assets"
     FILES src/ui/assets/worldmap.png src/ui/assets/worldmap-attribution.txt)
 
-add_executable(controlpanel src/main.cpp)
+add_executable(controlpanel src/main.cpp src/release/InstallationLock.cpp)
+target_compile_definitions(controlpanel PRIVATE CONTROL_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
 target_link_libraries(controlpanel PRIVATE control_ui)
 add_dependencies(controlpanel controlpanel-display-guard)
 
@@ -267,7 +286,7 @@ set_target_properties(controlpanel PROPERTIES
 )
 
 install(TARGETS controlpanel RUNTIME DESTINATION bin)
-install(FILES linux-controlpanel.desktop DESTINATION share/applications)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/linux-controlpanel.desktop" DESTINATION share/applications)
 install(TARGETS controlpanel-time-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 install(TARGETS controlpanel-display-guard RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 install(TARGETS controlpanel-aero-login-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
@@ -278,10 +297,27 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/org.linuxcontrol.aerologin.policy"
 install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/InstallAeroLoginHelperIdentity.cmake")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/org.linuxcontrol.time.policy"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/polkit-1/actions")
+install(FILES docs/local-rc-install.md docs/mvp-rc-known-limitations.md docs/mvp-rc-feedback.md docs/manual-updates.md
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/linux-control")
 
 include(CTest)
 if(BUILD_TESTING)
     find_package(Qt6 REQUIRED COMPONENTS Test Qml)
+    find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME rc_bundle COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/rc_bundle_test.py")
+    add_test(NAME control_panel_update COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/control_panel_update_test.py")
+    add_test(NAME bootstrap_manual_updater COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/bootstrap_manual_updater_test.py")
+    add_test(NAME make_update_release COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/make_update_release_test.py")
+    set_tests_properties(make_update_release PROPERTIES TIMEOUT 90 ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+    set_tests_properties(bootstrap_manual_updater PROPERTIES TIMEOUT 60 ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+    set_tests_properties(control_panel_update PROPERTIES TIMEOUT 90 ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
+    add_executable(installation_lock_test tests/installation_lock_test.cpp src/release/InstallationLock.cpp)
+    target_include_directories(installation_lock_test PRIVATE src)
+    add_test(NAME installation_lock COMMAND installation_lock_test "${CMAKE_CURRENT_SOURCE_DIR}/tools")
+    set_tests_properties(installation_lock PROPERTIES TIMEOUT 60)
+    add_test(NAME release_identity COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/release_identity_test.py" $<TARGET_FILE:controlpanel>)
+    set_tests_properties(rc_bundle release_identity PROPERTIES TIMEOUT 60)
+    set_tests_properties(rc_bundle PROPERTIES ENVIRONMENT "PYTHONDONTWRITEBYTECODE=1")
 
     foreach(batch22_suite IN ITEMS aero_login_settings aero_login_protocol aero_login_files aero_login_backend aero_login_auth aero_login_page aero_login_helper)
         add_executable(${batch22_suite}_test tests/${batch22_suite}_test.cpp)
@@ -464,6 +500,13 @@ if(BUILD_TESTING)
     add_test(NAME package_status COMMAND package_status_test)
     set_tests_properties(package_status PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+    add_executable(control_panel_update_service_test tests/control_panel_update_service_test.cpp
+        src/ui/pages/LinuxUpdatePage.cpp src/data/Branding.cpp)
+    target_include_directories(control_panel_update_service_test PRIVATE src/ui src/ui/pages src/data src)
+    target_link_libraries(control_panel_update_service_test PRIVATE control_operations Qt6::Widgets Qt6::Concurrent Qt6::Test AeroQt::AeroQt)
+    add_test(NAME control_panel_update_service COMMAND control_panel_update_service_test)
+    set_tests_properties(control_panel_update_service PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 90)
+
     add_executable(navigation_guard_test tests/navigation_guard_test.cpp)
     target_link_libraries(navigation_guard_test PRIVATE control_settings Qt6::Test)
     add_test(NAME navigation_guard COMMAND navigation_guard_test)
@@ -584,6 +627,22 @@ if(BUILD_TESTING)
     add_executable(appearance_backend_test tests/appearance_backend_test.cpp)
     target_link_libraries(appearance_backend_test PRIVATE control_settings Qt6::Test)
     add_test(NAME appearance_backend COMMAND appearance_backend_test)
+    add_executable(appearance_async_test tests/appearance_async_test.cpp)
+    target_link_libraries(appearance_async_test PRIVATE control_settings Qt6::Test)
+    add_test(NAME appearance_async COMMAND appearance_async_test)
+    set_tests_properties(appearance_async PROPERTIES TIMEOUT 100)
+    add_executable(font_async_test tests/font_async_test.cpp)
+    target_link_libraries(font_async_test PRIVATE control_settings Qt6::Test)
+    add_test(NAME font_async COMMAND font_async_test)
+    set_tests_properties(font_async PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 90)
+    add_executable(rc_file_jobs_integration_test tests/rc_file_jobs_integration_test.cpp)
+    target_link_libraries(rc_file_jobs_integration_test PRIVATE control_settings Qt6::Test)
+    add_test(NAME rc_file_jobs_integration COMMAND rc_file_jobs_integration_test)
+    set_tests_properties(rc_file_jobs_integration PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 120)
+    add_executable(rc_primary_ui_test tests/rc_primary_ui_test.cpp)
+    target_link_libraries(rc_primary_ui_test PRIVATE control_ui Qt6::Test)
+    add_test(NAME rc_primary_ui COMMAND rc_primary_ui_test)
+    set_tests_properties(rc_primary_ui PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 150)
 
     add_executable(power_policy_test tests/power_policy_test.cpp)
     target_link_libraries(power_policy_test PRIVATE control_ui Qt6::Test)
@@ -600,6 +659,10 @@ if(BUILD_TESTING)
     add_executable(power_policy_backend_test tests/power_policy_backend_test.cpp)
     target_link_libraries(power_policy_backend_test PRIVATE control_settings Qt6::Test)
     add_test(NAME power_policy_backend COMMAND power_policy_backend_test)
+    add_executable(power_policy_async_test tests/power_policy_async_test.cpp)
+    target_link_libraries(power_policy_async_test PRIVATE control_settings Qt6::Test)
+    add_test(NAME power_policy_async COMMAND power_policy_async_test)
+    set_tests_properties(power_policy_async PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen" TIMEOUT 90)
 
     set_tests_properties(programs_lifecycle update_lifecycle operations
         power_lifecycle benchmark_lifecycle settings_session personalization navigation_guard

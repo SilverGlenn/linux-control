@@ -77,6 +77,10 @@ DefaultAppsSettings::DefaultAppsSettings(DefaultAppsBackend *backend, QObject *p
     connect(backend, &DefaultAppsBackend::readFinished, this, &DefaultAppsSettings::onRead);
     connect(backend, &DefaultAppsBackend::writeFinished, this, &DefaultAppsSettings::onWritten);
     connect(backend, &DefaultAppsBackend::externalChange, this, &DefaultAppsSettings::refresh);
+    connect(backend,&DefaultAppsBackend::operationPending,this,[this](const QString &message) {
+        if (!m_busy) return;
+        m_operationPending=true; m_result=message; emit stateChanged();
+    });
     m_busy = true;
     QTimer::singleShot(0, this, &DefaultAppsSettings::read);
 }
@@ -109,9 +113,10 @@ void DefaultAppsSettings::restoreDefaults()
 {
     if (m_busy || !canApply()) return;
     int available = 0;
+    QPointer<DefaultAppsSettings> guard(this);
     for (const auto &r : DefaultAppsTypes::roles()) {
         const auto *app = m_applied.application(r.recommended);
-        if (app && !m_applied.unavailableRoles.contains(r.role) && DefaultAppsTypes::eligible(*app, r)) { selectRole(r.role, app->id); ++available; }
+        if (app && !m_applied.unavailableRoles.contains(r.role) && DefaultAppsTypes::eligible(*app, r)) { selectRole(r.role, app->id); if (!guard) return; ++available; }
     }
     m_result = tr("Staged KDE's recommended applications for %1 roles with an installed compatible application. Other roles and file associations are unchanged.").arg(available);
     emit stateChanged();
@@ -119,7 +124,8 @@ void DefaultAppsSettings::restoreDefaults()
 void DefaultAppsSettings::read()
 {
     m_pendingRefresh = false; m_busy = true; m_writing = false;
-    emit stateChanged(); m_backend->readCurrent(++m_token);
+    const auto token=++m_token; QPointer<DefaultAppsSettings> guard(this);
+    emit stateChanged(); if (guard) m_backend->readCurrent(token);
 }
 void DefaultAppsSettings::refresh()
 {
@@ -129,16 +135,19 @@ void DefaultAppsSettings::refresh()
 void DefaultAppsSettings::onRead(quint64 token, bool ok, const DefaultAppsSnapshot &state, const QString &error)
 {
     if (token != m_token || !m_busy || m_writing) return;
+    if (m_operationPending) { m_result.clear(); m_operationPending=false; }
     const bool changedOutside = m_ready && ok && state.revision != m_applied.revision;
     const bool wasDirty = m_dirty;
     if (ok) {
         m_applied = state; m_ready = true;
-        if (!wasDirty) m_staged = state.preferences;
+        if (!wasDirty || m_reverting) m_staged = state.preferences;
+        if (m_reverting) { m_conflict=false; m_result.clear(); }
         m_dirty = m_staged != state.preferences;
-        if (changedOutside && wasDirty) m_conflict = true;
+        if (changedOutside && wasDirty && !m_reverting) m_conflict = true;
         if (!m_conflict) m_error.clear();
     } else { m_ready = false; m_error = error; if (wasDirty) m_conflict = true; }
-    m_busy = false; emit stateChanged();
+    m_reverting=false; m_busy = false; QPointer<DefaultAppsSettings> guard(this); emit stateChanged();
+    if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0, this, &DefaultAppsSettings::refresh);
 }
 void DefaultAppsSettings::apply()
@@ -147,16 +156,17 @@ void DefaultAppsSettings::apply()
     if (!canApply()) {
         m_error = m_conflict ? tr("Default programs changed outside Control Panel. Revert to reload before applying.")
             : !m_ready ? tr("Default programs could not be read. Revert to retry.") : m_applied.reason;
-        emit stateChanged(); emit applyFinished(false); return;
+        QPointer<DefaultAppsSettings> guard(this); emit stateChanged(); if (guard) emit applyFinished(false); return;
     }
     if (!m_dirty) { emit applyFinished(true); return; }
     m_requested = m_staged; m_busy = true; m_writing = true;
-    m_error.clear(); m_result.clear(); emit stateChanged();
-    m_backend->writeChanges(++m_token, m_applied, m_requested);
+    m_error.clear(); m_result.clear(); const auto token=++m_token; QPointer<DefaultAppsSettings> guard(this);
+    emit stateChanged(); if (guard) m_backend->writeChanges(token, m_applied, m_requested);
 }
 void DefaultAppsSettings::onWritten(quint64 token, DefaultAppsOutcome outcome, const DefaultAppsSnapshot &state, const QString &error)
 {
     if (token != m_token || !m_writing) return;
+    m_operationPending=false;
     m_outcome = outcome; m_busy = false; m_writing = false;
     const bool verified = outcome == DefaultAppsOutcome::Success && state.preferences == m_requested && !state.revision.isEmpty();
     if (!state.revision.isEmpty()) { m_applied = state; m_ready = true; }
@@ -167,14 +177,17 @@ void DefaultAppsSettings::onWritten(quint64 token, DefaultAppsOutcome outcome, c
         m_result = tr("Default programs saved and verified in KDE's association files. Running applications and the service cache may adopt these changes later; their adoption has not been verified.");
     } else {
         m_conflict = true;
+        m_result.clear();
         m_error = error.isEmpty() ? tr("The saved result could not be verified. Your selection is preserved. Revert before applying again.") : error;
     }
-    emit stateChanged(); emit applyFinished(verified);
+    QPointer<DefaultAppsSettings> guard(this); emit stateChanged(); if (!guard) return;
+    emit applyFinished(verified); if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0, this, &DefaultAppsSettings::refresh);
 }
 void DefaultAppsSettings::revert()
 {
     if (m_busy) return;
-    m_dirty = false; m_conflict = false; m_error.clear(); m_result.clear();
-    m_staged = m_applied.preferences; read();
+    // Discard only after a successful asynchronous reload; a failed read keeps
+    // the draft available for review and the navigation guard on this page.
+    m_reverting=true; read();
 }

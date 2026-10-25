@@ -33,7 +33,7 @@ There are **zero whole modules declared complete, zero live write verifications 
 | Day and Night Batches 20 and 24 | Seven-key schedule/default workflow, dual editor/daemon views, offline map, native forecast and bounded explicit acquisition; persistent worker file jobs and common reservations | Actual location authorization, legacy migration, Notify adoption, running consumer effects and persistence acceptance |
 | Screen Locking Batches 21, 23 and 24 | Five-key policy/default workflow, timer safety, worker file jobs, retained service/activity, common file reservations, pinned configure acknowledgement and existing shortcut routing | Remaining providers' reservation adoption, real locking/authentication/resume and sign-in acceptance; shared appearance is separately bounded in Batch 22 |
 | Aero login/lock appearance Batch 22 | Four native login options, bounded local PNG/JPEG preparation, explicit shared-background remove/restore, strict newly authorized file transaction and recovery, persistent drafts and review | Trusted system helper installation; authorized live writes/recovery, rendered consumer adoption and sign-in persistence; host assets are already root-owned |
-| Power/window behavior Batches 17–18 | Conditional idle/display/dim/brightness/backlight/locked-display/button/lid/sleep-mode/battery policies, per-key explicit/default operations and provenance, scoped defaults review, native custom timeout domain; title-bar double-click action | Activities/inhibitors/scripts/performance/charge/peripherals and additional power controls; most workspace behavior and real effects/persistence |
+| Power/window behavior Batches 17–18 and 25 | Conditional idle/display/dim/brightness/backlight/locked-display/button/lid/sleep-mode/battery policies, per-key defaults and provenance, scoped defaults review and custom timeout domain; persistent worker saves, common file reservations, guarded reload and honest cancellation; title-bar double-click action | Activities/inhibitors/scripts/performance/charge/peripherals and additional power controls; most workspace behavior and real effects/persistence |
 | Accounts/date/time | Current local-user display name; date/time/timezone and Chrony/timesyncd handling | Full account administration and fingerprint mapping; real NTP/helper authorization and persistence acceptance |
 | Network Batch 8 | Managed Ethernet/Wi-Fi overview, scan, supported discovered Wi-Fi connection, compatible saved activation/disconnect, selected IPv4/IPv6/profile properties, checkpoint Keep/Revert | VPN/proxy/hotspot/cellular, hidden/enterprise/WEP/OWE Wi-Fi, routes, radios, profile creation/deletion, advanced properties; real credentials/auth/recovery acceptance |
 | Audio Batch 9 | Native endpoint and application defaults/volume/mute/routing, ports, card profiles and channel levels; asynchronous preflight/readback and lifetime identity | Global over-amplification preference, speaker tests/meters, event sounds/call ducking, advanced formats/policy and real writes/persistence; pactl connection-generation race |
@@ -326,3 +326,31 @@ under `build/batch24-validation` and excluded from Git.
 The user requested a pause and repository checkpoint after this batch. Remaining
 worker/reservation migrations are listed in the lifecycle audit; full native
 capability coverage and real-session acceptance remain open. See [Batch24](kde-batch24-shared-file-jobs.md).
+
+Batch 25 moves Power Policy file work to persistent workers and adopts the shared
+target/global reservations. Daemon/activity ownership survives backend deletion;
+slow saves retain busy drafts. Cancellation waits for actual native file work,
+and fresh source/provider guards check unsent reload dispatch. Native post-lock
+merging and sent-call late execution remain limits. Existing 17 profile and
+three low/critical battery warning/action preferences remain separate from
+charging-limit controls.
+
+All **101 suites pass in 191.94 seconds**, including the ten focused suites
+(22.84 seconds) and 18 cross-provider ownership cases, against 410 frozen inputs.
+The final Ninja invocation reports no work. One Aero pending-save capture and
+both eight-file normal/stripped staged installs were verified; no live install
+or power/charging setter, reload or physical power action ran.
+
+The repaired charging policy remains enabled after the October 25 reboot, with
+recent history capped at 80% and a passive observation of 79%, Not charging on AC.
+All three charging-policy fingerprints remain unchanged through validation.
+Across all 59 monitored paths, 57 final fingerprints match; KNightTime cache
+drift preceded the first build and KSycoca cache drift first appeared during
+compilation. Both remain unattributed. The original charging-limit disabling
+actor remains unproved.
+
+All 666 backlog IDs, statuses and previous evidence, 151 implemented scopes and
+132 module/plugin inventory entries are preserved. No whole-module, live-write
+or hardware-exclusion credit is added. Remaining worker migrations and native
+acceptance are tracked in [Batch 25](kde-batch25-power-file-jobs.md) and the
+[lifecycle audit](audits/kconfig-sync-lifecycle.md).

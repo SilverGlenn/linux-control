@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "build_id": "0.1.0-rc.2+a749642a9c559c3b",
+  "baseline": "336bc91882cdab8a1625e95de173160a607974d0",
+  "source_inputs": 505,
+  "source_manifest_sha256": "a749642a9c559c3bde1c69add8271f88c424f5278438be786fc1c7a739bf5738",
+  "source_archive_sha256": "95b9d778fa910c9118248ca676202dce4e84d6eb40f9f05965eed17e73040050",
+  "payload_manifest_sha256": "0b1cfc97330cd44614cbf900c88d8feace7f5eb1328f95d02125b2d6ac7602e2",
+  "payload_files": 12,
+  "complete_isolated_suite": {
+    "total": 112,
+    "passed": 112,
+    "failed": 0,
+    "seconds": 292.92
+  },
+  "consumer_python_cases": 38,
+  "packaging_python_cases": 12,
+  "bootstrap_python_cases": 5,
+  "installer_python_cases": 15,
+  "runtime_dependencies_recorded": 130,
+  "installed_identity_and_fingerprints": "pass",
+  "trusted_runtime_bootstrap": "pass",
+  "installed_manual_check": "no_releases (real read-only GitHub request)",
+  "actual_payload_staged_deployment": "pass; upgrade/rollback/remove/conflict/interruption after third changed object",
+  "charging_policy_fingerprints": "3 unchanged after tests, install, bootstrap and check",
+  "qualification": "installed for acceptance; live GUI and real release delivery not qualified",
+  "cloud_build_and_attestations": "not verified; no candidate releases published",
+  "historical_rc1": "superseded locally; qualification and five-day trial never completed"
+}

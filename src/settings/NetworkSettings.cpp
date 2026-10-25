@@ -68,8 +68,21 @@ QString NetworkSettings::supportText() const
 {
     if (!m_ready) return m_snapshot.reason.isEmpty() ? QStringLiteral("NetworkManager is unavailable.") : m_snapshot.reason;
     if (!m_snapshot.reason.isEmpty()) return m_snapshot.reason;
+    if (!connectivityRestrictionReason().isEmpty()) return connectivityRestrictionReason();
     if (!rollbackAvailable()) return QStringLiteral("Rollback checkpoints are unavailable. Connection changes are disabled; inactive saved profiles can still be edited.");
     return m_snapshot.reason;
+}
+
+QString NetworkSettings::selectedProfileEditReason() const
+{
+    const auto *profile = m_snapshot.profile(m_profile);
+    if (!profile) return QStringLiteral("Select a saved connection to edit its properties.");
+    if (!profile->editable) return profile->reason.isEmpty() ? QStringLiteral("This saved profile cannot be edited here.") : profile->reason;
+    if (!connectivityRestrictionReason().isEmpty()) {
+        for (const auto &device : m_snapshot.devices)
+            if (device.activeProfilePath == profile->path) return connectivityRestrictionReason();
+    }
+    return {};
 }
 
 void NetworkSettings::adopt(const NetworkSnapshot &snapshot, bool preserveStaged)
@@ -107,6 +120,7 @@ void NetworkSettings::stagePreferences(const NetworkPreferences &preferences)
     if (m_busy || !m_ready || m_conflict) return;
     const auto *profile = m_snapshot.profile(m_profile);
     if (!profile || !profile->editable) return;
+    if (!selectedProfileEditReason().isEmpty()) return;
     m_staged = preferences;
     m_dirty = m_staged != NetworkTypes::preferences(*profile);
     m_error.clear(); m_result.clear();
@@ -136,6 +150,16 @@ void NetworkSettings::requestChange(NetworkRequest request)
     if (m_busy || m_scanning) return;
     QString reason;
     const bool editing = request.action == NetworkRequest::Action::UpdateProfile;
+    if (!connectivityRestrictionReason().isEmpty()) {
+        bool active = false;
+        for (const auto &device : m_snapshot.devices)
+            active |= device.activeProfilePath == request.profilePath;
+        if (!editing || active) {
+            m_error = connectivityRestrictionReason();
+            request.password.clear();
+            emit applyFinished(false); emit stateChanged(); return;
+        }
+    }
     if (!m_ready || m_conflict || (!editing && m_dirty)
         || !NetworkTypes::validateRequest(m_snapshot, request, reason)) {
         m_error = m_conflict ? QStringLiteral("The network configuration changed. Revert to reload it before applying.")

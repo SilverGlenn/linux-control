@@ -11,12 +11,26 @@
 <br>
 
 > [!WARNING]
-> **Very much a work in progress.** Several features are placeholders or don't do anything yet, the code is janky and buggy in places, and it needs a lot more work before it's daily-driveable. Expect rough edges until about August.
+> **Work in progress.** A bounded local release candidate is installed for acceptance. Live qualification remains open; full KDE parity is a later milestone. See the [current candidate record](docs/manual-update-validation.md) for exact evidence.
 
 > [!NOTE]
 > **Built for CachyOS / Arch Linux.** Some features (package updates, AUR reinstall, driver-adjacent firewall config) depend on `pacman`, `yay`, and `ufw`. Other distros may need minor adjustments.
 
 ## Installation
+
+The immediate development milestone is a locally installed MVP release candidate
+for the current Ubuntu KDE/Aero desktop. See the
+[RC requirements and acceptance checklist](docs/mvp-release-candidate.md).
+Full KDE parity remains a later milestone; the local RC is not yet qualified.
+
+Control Panel self-updates are manual through **System and Security → Linux Update**:
+Check for Control Panel updates, Download update, then Close and install.
+The trusted updater requires a separate initial bootstrap and compatible published
+releases; it does not poll or install automatically. See the
+[manual update workflow](docs/manual-updates.md),
+[local development and release workflow](docs/local-development.md).
+Development and builds stay on the owner's KDE laptop; GitHub can host manually
+requested releases without a Cloud build service.
 
 ### Arch / CachyOS (AUR)
 
@@ -26,14 +40,15 @@ yay -S linux-control
 
 ### Pre-built binaries
 
-Download the latest archive for your architecture from the [Releases](https://github.com/actuallyaridan/linux-control/releases/latest) page and extract it somewhere in your `$PATH`:
+For the local Ubuntu candidate, use the
+[staged bundle and reversible installation procedure](docs/local-rc-install.md).
+The payload includes application helpers and metadata; copying only `control`
+does not install the complete application. AeroQt is an existing shared runtime
+dependency and stays outside the application's install/rollback ownership.
 
-```bash
-tar -xf linux-control-x86_64.tar.gz
-sudo mv control libAeroQt.so* /usr/local/bin/
-```
-
-`libAeroQt.so` is a separate runtime dependency (not statically linked), so it needs to ship alongside `control`.
+Historical upstream archives are available from the
+[upstream release page](https://github.com/actuallyaridan/linux-control/releases).
+They do not identify or qualify this checkout's local candidate.
 
 ## Building
 
@@ -100,7 +115,9 @@ measurements through the system tools; server editing remains unavailable there.
 
 Programs and Features, Linux Update, and Installed Updates currently require
 pacman. On Ubuntu and other systems without pacman they report unavailable;
-APT integration is planned. A failed update check is not shown as up to date.
+APT mutations remain unsupported. The separate Ubuntu Package Preview provides
+read-only APT simulation with cached indexes. A failed update check is not shown
+as up to date.
 
 Action Center does not monitor automatic updates, backups, antivirus protection,
 or system maintenance. The firewall page shows recognized UFW configuration,
@@ -158,6 +175,13 @@ file reservations with Screen Locking, including KDE's user globals. Slow saves
 keep their drafts busy until actual completion. Native Notify remains a
 broadcast without an adoption acknowledgement. Other providers still need
 migration. See [Batch 24 lifecycle scope](docs/kde-batch24-shared-file-jobs.md).
+
+Power Options also uses persistent worker jobs and the same file reservations.
+Slow or cancelled saves retain ownership until native file work actually ends;
+fresh file/provider guards protect an unsent PowerDevil reload. The existing
+per-key defaults and Aero forms remain in place. Charging limits are separate
+from low/critical battery warnings and are preserved during validation. See
+[Batch 25 scope](docs/kde-batch25-power-file-jobs.md).
 
 ## Native Sound controls
 

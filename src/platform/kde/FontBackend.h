@@ -3,6 +3,7 @@
 #include <QFileSystemWatcher>
 #include <QTimer>
 #include <QStringList>
+#include <QPointer>
 #include <functional>
 class KConfig;
 class QDBusConnection;
@@ -15,6 +16,7 @@ public:
     using QObject::QObject;
     virtual bool isAvailable() const = 0;
     virtual QString unavailableReason() const = 0;
+    virtual QString identity() const { return {}; }
     virtual void requestReload() = 0;
 signals:
     void finished(bool success, const QString &error);
@@ -34,17 +36,26 @@ public:
                    FontReloadService *reload, QObject *parent = nullptr);
     // Isolated explicit-path fixtures only; production instances ignore it.
     void setSyncForTest(std::function<bool(KConfig &)> sync) { if (m_isolated) m_syncForTest = std::move(sync); }
+    struct FileContext {
+        bool fixture = false, fullCascade = false;
+        int softDeadlineMs = 20000;
+        QStringList additionalSources;
+        std::function<void()> beforeRead, beforeSync, afterXml, afterSync;
+    };
+    KdeFontBackend(const QString &kdeglobalsPath, const QString &fontconfigPath,
+                   FontReloadService *reload, const FileContext &context, QObject *parent = nullptr);
     void readCurrent() override;
     void writePreferences(const FontState &expected, const FontPreferences &requested) override;
 private:
     KdeFontBackend(const QString &, const QString &, FontReloadService *, bool isolated, QObject *);
-    bool readState(FontState &state, QString &error) const;
-    QStringList relevantFiles() const;
-    void watchFiles();
-    QString m_configName, m_userPath, m_fontconfigPath;
+    void beginJob(bool write, const FontState &expected = {}, const FontPreferences &requested = {});
+    void watchPaths(const QStringList &paths);
+    QString m_configName, m_fontconfigPath;
     FontReloadService *m_reload;
-    bool m_isolated, m_writing = false;
+    bool m_isolated;
+    FileContext m_context;
+    QPointer<QObject> m_job;
     std::function<bool(KConfig &)> m_syncForTest;
     QFileSystemWatcher m_watcher;
-    QTimer m_debounce, m_reloadTimeout;
+    QTimer m_debounce;
 };

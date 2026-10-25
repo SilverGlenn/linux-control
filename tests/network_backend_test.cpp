@@ -270,6 +270,51 @@ private slots:
         QVERIFY(!snapshot.connectivityCheckEnabled); QVERIFY(fake->mutations.isEmpty());
         QVERIFY(!fake->methods.contains("GetSecrets"));
     }
+    void candidateRestrictionRejectsDirectConnectionRequests_data()
+    {
+        QTest::addColumn<int>("action");
+        QTest::newRow("activate") << int(NetworkRequest::Action::ActivateProfile);
+        QTest::newRow("disconnect") << int(NetworkRequest::Action::Disconnect);
+        QTest::newRow("wifi") << int(NetworkRequest::Action::ConnectWifi);
+        QTest::newRow("active-profile-with-forged-empty-device") << int(NetworkRequest::Action::UpdateProfile);
+    }
+    void candidateRestrictionRejectsDirectConnectionRequests()
+    {
+        QFETCH(int, action);
+        auto opt=options(); opt.isolatedFixture=false;
+        NetworkManagerBackend backend(*client,opt); const auto baseline=read(backend); QVERIFY(baseline.isValid());
+        QVERIFY(baseline.checkpointAvailable); QVERIFY(!backend.connectivityRestrictionReason().isEmpty());
+        auto request=edit(baseline,profile1); request.action=NetworkRequest::Action(action);
+        if (request.action==NetworkRequest::Action::UpdateProfile) request.devicePath.clear();
+        if (request.action==NetworkRequest::Action::ConnectWifi) { request.devicePath=wifi; request.accessPointPath=apPath; request.password=QStringLiteral("correct horse"); }
+        QSignalSpy finished(&backend,&NetworkBackend::transactionFinished),preview(&backend,&NetworkBackend::previewReady);
+        backend.beginChange(baseline,request); QTRY_COMPARE(finished.size(),1);
+        QVERIFY(!finished.first()[0].toBool()); QVERIFY(finished.first()[3].toString().contains("local candidate"));
+        QVERIFY(preview.isEmpty()); QVERIFY(fake->mutations.isEmpty()); QVERIFY(!fake->checkpoint);
+        QVERIFY(fake->receivedPassword.isEmpty());
+        QVERIFY(NetworkTypes::sameSettings(fake->profiles[profile1].disk,baseline.profile(profile1)->settings));
+    }
+    void candidateRestrictionPreservesInactiveProfileCas()
+    {
+        auto opt=options(); opt.isolatedFixture=false;
+        NetworkManagerBackend backend(*client,opt); const auto baseline=read(backend); QVERIFY(baseline.isValid());
+        auto request=edit(baseline,profile2); request.preferences.id=QStringLiteral("Inactive saved preference");
+        QSignalSpy finished(&backend,&NetworkBackend::transactionFinished),preview(&backend,&NetworkBackend::previewReady);
+        backend.beginChange(baseline,request); QTRY_COMPARE(finished.size(),1);
+        QVERIFY(finished.first()[0].toBool()); QVERIFY(preview.isEmpty()); QVERIFY(!fake->checkpoint);
+        QCOMPARE(fake->mutations,QStringList{QStringLiteral("Update2")}); QCOMPARE(fake->lastCas,quint64(1));
+        QCOMPARE(fake->profiles[profile2].disk["connection"]["id"].toString(),request.preferences.id);
+        QVERIFY(NetworkTypes::sameSettings(fake->profiles[profile1].disk,baseline.profile(profile1)->settings));
+    }
+    void fixtureFlagCannotAuthorizeRealService()
+    {
+        auto opt=options(); opt.service=QStringLiteral("org.freedesktop.NetworkManager");
+        NetworkManagerBackend backend(*client,opt);
+        QVERIFY(!backend.connectivityRestrictionReason().isEmpty());
+        NetworkRequest request; request.action=NetworkRequest::Action::Disconnect; request.devicePath=wired;
+        QSignalSpy finished(&backend,&NetworkBackend::transactionFinished);
+        backend.beginChange({},request); QCOMPARE(finished.size(),1); QVERIFY(fake->mutations.isEmpty());
+    }
     void activePreviewKeepsMemoryUntilKeep()
     {
         NetworkManagerBackend backend(*client, options());
@@ -506,7 +551,7 @@ private slots:
 private:
     NetworkManagerBackend::Options options() const
     {
-        NetworkManagerBackend::Options opt; opt.service = service; opt.rollbackSeconds = 3;
+        NetworkManagerBackend::Options opt; opt.service = service; opt.rollbackSeconds = 3; opt.isolatedFixture = true;
         opt.readTimeoutMs = 500; opt.snapshotTimeoutMs = 2000; opt.writeTimeoutMs = 200; opt.pollIntervalMs = 25; return opt;
     }
     NetworkSnapshot read(NetworkManagerBackend &backend)

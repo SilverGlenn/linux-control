@@ -1,0 +1,24 @@
+{
+  "source_snapshot_inputs": 463,
+  "archived_code_test_build_tool_inputs": 420,
+  "all_archived_code_test_build_tool_inputs_unchanged": true,
+  "post_build_result_documents": {
+    "docs/mvp-rc1-qualification.md": "a0feb333831836a71b1ed7e919107c3c27e2fdb81c5615f9d80583e965ef3818",
+    "docs/mvp-rc1-review.md": "8e2f4dd4532b0d3b26c4a1111497888fe00abd944efcd07d390cd40a2e133577",
+    "docs/mvp-rc2-aero-keyboard.md": "d2049314e550e2490d55d00d014bc46b0592bbecfbc4d5840525b84c5853107f",
+    "docs/mvp-rc2-font.md": "e07061ff6c8409f8acc478f36a2a4a8343ce71984be54633ed3cbc0772440be9",
+    "docs/mvp-rc3-shell.md": "fbe10025280010708150a3831058741a472cd97756f6c16bbdeb86a95ebcf967",
+    "docs/mvp-release-candidate.md": "52643f42e51d5224e4df54c15b89f19d051de4f7548dc7e53f58b09e9045f11c"
+  },
+  "explanation": "Result documents updated after testing; immutable archive and installed payload retain frozen source identity. No code/test/build/tool input changed after final validation.",
+  "initial_worktree_files": 19,
+  "initial_files_byte_identical": 16,
+  "intentional_initial_file_integrations": [
+    "CMakeLists.txt",
+    "README.md",
+    "docs/mvp-release-candidate.md"
+  ],
+  "batch25_sources_tests_audits_preserved": true,
+  "git_head": "336bc91882cdab8a1625e95de173160a607974d0",
+  "committed_or_pushed": false
+}

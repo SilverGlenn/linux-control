@@ -1,0 +1,7 @@
+#pragma once
+
+// Configured by CMake. Release candidates use the full frozen source manifest.
+#define CONTROL_RELEASE_VERSION "@CONTROL_RELEASE_VERSION@"
+#define CONTROL_BUILD_ID "@CONTROL_BUILD_ID@"
+#define CONTROL_SOURCE_REVISION "@CONTROL_SOURCE_REVISION@"
+#define CONTROL_SOURCE_MANIFEST_SHA256 "@CONTROL_SOURCE_MANIFEST_SHA256@"

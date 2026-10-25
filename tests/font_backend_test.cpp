@@ -61,7 +61,7 @@ private slots:
         connect(backend, &FontBackend::writeFinished, this, [&](bool success, const QString &) {
             if (!success && blocked) restored = QFile::remove(parent) && QDir().rename(parked, parent);
         });
-        QSignalSpy finished(backend, &FontBackend::writeFinished); backend->writePreferences(baseline, requested);
+        QSignalSpy finished(backend, &FontBackend::writeFinished); write(baseline, requested);
         QCOMPARE(finished.size(), 1); QVERIFY(!finished[0][0].toBool()); QVERIFY(finished[0][1].toString().contains("partial save"));
         QVERIFY(dirty && blocked && syncFailed && restored); QCOMPARE(contents(config), original);
         QVERIFY(contents(xml).contains("antialias")); QCOMPARE(reload->requests, 0);
@@ -79,7 +79,7 @@ private slots:
         auto s = read(); auto p = s.preferences;
         p.fonts[0] = QFont("Noto Serif", 12); p.fonts[5] = QFont("Noto Serif", 13);
         p.antialias = "true"; p.hinting = "hintslight"; p.subpixel = "rgb";
-        QSignalSpy finished(backend, &FontBackend::writeFinished); backend->writePreferences(s, p);
+        QSignalSpy finished(backend, &FontBackend::writeFinished); write(s, p);
         QCOMPARE(finished.size(), 1); QVERIFY(finished[0][0].toBool()); QCOMPARE(reload->requests, 1);
         QCOMPARE(read().preferences, p);
         KConfig cfg(config, KConfig::SimpleConfig); KConfigGroup general(&cfg, "General");
@@ -98,15 +98,48 @@ private slots:
     }
     void fontOnlyChangeDoesNotMaterializeRenderingOverrides() {
         auto s = read(); auto p = s.preferences; p.fonts[1] = QFont("Monospace", 11);
-        backend->writePreferences(s, p); QCOMPARE(reload->requests, 1); QVERIFY(!QFile::exists(xml));
+        write(s, p); QCOMPARE(reload->requests, 1); QVERIFY(!QFile::exists(xml));
         KConfig cfg(config, KConfig::SimpleConfig); KConfigGroup general(&cfg, "General");
         QVERIFY(!general.hasKey("XftAntialias")); QVERIFY(!general.hasKey("font")); QCOMPARE(read().preferences, p);
+    }
+    void normalWeightFaceAliasesUseNativeStableForm_data() {
+        QTest::addColumn<QString>("name");
+        for (const auto &name : {"Regular", "Normal", "Book", "Roman"}) QTest::newRow(name) << QString::fromLatin1(name);
+    }
+    void normalWeightFaceAliasesUseNativeStableForm() {
+        QFETCH(QString, name);
+        const auto before = read(); auto requested = before.preferences;
+        QFont font(QStringLiteral("Noto Sans"), 13); font.setWeight(QFont::Normal); font.setItalic(true); font.setStyleName(name);
+        requested.fonts[0] = font;
+        QSignalSpy done(backend, &FontBackend::writeFinished); write(before, requested);
+        QVERIFY2(done[0][0].toBool(), qPrintable(done[0][1].toString()));
+        const auto actual = read().preferences.fonts[0];
+        QFont expected(QStringLiteral("Noto Sans"), 13); expected.setWeight(QFont::Normal); expected.setItalic(true);
+        QCOMPARE(actual, expected); QVERIFY(actual.styleName().isEmpty());
+        QCOMPARE(actual.family(), font.family()); QCOMPARE(actual.pointSizeF(), font.pointSizeF());
+        QCOMPARE(actual.weight(), font.weight()); QCOMPARE(actual.style(), font.style());
+        QVERIFY(!QFile::exists(xml)); QCOMPARE(reload->requests, 1);
+    }
+    void namedFacesOutsideNativeAliasesArePreserved_data() {
+        QTest::addColumn<QString>("name"); QTest::addColumn<int>("weight");
+        QTest::newRow("specific-normal-face") << QStringLiteral("Decorative Display") << int(QFont::Normal);
+        QTest::newRow("alias-with-bold-weight") << QStringLiteral("Regular") << int(QFont::Bold);
+        QTest::newRow("alias-with-light-weight") << QStringLiteral("Roman") << int(QFont::Light);
+    }
+    void namedFacesOutsideNativeAliasesArePreserved() {
+        QFETCH(QString, name); QFETCH(int, weight);
+        const auto before = read(); auto requested = before.preferences;
+        QFont font(QStringLiteral("Fixture Named Family"), 12); font.setWeight(static_cast<QFont::Weight>(weight)); font.setStyleName(name);
+        requested.fonts[0] = font;
+        QSignalSpy done(backend, &FontBackend::writeFinished); write(before, requested);
+        QVERIFY2(done[0][0].toBool(), qPrintable(done[0][1].toString()));
+        QCOMPARE(read().preferences, requested); QVERIFY(contents(config).contains(name.toUtf8())); QCOMPARE(reload->requests, 1);
     }
     void vendorDefaultRemovesOnlyUnconditionalRenderingRules() {
         put(xml, "<fontconfig><match target=\"font\"><edit name=\"antialias\" mode=\"assign\"><bool>false</bool></edit></match><match target=\"font\"><test name=\"family\"><string>Special</string></test><edit name=\"antialias\" mode=\"assign\"><bool>false</bool></edit></match></fontconfig>");
         put(config, "[General]\nXftAntialias=false\nOther=keep\n");
         auto s = read(); QCOMPARE(s.preferences.antialias, "false"); auto p = s.preferences; p.antialias.clear();
-        backend->writePreferences(s, p); QCOMPARE(reload->requests, 1); QCOMPARE(read().preferences.antialias, QString());
+        write(s, p); QCOMPARE(reload->requests, 1); QCOMPARE(read().preferences.antialias, QString());
         QDomDocument doc; QVERIFY(doc.setContent(contents(xml))); QCOMPARE(doc.elementsByTagName("edit").count(), 1); QCOMPARE(doc.elementsByTagName("test").count(), 1);
         KConfig cfg(config, KConfig::SimpleConfig); QVERIFY(!KConfigGroup(&cfg, "General").hasKey("XftAntialias"));
     }
@@ -119,14 +152,14 @@ private slots:
     void immutableRolesOrRenderingDisableAllWrites() {
         QFETCH(QByteArray, data); put(config, data); auto s = read(); QVERIFY(!s.writable);
         auto p = s.preferences; p.antialias = "true"; QSignalSpy finished(backend, &FontBackend::writeFinished);
-        backend->writePreferences(s, p); QVERIFY(!finished[0][0].toBool()); QCOMPARE(contents(config), data); QVERIFY(!QFile::exists(xml)); QCOMPARE(reload->requests, 0);
+        write(s, p); QVERIFY(!finished[0][0].toBool()); QCOMPARE(contents(config), data); QVERIFY(!QFile::exists(xml)); QCOMPARE(reload->requests, 0);
     }
     void preflightDetectsConfigAndXmlExternalEdits() {
         auto s = read(); auto p = s.preferences; p.antialias = "false";
         put(xml, "<fontconfig><!--external--></fontconfig>");
-        QSignalSpy finished(backend, &FontBackend::writeFinished); backend->writePreferences(s, p);
+        QSignalSpy finished(backend, &FontBackend::writeFinished); write(s, p);
         QVERIFY(!finished[0][0].toBool()); QCOMPARE(reload->requests, 0); QVERIFY(!QFile::exists(config));
-        s = read(); put(config, "[Unrelated]\nChanged=true\n"); backend->writePreferences(s, p);
+        s = read(); put(config, "[Unrelated]\nChanged=true\n"); write(s, p);
         QCOMPARE(finished.size(), 2); QVERIFY(!finished[1][0].toBool()); QCOMPARE(reload->requests, 0);
     }
     void invalidAndUnsupportedXmlNeverWrite_data() {
@@ -139,8 +172,8 @@ private slots:
     }
     void invalidAndUnsupportedXmlNeverWrite() {
         QFETCH(QByteArray, data); auto initial = read(); put(xml, data);
-        QSignalSpy reading(backend, &FontBackend::readFinished); backend->readCurrent(); QVERIFY(!reading[0][0].toBool()); QVERIFY(!reading[0][2].toString().isEmpty());
-        auto p = initial.preferences; p.antialias = "true"; backend->writePreferences(initial, p);
+        QSignalSpy reading(backend, &FontBackend::readFinished); backend->readCurrent(); QTRY_COMPARE(reading.size(), 1); QVERIFY(!reading[0][0].toBool()); QVERIFY(!reading[0][2].toString().isEmpty());
+        auto p = initial.preferences; p.antialias = "true"; write(initial, p);
         QCOMPARE(contents(xml), data); QVERIFY(!QFile::exists(config)); QCOMPARE(reload->requests, 0);
     }
     void patternTargetsAndDuplicateOverridesAreRefusedWithoutMutation_data() {
@@ -168,22 +201,22 @@ private slots:
         QFETCH(QByteArray, data); QFETCH(QString, reason);
         const auto initial = read(); put(xml, data);
         QSignalSpy reading(backend, &FontBackend::readFinished); backend->readCurrent();
-        QVERIFY(!reading[0][0].toBool()); QVERIFY(reading[0][2].toString().contains(reason));
+        QTRY_COMPARE(reading.size(), 1); QVERIFY(!reading[0][0].toBool()); QVERIFY(reading[0][2].toString().contains(reason));
         auto requested = initial.preferences; requested.antialias = "false";
-        QSignalSpy written(backend, &FontBackend::writeFinished); backend->writePreferences(initial, requested);
+        QSignalSpy written(backend, &FontBackend::writeFinished); write(initial, requested);
         QCOMPARE(written.size(), 1); QVERIFY(!written[0][0].toBool()); QVERIFY(written[0][1].toString().contains(reason));
         QCOMPARE(contents(xml), data); QVERIFY(!QFile::exists(config)); QCOMPARE(reload->requests, 0);
     }
     void unavailableAndFailedReloadReportedHonestly() {
         auto s = read(); auto p = s.preferences; p.antialias = "true";
-        reload->available = false; backend->writePreferences(s, p); QVERIFY(!QFile::exists(xml));
+        reload->available = false; write(s, p); QVERIFY(!QFile::exists(xml));
         reload->available = true; reload->success = false;
-        QSignalSpy finished(backend, &FontBackend::writeFinished); backend->writePreferences(s, p);
+        QSignalSpy finished(backend, &FontBackend::writeFinished); write(s, p);
         QVERIFY(!finished[0][0].toBool()); QVERIFY(finished[0][1].toString().contains("Saved")); QCOMPARE(read().preferences, p);
     }
     void stalledReloadIsBounded() {
         auto s = read(); auto p = s.preferences; p.antialias = "false"; reload->complete = false;
-        QSignalSpy finished(backend, &FontBackend::writeFinished); backend->writePreferences(s, p);
+        QSignalSpy finished(backend, &FontBackend::writeFinished); write(s, p);
         QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 4500); QVERIFY(!finished[0][0].toBool()); QVERIFY(finished[0][1].toString().contains("timed out"));
     }
     void atomicReplacementsRemainWatched() {
@@ -194,8 +227,14 @@ private slots:
 private:
     FontState read() {
         QSignalSpy spy(backend, &FontBackend::readFinished); backend->readCurrent();
+        if (spy.isEmpty()) spy.wait(10000);
         if (spy.size() != 1 || !spy[0][0].toBool()) { QTest::qFail(qPrintable(spy.isEmpty() ? QStringLiteral("No read response") : spy[0][2].toString()), __FILE__, __LINE__); return {}; }
         return qvariant_cast<FontState>(spy[0][1]);
+    }
+    void write(const FontState &state, const FontPreferences &preferences) {
+        QSignalSpy completed(backend, &FontBackend::writeFinished); backend->writePreferences(state, preferences);
+        if (completed.isEmpty()) completed.wait(10000);
+        QCOMPARE(completed.size(), 1);
     }
     void put(const QString &path, const QByteArray &data) { QFile f(path); QVERIFY(f.open(QIODevice::WriteOnly)); QCOMPARE(f.write(data), qint64(data.size())); }
     void atomicPut(const QString &path, const QByteArray &data) { QSaveFile f(path); QVERIFY(f.open(QIODevice::WriteOnly)); QCOMPARE(f.write(data), qint64(data.size())); QVERIFY(f.commit()); }

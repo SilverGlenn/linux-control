@@ -1,6 +1,7 @@
 #include <QtTest>
 #include <QFile>
 #include <QTemporaryDir>
+#include <QPointer>
 #include <limits>
 #include "settings/KeyboardSettings.h"
 
@@ -47,6 +48,27 @@ public:
 class KeyboardSettingsTest final:public QObject {
     Q_OBJECT
 private slots:
+    void pendingProgressIsWriteScopedAndFailureCannotBeClearedByMatchingReadback()
+    {
+        auto *backend=new FakeKeyboardBackend;backend->autoWrite=false;KeyboardSettings session(backend);QTRY_VERIFY(session.isReady());
+        emit backend->operationPending("idle progress");QVERIFY(session.resultText().isEmpty());session.selectValue("RepeatDelay",850);session.apply();
+        QSignalSpy done(&session,&SettingsSession::applyFinished);emit backend->operationPending("saving continues");
+        QVERIFY(session.isBusy());QVERIFY(session.isDirty());QCOMPARE(session.resultText(),QStringLiteral("saving continues"));QCOMPARE(done.size(),0);
+        auto reported=backend->current;reported.values=backend->requested;backend->reportWrite(KeyboardOutcome::Partial,reported,"reload failed");
+        QCOMPARE(done.size(),1);QVERIFY(!done[0][0].toBool());QVERIFY(session.hasConflict());QCOMPARE(session.errorText(),QStringLiteral("reload failed"));QVERIFY(session.resultText().isEmpty());
+        emit backend->operationPending("late progress");QVERIFY(session.resultText().isEmpty());QVERIFY(session.hasConflict());
+    }
+    void outwardObserversCanDeleteKeyboardController_data(){QTest::addColumn<int>("when");QTest::newRow("dispatch")<<0;QTest::newRow("applyFinished")<<1;QTest::newRow("stateChanged")<<2;}
+    void outwardObserversCanDeleteKeyboardController()
+    {
+        QFETCH(int,when);auto *backend=new FakeKeyboardBackend;backend->autoWrite=false;auto *session=new KeyboardSettings(backend);QPointer<KeyboardSettings> guard(session);QTRY_VERIFY(session->isReady());session->selectValue("RepeatDelay",850);
+        if(when==0){connect(session,&SettingsSession::stateChanged,this,[session]{if(session->isBusy())delete session;});session->apply();}
+        else {
+            session->apply();if(when==1)connect(session,&SettingsSession::applyFinished,this,[session]{delete session;});else connect(session,&SettingsSession::stateChanged,this,[session]{delete session;});
+            backend->current.values=backend->requested;backend->reportWrite(KeyboardOutcome::Success,backend->current);
+        }
+        QVERIFY(!guard);
+    }
     void registryRejectsTrailingXmlAndInvalidIds() {
         QTemporaryDir dir;const auto path=dir.filePath(QStringLiteral("evdev.xml"));
         auto save=[&](const QByteArray &bytes){QFile file(path);if(!file.open(QIODevice::WriteOnly))return false;return file.write(bytes)==bytes.size();};

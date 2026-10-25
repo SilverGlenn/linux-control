@@ -1,6 +1,7 @@
 #include <QtTest>
 #include <QSignalSpy>
 #include <QColor>
+#include <QPointer>
 #include "settings/AeroThemeSettings.h"
 #include "settings/AeroThemeContract.h"
 
@@ -27,6 +28,31 @@ class AeroThemeSettingsTest final : public QObject {
 private slots:
     void init() { backend = new SessionAeroBackend; session = new AeroThemeSettings(backend); QTRY_COMPARE(backend->reads, 1); backend->report(); }
     void cleanup() { delete session; }
+    void pendingProgressIsWriteScopedAndNeverCompletesApply()
+    {
+        const auto original=session->resultText();emit backend->operationPending("late idle progress");QCOMPARE(session->resultText(),original);
+        session->stageRestoreDefaults();session->apply();emit backend->operationPending("preflight progress");QVERIFY(session->resultText().isEmpty());
+        backend->report();QVERIFY(session->isBusy());QSignalSpy done(session,&SettingsSession::applyFinished);emit backend->operationPending("saving continues");
+        QVERIFY(session->isBusy());QVERIFY(session->isDirty());QCOMPARE(session->resultText(),QStringLiteral("saving continues"));QCOMPARE(done.size(),0);
+        backend->written(false);emit backend->operationPending("late write progress");auto state=SessionAeroBackend::available(50);state.values=backend->requested;backend->report(state);
+        QCOMPARE(done.size(),1);QVERIFY(!done[0][0].toBool());QVERIFY(session->hasConflict());QVERIFY(session->errorText().contains("reload failed"));QVERIFY(session->resultText().isEmpty());
+        emit backend->operationPending("terminal progress");QVERIFY(session->resultText().isEmpty());
+    }
+    void outwardCompletionAndStateObserversCanDeleteSession_data(){QTest::addColumn<bool>("completion");QTest::newRow("applyFinished")<<true;QTest::newRow("stateChanged")<<false;}
+    void outwardCompletionAndStateObserversCanDeleteSession()
+    {
+        QFETCH(bool,completion);session->stageRestoreDefaults();session->apply();backend->report();backend->written();
+        QPointer<AeroThemeSettings> guard(session);auto *target=session;
+        if(completion)connect(target,&SettingsSession::applyFinished,this,[target]{delete target;});
+        else connect(target,&SettingsSession::stateChanged,this,[target]{delete target;});
+        auto saved=SessionAeroBackend::available(50);saved.values=backend->requested;backend->report(saved);QVERIFY(!guard);session=nullptr;backend=nullptr;
+    }
+    void preflightObserverCanDeleteSessionBeforeBackendDispatch()
+    {
+        session->stageRestoreDefaults();auto *target=session;QPointer<AeroThemeSettings> guard(target);
+        connect(target,&SettingsSession::stateChanged,this,[target]{if(target->isBusy())delete target;});
+        target->apply();QVERIFY(!guard);session=nullptr;backend=nullptr;
+    }
     void defaultsAreExplicitStagingAndRequireApplyReadback()
     {
         QSignalSpy finished(session, &SettingsSession::applyFinished);

@@ -1,0 +1,10 @@
+{
+  "actual_payload_install_upgrade_rollback_remove": "pass",
+  "intervening_edit_refusal": "pass",
+  "interrupted_actual_payload_recovery": "pass",
+  "original_bytes_modes_symlink": "restored",
+  "unrelated_files_external_aeroqt": "preserved",
+  "staged_headless_identity": "pass",
+  "staged_loader_without_development_paths": "pass",
+  "payload_files": 12
+}

@@ -45,6 +45,8 @@ public:
     int reads = 0, changes = 0, keeps = 0, reverts = 0, scans = 0;
     NetworkSnapshot baseline;
     NetworkRequest request;
+    QString restriction;
+    QString connectivityRestrictionReason() const override { return restriction; }
     void readCurrent() override { ++reads; }
     void scan(const QString &) override { ++scans; }
     void beginChange(const NetworkSnapshot &snapshot, const NetworkRequest &change) override
@@ -72,6 +74,20 @@ class NetworkSettingsTest : public QObject {
         QCOMPARE(backend->changes, 1);
     }
 private slots:
+    void candidateRestrictionBlocksSessionRoutesButKeepsInactiveStaging()
+    {
+        backend->restriction=QStringLiteral("Connection changes withheld in this candidate.");
+        QVERIFY(session->rollbackAvailable()); QVERIFY(!session->selectedProfileEditReason().isEmpty());
+        stageRename(); QVERIFY(!session->isDirty());
+        session->activateProfile(QStringLiteral("/profiles/2"),QStringLiteral("/devices/1"));
+        session->disconnectDevice(QStringLiteral("/devices/1"));
+        session->connectWifi(QStringLiteral("/aps/1"),QStringLiteral("private"));
+        QCOMPARE(backend->changes,0); QVERIFY(session->errorText().contains("withheld"));
+        session->selectProfile(QStringLiteral("/profiles/2"));
+        QVERIFY(session->selectedProfileEditReason().isEmpty());
+        stageRename(); QVERIFY(session->isDirty()); session->apply(); backend->read(fixture());
+        QCOMPARE(backend->changes,1); QVERIFY(backend->request.devicePath.isEmpty());
+    }
     void init()
     {
         backend = new FakeNetworkBackend; session = new NetworkSettings(backend);

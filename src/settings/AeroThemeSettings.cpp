@@ -21,6 +21,11 @@ AeroThemeSettings::AeroThemeSettings(AeroThemeBackend *backend, QObject *parent)
     backend->setParent(this);
     connect(backend, &AeroThemeBackend::readFinished, this, &AeroThemeSettings::onRead);
     connect(backend, &AeroThemeBackend::writeFinished, this, &AeroThemeSettings::onWrite);
+    connect(backend, &AeroThemeBackend::operationPending, this, [this](const QString &message) {
+        if (m_phase != Phase::Write || !m_busy) return;
+        m_result = message;
+        emit stateChanged();
+    });
     connect(backend, &AeroThemeBackend::externalChange, this, &AeroThemeSettings::refresh);
     m_busy = true;
     QTimer::singleShot(0, this, &AeroThemeSettings::read);
@@ -112,7 +117,9 @@ void AeroThemeSettings::selectValue(const QString &key, const QVariant &value)
 void AeroThemeSettings::stageRestoreDefaults()
 {
     if (!m_ready || m_busy) return;
+    QPointer<AeroThemeSettings> guard(this);
     stage(AeroThemeContract::defaults());
+    if (!guard) return;
     if (!m_conflict)
         m_result = tr("Aero defaults are staged. Review the changes, then click Apply to save them.");
     emit stateChanged();
@@ -125,13 +132,18 @@ void AeroThemeSettings::apply()
         m_error = m_conflict ? tr("Aero settings changed or an earlier Apply is uncertain. Revert before applying.")
             : tr("Aero settings cannot be applied. Check the component, runtime, and policy status below.");
         m_keepError = true;
-        emit applyFinished(false); emit stateChanged(); return;
+        QPointer<AeroThemeSettings> guard(this);
+        emit applyFinished(false); if (!guard) return;
+        emit stateChanged(); return;
     }
     if (!m_dirty) { emit applyFinished(true); return; }
     m_requested = m_staged;
     m_error.clear(); m_result.clear(); m_keepError = m_partialFailure = false;
     m_busy = true; m_phase = Phase::Preflight;
-    emit stateChanged(); m_backend->readCurrent();
+    QPointer<AeroThemeSettings> guard(this);
+    const auto phase = m_phase;
+    emit stateChanged(); if (!guard || m_phase != phase || !m_busy) return;
+    m_backend->readCurrent();
 }
 
 void AeroThemeSettings::revert()
@@ -151,7 +163,10 @@ void AeroThemeSettings::refresh()
 void AeroThemeSettings::read()
 {
     m_pendingRefresh = false; m_phase = Phase::Refresh; m_busy = true;
-    emit stateChanged(); m_backend->readCurrent();
+    QPointer<AeroThemeSettings> guard(this);
+    const auto phase = m_phase;
+    emit stateChanged(); if (!guard || m_phase != phase || !m_busy) return;
+    m_backend->readCurrent();
 }
 
 void AeroThemeSettings::onRead(bool success, const AeroThemeState &state, const QString &error)
@@ -217,8 +232,11 @@ void AeroThemeSettings::onWrite(bool success, const QString &error)
 void AeroThemeSettings::finish(bool completesApply, bool success)
 {
     m_busy = false; m_phase = Phase::Idle;
+    QPointer<AeroThemeSettings> guard(this);
     if (completesApply) emit applyFinished(success);
+    if (!guard) return;
     emit stateChanged();
+    if (!guard) return;
     if (m_pendingRefresh)
         QTimer::singleShot(0, this, [this] { if (m_pendingRefresh && !m_busy) read(); });
 }

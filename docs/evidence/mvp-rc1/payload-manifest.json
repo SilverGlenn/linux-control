@@ -1,0 +1,125 @@
+{
+  "entries": {
+    "bin/control": {
+      "bytes": 10897968,
+      "mode": 493,
+      "sha256": "672294a7439ca0602c81fa2843e9379f57c50f4985f795a4dd0ff5badfff683e",
+      "type": "file"
+    },
+    "libexec/controlpanel-aero-login-helper": {
+      "bytes": 370288,
+      "mode": 493,
+      "sha256": "9452dcc0883af3a048fc38598acd2323b39d426990875d57796f8a5c5b888d37",
+      "type": "file"
+    },
+    "libexec/controlpanel-display-guard": {
+      "bytes": 215568,
+      "mode": 493,
+      "sha256": "01f040e76ce6c1aa3e4e19e0e75ed6290e9145a075e03664b874de2adaa090ce",
+      "type": "file"
+    },
+    "libexec/controlpanel-time-helper": {
+      "bytes": 139072,
+      "mode": 493,
+      "sha256": "3bb214b08155d427e175b46617f7235efe2ea9bd76b0121d89669f93c271169d",
+      "type": "file"
+    },
+    "share/applications/linux-controlpanel.desktop": {
+      "bytes": 372,
+      "mode": 420,
+      "sha256": "de8c4ae9fad457789d3a64e2f26f2aea82c46afdca3b569f9cfce0d036c01331",
+      "type": "file"
+    },
+    "share/linux-control/aero-login-helper.json": {
+      "bytes": 208,
+      "mode": 420,
+      "sha256": "3ef499c0e52e61271052ca6aeb13a0f3694e03e1bfc9c13144b88b5f65de6ef0",
+      "type": "file"
+    },
+    "share/linux-control/local-rc-install.md": {
+      "bytes": 11053,
+      "mode": 420,
+      "sha256": "aa0720b426889a1a0382767148494fbcbaa4ef8ae443cfece7608041599f56bf",
+      "type": "file"
+    },
+    "share/linux-control/mvp-rc-feedback.md": {
+      "bytes": 1349,
+      "mode": 420,
+      "sha256": "a2e312a4c2aa10e4180b5fc2705c4175c41b9794cf7491671882d47be83d61c4",
+      "type": "file"
+    },
+    "share/linux-control/mvp-rc-known-limitations.md": {
+      "bytes": 6962,
+      "mode": 420,
+      "sha256": "a0b3b871447be66372017c22de60367599d9fd810ca694469b2e04925e5cd7f9",
+      "type": "file"
+    },
+    "share/polkit-1/actions/org.linuxcontrol.aerologin.policy": {
+      "bytes": 848,
+      "mode": 420,
+      "sha256": "799cac69a0ada509aebf90cff3a2aa39b7820041e6dbd290b9a2b848de9006ea",
+      "type": "file"
+    },
+    "share/polkit-1/actions/org.linuxcontrol.time.policy": {
+      "bytes": 805,
+      "mode": 420,
+      "sha256": "a4f611835a3b52e7a15dba46e9356a4ca1a6591f28c81866742f62be17e5be8b",
+      "type": "file"
+    }
+  },
+  "external_dependencies": [
+    {
+      "image": {
+        "bytes": 940800,
+        "mode": 420,
+        "sha256": "5817e3b38f8e8371f9058a736f01a0e19f407371a982e0f5c59aa14b9cfe2276",
+        "type": "file"
+      },
+      "ownership": "external; never installed or removed by this bundle",
+      "path": "/home/siru/.local/lib/libAeroQt.so.0",
+      "resolved_path": "/home/siru/.local/lib/libAeroQt.so.6.0.1"
+    },
+    {
+      "image": {
+        "bytes": 80504,
+        "mode": 420,
+        "sha256": "853f4551cdaaa68a25ff38a459af16b146374d58acf848f5530aa6a93395a127",
+        "type": "file"
+      },
+      "ownership": "external; never installed or removed by this bundle",
+      "path": "/usr/lib/x86_64-linux-gnu/libKNightTime.so.0",
+      "resolved_path": "/usr/lib/x86_64-linux-gnu/libKNightTime.so.6.6.5"
+    },
+    {
+      "image": {
+        "bytes": 559608,
+        "mode": 420,
+        "sha256": "8c71a6fa74a29bf913e149f0cc2c636c64e63bf92cd5e4d20088b38326118092",
+        "type": "file"
+      },
+      "ownership": "external; never installed or removed by this bundle",
+      "path": "/usr/lib/x86_64-linux-gnu/libKF6Holidays.so.6",
+      "resolved_path": "/usr/lib/x86_64-linux-gnu/libKF6Holidays.so.6.24.0"
+    },
+    {
+      "image": {
+        "bytes": 559800,
+        "mode": 420,
+        "sha256": "7cebb79f37f5c9dbc2484295617653ff73848f92b1ad27a56690a7a6e235e404",
+        "type": "file"
+      },
+      "ownership": "external; never installed or removed by this bundle",
+      "path": "/usr/lib/x86_64-linux-gnu/libQt6Positioning.so.6",
+      "resolved_path": "/usr/lib/x86_64-linux-gnu/libQt6Positioning.so.6.10.2"
+    }
+  ],
+  "prefix": "/home/siru/.local",
+  "schema": 1,
+  "source": {
+    "build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+    "revision": "336bc91882cdab8a1625e95de173160a607974d0",
+    "source_archive_sha256": "5aea33c14f38b58e4cfcc2c3e5495403f40a24697ee1bac46d1d379a28c4de47",
+    "source_manifest_sha256": "7584b7fda4e74a21bf5cdf7102b3c86001e1caa8209c5cedf7e72c872ba8a34b",
+    "version": "0.1.0-rc.1"
+  }
+}

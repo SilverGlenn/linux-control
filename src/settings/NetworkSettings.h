@@ -14,6 +14,7 @@ public:
     virtual void beginChange(const NetworkSnapshot &baseline, const NetworkRequest &request) = 0;
     virtual void keepChange() = 0;
     virtual void revertChange() = 0;
+    virtual QString connectivityRestrictionReason() const { return {}; }
 signals:
     void readFinished(bool success, const NetworkSnapshot &snapshot, const QString &error);
     void scanFinished(bool success, const QString &error);
@@ -36,6 +37,8 @@ public:
     QString selectedProfile() const { return m_profile; }
     const NetworkPreferences &stagedPreferences() const { return m_staged; }
     QString supportText() const;
+    QString connectivityRestrictionReason() const { return m_backend->connectivityRestrictionReason(); }
+    QString selectedProfileEditReason() const;
 public slots:
     void selectProfile(const QString &path);
     void stagePreferences(const NetworkPreferences &preferences);

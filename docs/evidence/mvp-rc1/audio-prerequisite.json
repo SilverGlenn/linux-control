@@ -1,0 +1,17 @@
+{
+  "recorded_at_utc": "2026-10-25T06:15:03.127924+00:00",
+  "purpose": "Read-only mandatory W2 output-change prerequisite review; not live acceptance",
+  "method": [
+    "pactl -f json info",
+    "pactl -f json list sinks",
+    "pactl -f json list cards"
+  ],
+  "mutations_performed": false,
+  "server": "PulseAudio on PipeWire 1.6.2",
+  "sink_count": 1,
+  "assessment": "Blocked: one already-default real sink provides no alternate supported default output to change to. Connect a real second supported output, then refresh inventory. Re-selecting the current default or adding a virtual null sink does not satisfy the documented physical output-change scenario. Audible volume/mute acceptance must be coordinated from baseline zero percent and muted.",
+  "limitations": [
+    "Inventory is a point-in-time prerequisite observation, not an RC acceptance pass.",
+    "No volume, mute, default, port, profile, route or connection settings were changed."
+  ]
+}

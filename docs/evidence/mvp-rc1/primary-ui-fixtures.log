@@ -1,0 +1,28 @@
+********* Start testing of RcPrimaryUiTest *********
+Config: Using QtTest library 6.10.2, Qt 6.10.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 15.2.0), ubuntu 26.04
+PASS   : RcPrimaryUiTest::initTestCase()
+QWARN  : RcPrimaryUiTest::primaryPages(input-1000x650) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(input-1000x650)
+QWARN  : RcPrimaryUiTest::primaryPages(input-1920x1080) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(input-1920x1080)
+QWARN  : RcPrimaryUiTest::primaryPages(background-1000x650) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(background-1000x650)
+QWARN  : RcPrimaryUiTest::primaryPages(background-1920x1080) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(background-1920x1080)
+QWARN  : RcPrimaryUiTest::primaryPages(night-light-1000x650) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(night-light-1000x650)
+QWARN  : RcPrimaryUiTest::primaryPages(night-light-1920x1080) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(night-light-1920x1080)
+QWARN  : RcPrimaryUiTest::primaryPages(power-1000x650) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(power-1000x650)
+QWARN  : RcPrimaryUiTest::primaryPages(power-1920x1080) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(power-1920x1080)
+QWARN  : RcPrimaryUiTest::primaryPages(aero-1000x650) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(aero-1000x650)
+QWARN  : RcPrimaryUiTest::primaryPages(aero-1920x1080) This plugin does not support propagateSizeHints()
+PASS   : RcPrimaryUiTest::primaryPages(aero-1920x1080)
+QINFO  : RcPrimaryUiTest::soundImmediateActionsAndErrorsAtOriginalDialogSize() Sound fixture actual size QSize(640, 560)
+PASS   : RcPrimaryUiTest::soundImmediateActionsAndErrorsAtOriginalDialogSize()
+PASS   : RcPrimaryUiTest::cleanupTestCase()
+Totals: 13 passed, 0 failed, 0 skipped, 0 blacklisted, 1427ms
+********* Finished testing of RcPrimaryUiTest *********

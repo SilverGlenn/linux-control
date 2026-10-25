@@ -350,6 +350,48 @@ private slots:
         QVERIFY(client->send(spoof)); QTest::qWait(25); QVERIFY(finished.isEmpty());
         power.completeDelayed(); QTRY_COMPARE(finished.size(), 1); QVERIFY(finished.first()[0].toBool());
     }
+    void guardedReloadRetiresUnsentRequests_data()
+    {
+        QTest::addColumn<int>("retirement");
+        QTest::newRow("file-receipt-failure")<<0; QTest::newRow("owner-replacement")<<1;
+        QTest::newRow("capability-change")<<2; QTest::newRow("explicit-cancel")<<3;
+        QTest::newRow("daemon-deletion")<<4; QTest::newRow("success-once")<<5;
+    }
+    void guardedReloadRetiresUnsentRequests()
+    {
+        QFETCH(int,retirement);
+        auto daemon=std::make_unique<PowerPolicyDBus>(*client,*client,true);
+        QSignalSpy discovery(daemon.get(),&PowerPolicyDaemon::capabilitiesFinished);
+        daemon->queryCapabilities(); QTRY_COMPARE(discovery.size(),1);
+        const auto expected=qvariant_cast<PowerPolicyCapabilities>(discovery[0][0]); QVERIFY(expected.serviceAvailable);
+        QSignalSpy finished(daemon.get(),&PowerPolicyDaemon::reloadFinished);
+        QSignalSpy invalidated(daemon.get(),&PowerPolicyDaemon::providerChanged);
+        PowerPolicyDaemon::GuardCompletion release;
+        const int calls=power.reloads;
+        daemon->reloadGuarded(expected,[&release](PowerPolicyDaemon::GuardCompletion done){release=std::move(done);});
+        QTRY_VERIFY(bool(release)); QCOMPARE(power.reloads,calls); QVERIFY(finished.isEmpty());
+        bool removed=false;
+        const auto restore=qScopeGuard([&]{if(removed)server->registerService(QStringLiteral("org.kde.Solid.PowerManagement"));});
+        if(retirement==0) release(false,QStringLiteral("Private source receipt changed"));
+        else if(retirement==1) {
+            QVERIFY(server->unregisterService(QStringLiteral("org.kde.Solid.PowerManagement"))); removed=true;
+            QTRY_VERIFY(!invalidated.isEmpty());
+            release(true,{});
+        } else if(retirement==2) {
+            emit power.supportedActionsChanged(); QTRY_VERIFY(!invalidated.isEmpty()); release(true,{});
+        } else if(retirement==3) { daemon->cancel(); release(true,{}); }
+        else if(retirement==4) { daemon.reset(); release(true,{}); }
+        else { release(true,{}); release(true,{}); }
+        if(retirement==4) { QTest::qWait(50); QVERIFY(finished.isEmpty()); }
+        else {
+            QTRY_COMPARE(finished.size(),1);
+            QCOMPARE(finished[0][0].toBool(),retirement==5);
+            QCOMPARE(finished[0][1].toBool(),retirement==3);
+            if(retirement!=5) QVERIFY(!finished[0][2].toString().isEmpty());
+        }
+        QTest::qWait(30); QCOMPARE(power.reloads,calls+(retirement==5?1:0));
+        if(retirement!=4) QCOMPARE(finished.size(),1);
+    }
 private:
     void prime(PowerPolicyDBus &daemon) {
         QSignalSpy ready(&daemon, &PowerPolicyDaemon::capabilitiesFinished); daemon.queryCapabilities(); QTRY_COMPARE(ready.size(), 1);

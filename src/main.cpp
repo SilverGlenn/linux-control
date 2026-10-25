@@ -1,4 +1,6 @@
 #include <QApplication>
+#include <cstdio>
+#include <cstring>
 #include <QEvent>
 #include <QRegularExpression>
 #include <QStringList>
@@ -7,6 +9,8 @@
 #include "IconHelper.h"
 #include "ApplicationStyleGuard.h"
 #include "settings/AeroThemeContract.h"
+#include "release/BuildIdentity.h"
+#include "release/InstallationLock.h"
 #include <AeroQt/stylesheet.h>
 
 // AeroQt's application stylesheet skins QScrollBar with the Win7 look. We want
@@ -91,9 +95,41 @@ private:
 };
 
 int main(int argc, char *argv[]) {
+    // Handle identity queries before Qt loads a platform plugin, creates a
+    // graphical application, registers Aero styles or constructs providers.
+    bool version = false, help = false;
+    for (int i = 1; i < argc; ++i) {
+        version = version || std::strcmp(argv[i], "--version") == 0 || std::strcmp(argv[i], "-v") == 0;
+        help = help || std::strcmp(argv[i], "--help") == 0 || std::strcmp(argv[i], "-h") == 0;
+    }
+    if (version || help) {
+        if (argc != 2) {
+            std::fputs("Use --version or --help as the only argument.\n", stderr);
+            return 2;
+        }
+        if (version) {
+            std::printf("%s\nBuild: %s\nSource revision: %s\nSource manifest SHA-256: %s\n",
+                release::versionText(), release::buildId(), release::sourceRevision(),
+                release::sourceManifestSha256());
+        } else {
+            std::fputs("Usage: control [Qt options]\n"
+                       "       control --version | -v\n"
+                       "       control --help | -h\n\n"
+                       "Launch Control Panel, or query this build without a graphical session.\n"
+                       "Identity/help queries must be used alone and do not start settings providers.\n", stdout);
+        }
+        return 0;
+    }
+    release::InstallationLock installationLock;
+    std::string installationError;
+    if (!installationLock.acquireForInstalledExecutable(CONTROL_INSTALL_PREFIX, installationError)) {
+        std::fprintf(stderr, "Control Panel cannot start: %s\n", installationError.c_str());
+        return 1;
+    }
     QApplication app(argc, argv);
     app.setOrganizationName("controlpanel");
     app.setApplicationName("controlpanel");
+    app.setApplicationVersion(QString::fromUtf8(CONTROL_RELEASE_VERSION));
     // No setApplicationDisplayName: Qt appends it to every window/dialog title.
     new ApplicationStyleGuard(&app, [](QApplication *application) { Aero::registerStylesheet(application); },
         AeroThemeContract::identities().value(QStringLiteral("iconTheme")).toString());

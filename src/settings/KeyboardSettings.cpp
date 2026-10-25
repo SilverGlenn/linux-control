@@ -7,6 +7,9 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 #include <algorithm>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <cmath>
 
 namespace {
@@ -137,22 +140,34 @@ QVariantMap KeyboardTypes::defaults()
         {QStringLiteral("LayoutLoopCount"), -1}, {QStringLiteral("kbdLayoutChangedEnabled"), true}};
 }
 
-KeyboardRegistry KeyboardTypes::readRegistry(const QString &path, const QString &extrasPath)
+KeyboardRegistry KeyboardTypes::readRegistryData(const QByteArray &primary,const QByteArray &extras,bool extrasPresent)
 {
-    KeyboardRegistry result; QCryptographicHash hash(QCryptographicHash::Sha256);
-    const QStringList paths = extrasPath.isEmpty() ? QStringList{path} : QStringList{path, extrasPath};
-    for (qsizetype i = 0; i < paths.size(); ++i) {
-        QFile file(paths[i]);
-        if (!file.open(QIODevice::ReadOnly) || file.size() > 16 * 1024 * 1024) {
-            result.error = QStringLiteral("The installed keyboard registry could not be read."); return result;
-        }
-        const auto bytes = file.readAll(); hash.addData(bytes);
-        if (!parseRegistry(bytes, result, i > 0)) { result.error = QStringLiteral("The keyboard registry is invalid or unsupported."); return result; }
+    KeyboardRegistry result;QCryptographicHash hash(QCryptographicHash::Sha256);
+    const QList<QByteArray> sources=extrasPresent||!extras.isEmpty()?QList<QByteArray>{primary,extras}:QList<QByteArray>{primary};
+    for(qsizetype i=0;i<sources.size();++i){
+        if(sources[i].size()>16*1024*1024){result.error=QStringLiteral("The installed keyboard registry is too large.");return result;}
+        hash.addData(sources[i]);
+        if(!parseRegistry(sources[i],result,i>0)){result.error=QStringLiteral("The keyboard registry is invalid or unsupported.");return result;}
     }
-    result.revision = hash.result();
-    result.valid = !result.models.isEmpty() && !result.layouts.isEmpty();
-    if (!result.valid) result.error = QStringLiteral("The keyboard registry has no models or layouts.");
-    return result;
+    result.revision=hash.result();result.valid=!result.models.isEmpty()&&!result.layouts.isEmpty();
+    if(!result.valid)result.error=QStringLiteral("The keyboard registry has no models or layouts.");return result;
+}
+KeyboardRegistry KeyboardTypes::readRegistry(const QString &path,const QString &extrasPath)
+{
+    // This convenience path is used by registry parser fixtures. Active native
+    // backends supply bytes captured with descriptor/path identity proof.
+    QByteArray primary,extras;
+    for(const auto &name:extrasPath.isEmpty()?QStringList{path}:QStringList{path,extrasPath}){
+        const int descriptor=::open(QFile::encodeName(name).constData(),O_RDONLY|O_NONBLOCK|O_CLOEXEC);
+        QFile file;struct stat metadata{};
+        if(descriptor<0){KeyboardRegistry result;result.error=QStringLiteral("The installed keyboard registry could not be read.");return result;}
+        if(!file.open(descriptor,QIODevice::ReadOnly,QFileDevice::AutoCloseHandle)){::close(descriptor);KeyboardRegistry result;result.error=QStringLiteral("The installed keyboard registry could not be opened.");return result;}
+        if(::fstat(descriptor,&metadata)!=0||!S_ISREG(metadata.st_mode)||metadata.st_size<0||metadata.st_size>16*1024*1024){KeyboardRegistry result;result.error=QStringLiteral("The installed keyboard registry is not a bounded regular file.");return result;}
+        auto bytes=file.read(16*1024*1024+1);
+        if(file.error()!=QFileDevice::NoError||bytes.size()!=metadata.st_size){KeyboardRegistry result;result.error=QStringLiteral("The installed keyboard registry changed while reading.");return result;}
+        if(name==path)primary=bytes;else extras=bytes;
+    }
+    return readRegistryData(primary,extras,!extrasPath.isEmpty());
 }
 
 QStringList KeyboardTypes::changedKeys(const QVariantMap &a, const QVariantMap &b)
@@ -247,6 +262,11 @@ KeyboardSettings::KeyboardSettings(KeyboardBackend *backend, QObject *parent) : 
     qRegisterMetaType<KeyboardSnapshot>(); qRegisterMetaType<KeyboardOutcome>();
     connect(backend, &KeyboardBackend::readFinished, this, &KeyboardSettings::onRead);
     connect(backend, &KeyboardBackend::writeFinished, this, &KeyboardSettings::onWritten);
+    connect(backend, &KeyboardBackend::operationPending, this, [this](const QString &message) {
+        if (!m_writing || !m_busy) return;
+        m_result = message;
+        emit stateChanged();
+    });
     connect(backend, &KeyboardBackend::externalChange, this, &KeyboardSettings::refresh);
     m_busy = true; QTimer::singleShot(0, this, &KeyboardSettings::read);
 }
@@ -284,7 +304,12 @@ void KeyboardSettings::restoreDefaults()
     selectValues(delta);
 }
 void KeyboardSettings::read()
-{ m_reading = true; m_busy = true; m_pendingRefresh = false; emit stateChanged(); m_backend->readCurrent(++m_token); }
+{
+    m_reading = true; m_busy = true; m_pendingRefresh = false;
+    const auto token = ++m_token; QPointer<KeyboardSettings> guard(this);
+    emit stateChanged(); if (!guard || !m_reading || m_token != token) return;
+    m_backend->readCurrent(token);
+}
 void KeyboardSettings::refresh() { if (m_busy) m_pendingRefresh = true; else read(); }
 void KeyboardSettings::revert()
 {
@@ -298,11 +323,16 @@ void KeyboardSettings::apply()
     if (!canApply() || !KeyboardTypes::validate(m_applied, m_staged.values, error)) {
         m_error = !error.isEmpty() ? error : !m_lockedOwner.isEmpty() && m_lockedOwner == m_applied.owner ? QStringLiteral("An earlier keyboard change is uncertain. Further writes remain disabled until KWin restarts.")
             : m_conflict ? QStringLiteral("Keyboard preferences changed outside Control Panel. Revert to reload them.") : m_applied.reason;
-        emit stateChanged(); emit applyFinished(false); return;
+        QPointer<KeyboardSettings> guard(this);
+        emit stateChanged(); if (!guard) return;
+        emit applyFinished(false); return;
     }
     if (!m_dirty) { emit applyFinished(true); return; }
     m_requested = m_staged.values; m_writeOwner = m_applied.owner; m_writeVersion = m_applied.version; m_writing = m_busy = true;
-    m_error.clear(); m_result.clear(); emit stateChanged(); m_backend->writePreferences(++m_token,m_applied,m_requested);
+    m_error.clear(); m_result.clear();
+    const auto token = ++m_token; QPointer<KeyboardSettings> guard(this);
+    emit stateChanged(); if (!guard || !m_writing || m_token != token) return;
+    m_backend->writePreferences(token,m_applied,m_requested);
 }
 void KeyboardSettings::onRead(quint64 token, bool success, const KeyboardSnapshot &snapshot, const QString &error)
 {
@@ -319,7 +349,8 @@ void KeyboardSettings::onRead(quint64 token, bool success, const KeyboardSnapsho
         else if (changed) { m_conflict = true; m_error = QStringLiteral("Keyboard preferences changed outside Control Panel. Your choices remain staged; Revert reloads them."); }
         if (!m_conflict && !m_keepError && m_lockedOwner.isEmpty()) m_error.clear();
     } else { m_ready = false; if (m_dirty) m_conflict = true; m_error = error.isEmpty() ? QStringLiteral("Keyboard preferences could not be read.") : error; }
-    m_busy = false; emit stateChanged();
+    m_busy = false; QPointer<KeyboardSettings> guard(this); emit stateChanged();
+    if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0,this,&KeyboardSettings::refresh);
 }
 void KeyboardSettings::onWritten(quint64 token, KeyboardOutcome outcome, const KeyboardSnapshot &snapshot, const QString &error)
@@ -337,6 +368,8 @@ void KeyboardSettings::onWritten(quint64 token, KeyboardOutcome outcome, const K
         m_error = error.isEmpty() ? QStringLiteral("Keyboard changes were not fully verified. Some preferences may have been saved. Revert reloads current values.") : error;
         m_result.clear();
     }
-    emit applyFinished(verified); emit stateChanged();
+    QPointer<KeyboardSettings> guard(this);
+    emit applyFinished(verified); if (!guard) return;
+    emit stateChanged(); if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0,this,&KeyboardSettings::refresh);
 }

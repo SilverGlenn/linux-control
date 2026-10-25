@@ -9,6 +9,7 @@
 #include "../../operations/UpdateService.h"
 
 class QScrollArea;
+class ControlPanelUpdateService;
 class QLabel;
 class QProgressBar;
 class QPushButton;
@@ -22,7 +23,8 @@ class LinuxUpdatePage : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent = nullptr);
+    explicit LinuxUpdatePage(QScrollArea *sidebar, QWidget *parent = nullptr,
+                             ControlPanelUpdateService *controlPanelService = nullptr);
 
     static QList<SidebarLink> sidebarLinks();
     static QList<SidebarLink> sidebarSeeAlso();
@@ -37,6 +39,7 @@ public slots:
 
 signals:
     void navigateHomeRequested();
+    void controlPanelInstallRequested();
     // Emitted when the user clicks an "updates available" hyperlink; MainWindow
     // navigates to the in-window select-updates page in response.
     void selectUpdatesRequested();
@@ -50,6 +53,7 @@ private slots:
     void openUpdateList();
     void installUpdates();
     void syncFromService();
+    void syncControlPanelUpdate();
 
 private:
     using PkgInfo = UpdatePackage;
@@ -74,6 +78,15 @@ private:
     void     updateSelectCount();    // refreshes the footer "Total selected" text
     void     setSelectFilter(int filter);
     void     applySelection();       // pushes the checked set back to the status view
+
+    ControlPanelUpdateService *m_controlPanelService = nullptr;
+    QLabel *m_controlPanelStatus = nullptr;
+    QLabel *m_controlPanelMetadata = nullptr;
+    QPushButton *m_controlPanelCheck = nullptr;
+    QPushButton *m_controlPanelDownload = nullptr;
+    QPushButton *m_controlPanelInstall = nullptr;
+    QPushButton *m_controlPanelLocalStatus = nullptr;
+    QProgressBar *m_controlPanelProgress = nullptr;
 
     // Status box
     QFrame       *m_statusBox      = nullptr;

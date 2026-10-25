@@ -161,7 +161,9 @@ DisplayPage::DisplayPage(QScrollArea *sidebar, DisplaySettings *session, QWidget
     m_selectedSupport = Win7::bodyLabel({}); m_selectedSupport->setObjectName(QStringLiteral("displaySelectedSupport")); m_selectedSupport->setTextFormat(Qt::PlainText); layout->addWidget(m_selectedSupport);
     m_support = Win7::bodyLabel({}); m_support->setObjectName(QStringLiteral("displaySupport")); m_support->setTextFormat(Qt::PlainText); layout->addWidget(m_support);
     m_changes = Win7::bodyLabel({}); m_changes->setObjectName(QStringLiteral("displayDraftChanges")); m_changes->setTextFormat(Qt::PlainText); layout->addWidget(m_changes);
-    auto *intro = Win7::bodyLabel(tr("Changes are staged for all displays until you click Apply. You have 15 seconds to keep the preview; otherwise the previous display configuration is restored. A disabled display remains in this draft so you can enable it again."));
+    auto *intro = Win7::bodyLabel(session->editRestrictionReason().isEmpty()
+        ? tr("Changes are staged for all displays until you click Apply. You have 15 seconds to keep the preview; otherwise the previous display configuration is restored. A disabled display remains in this draft so you can enable it again.")
+        : tr("Display information is available for review. Editing is withheld in this candidate; the reason appears below."));
     intro->setTextFormat(Qt::PlainText); layout->addWidget(intro);
     m_status = Win7::bodyLabel({}); m_status->setObjectName(QStringLiteral("displayStatus")); m_status->setTextFormat(Qt::PlainText); layout->addWidget(m_status);
     m_confirmation = Win7::bodyLabel({}); m_confirmation->setObjectName(QStringLiteral("displayConfirmation")); m_confirmation->setTextFormat(Qt::PlainText); layout->addWidget(m_confirmation);

@@ -145,6 +145,8 @@ void NetworkSharingPage::updateState()
         : snapshot.reason;
     if (snapshot.serviceAvailable && (!snapshot.connectivityCheckAvailable || !snapshot.connectivityCheckEnabled))
         status += QStringLiteral("\nConnectivity checks are disabled or unavailable; the reported connectivity state may be cached and does not verify current Internet access.");
+    if (!m_session->connectivityRestrictionReason().isEmpty())
+        status += QLatin1Char('\n') + m_session->connectivityRestrictionReason();
     const bool confirming = m_session->awaitingConfirmation();
     m_confirmation->setVisible(confirming);
     m_keep->setVisible(confirming);

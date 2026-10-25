@@ -1,4 +1,6 @@
 #include "DefaultAppsBackend.h"
+#include "operations/SettingsFileReservations.h"
+#include "operations/OperationManager.h"
 #include <KConfig>
 #include <KConfigGroup>
 #include <KDesktopFile>
@@ -18,6 +20,7 @@
 #include <QtConcurrent>
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -74,7 +77,7 @@ bool safeWritable(const QString &path, QString &reason)
     }
     ::close(fd); return true;
 }
-bool atomicReplace(const QString &path, const FileImage &expected, const QByteArray &data, bool remove, QString &error)
+bool atomicReplace(const QString &path, const FileImage &expected, const QByteArray &data, bool remove, QString &error, FileImage *receipt = nullptr)
 {
     if (!safeWritable(path, error)) return false;
     FileImage current;
@@ -110,6 +113,8 @@ bool atomicReplace(const QString &path, const FileImage &expected, const QByteAr
     }
     if (ok && exists) ok = ::fchmod(output, st.st_mode & 0777) == 0;
     if (ok) ok = ::fsync(output) == 0;
+    struct stat writtenImage{};
+    if (ok) ok = ::fstat(output,&writtenImage)==0;
     if (output >= 0) ::close(output);
     // Recheck the name after preparing bytes. renameat never follows this name.
     struct stat after{};
@@ -120,6 +125,11 @@ bool atomicReplace(const QString &path, const FileImage &expected, const QByteAr
     if (!ok) ::unlinkat(fd, temp.constData(), 0);
     if (ok) ::fsync(fd);
     ::close(fd);
+    if (ok && receipt) {
+        receipt->exists=true; receipt->bytes=data; receipt->permissions=expected.exists?expected.permissions:QFileDevice::Permissions(QFileDevice::ReadOwner|QFileDevice::WriteOwner|QFileDevice::ReadUser|QFileDevice::WriteUser);
+        receipt->device=writtenImage.st_dev; receipt->inode=writtenImage.st_ino; receipt->links=writtenImage.st_nlink;
+        receipt->modifiedSeconds=writtenImage.st_mtim.tv_sec; receipt->modifiedNanoseconds=writtenImage.st_mtim.tv_nsec;
+    }
     if (!ok) error = QObject::tr("An atomic settings write failed or the file changed: %1").arg(path);
     return ok;
 }
@@ -355,7 +365,8 @@ bool readSnapshot(const DefaultAppsPaths &paths, DefaultAppsSnapshot &state, QSt
     if (!state.writable) state.reason = state.mimeWriteReason + QLatin1Char('\n') + terminalReason;
     return true;
 }
-DefaultAppsJobResult writeTransaction(const DefaultAppsPaths &paths, const DefaultAppsSnapshot &expected, const DefaultAppsPreferences &requested)
+DefaultAppsJobResult writeTransaction(const DefaultAppsPaths &paths, const DefaultAppsSnapshot &expected, const DefaultAppsPreferences &requested,
+                                      const std::function<bool(const QStringList &,QString &)> &retainAliases)
 {
         DefaultAppsSnapshot before; QString error;
         auto failure = [&before](const QString &why) { return DefaultAppsJobResult{false, DefaultAppsOutcome::Failed, before, why}; };
@@ -466,16 +477,22 @@ DefaultAppsJobResult writeTransaction(const DefaultAppsPaths &paths, const Defau
         // The complete multi-file plan is prepared before the first live write.
         DefaultAppsSnapshot preflight;
         if (!readSnapshot(paths, preflight, error) || preflight.revision != before.revision) { return failure(QObject::tr("Settings changed while preparing Apply. No settings were written.")); }
-        QStringList committed;
+        QStringList committed; QMap<QString,FileImage> receipts;
         int commitIndex = 0;
         for (auto it = prepared.cbegin(); it != prepared.cend(); ++it) {
             if (paths.isolated && paths.beforeCommit) paths.beforeCommit(commitIndex++, it.key());
-            if (!atomicReplace(it.key(), originals.value(it.key()), it.value(), false, error)) {
+            FileImage receipt;
+            if (!atomicReplace(it.key(), originals.value(it.key()), it.value(), false, error,&receipt)) {
                 bool restored = true;
                 for (auto prior = committed.crbegin(); prior != committed.crend(); ++prior) {
                     FileImage expectedNew; QString rollbackError;
+                    const auto owned=receipts.value(*prior);
+                    FileImage rollbackReceipt;
                     if (!bytes(*prior, expectedNew, rollbackError) || expectedNew.bytes != prepared.value(*prior)
-                        || !atomicReplace(*prior, expectedNew, originals.value(*prior).bytes, !originals.value(*prior).exists, rollbackError)) restored = false;
+                        || expectedNew.device!=owned.device || expectedNew.inode!=owned.inode
+                        || expectedNew.modifiedSeconds!=owned.modifiedSeconds || expectedNew.modifiedNanoseconds!=owned.modifiedNanoseconds
+                        || !atomicReplace(*prior, expectedNew, originals.value(*prior).bytes, !originals.value(*prior).exists, rollbackError,&rollbackReceipt)) restored = false;
+                    else if (!retainAliases(rollbackReceipt.exists?QStringList{QStringLiteral("inode:%1:%2").arg(rollbackReceipt.device).arg(rollbackReceipt.inode)}:QStringList{},rollbackError)) { restored = false; break; }
                 }
                 DefaultAppsSnapshot after; QString readError; readSnapshot(paths, after, readError);
                 return {false, restored ? DefaultAppsOutcome::Failed : DefaultAppsOutcome::Partial, after,
@@ -483,6 +500,12 @@ DefaultAppsJobResult writeTransaction(const DefaultAppsPaths &paths, const Defau
                              : QObject::tr("Apply failed and some files could not be rolled back. Revert to inspect saved settings. %1").arg(error)};
             }
             committed << it.key();
+            receipts[it.key()]=receipt;
+            if (!retainAliases({QStringLiteral("inode:%1:%2").arg(receipt.device).arg(receipt.inode)},error)) {
+                DefaultAppsSnapshot after; QString readError; readSnapshot(paths, after, readError);
+                return {false, DefaultAppsOutcome::Uncertain, after,
+                    QObject::tr("Default programs may be saved partially, but file identities could not be retained. No further writes or rollback were attempted. %1").arg(error)};
+            }
         }
         DefaultAppsSnapshot after; QString readError;
         const bool readOk = readSnapshot(paths, after, readError);
@@ -509,20 +532,6 @@ KdeDefaultAppsBackend::KdeDefaultAppsBackend(const DefaultAppsPaths &paths, QObj
         if (!m_jobActive && m_queue.isEmpty()) enqueueRead(0, true);
     });
     if (!m_paths.isolated) m_poll.start();
-    connect(&m_future, &QFutureWatcher<DefaultAppsJobResult>::finished, this, [this] {
-        const auto result = m_future.result(); const auto job = m_active;
-        const bool changed = !result.success || (!m_revision.isEmpty() && result.snapshot.revision != m_revision);
-        if (!result.snapshot.revision.isEmpty()) m_revision = result.snapshot.revision;
-        m_jobActive = false; watch();
-        QPointer<KdeDefaultAppsBackend> guard(this);
-        if (job.write) emit writeFinished(job.tokens.first(), result.outcome, result.snapshot, result.error);
-        else if (job.poll) { if (changed) emit externalChange(); }
-        else for (const auto token : job.tokens) {
-            emit readFinished(token, result.success, result.snapshot, result.error);
-            if (!guard) return;
-        }
-        if (guard) startNext();
-    });
     watch();
 }
 void KdeDefaultAppsBackend::watch()
@@ -556,17 +565,88 @@ void KdeDefaultAppsBackend::writeChanges(quint64 token, const DefaultAppsSnapsho
     DefaultAppsJob job; job.tokens << token; job.write = true; job.expected = expected; job.requested = requested;
     m_queue.enqueue(job); startNext();
 }
+void KdeDefaultAppsBackend::cancel()
+{
+    const auto queued=m_queue; m_queue.clear();
+    QPointer<KdeDefaultAppsBackend> guard(this);
+    for (const auto &job:queued) {
+        for (const auto token:job.tokens) {
+            const auto error=tr("Queued default-program work was canceled before it started. No changes were written by that job.");
+            if (job.write) emit writeFinished(token,DefaultAppsOutcome::Failed,job.expected,error);
+            else emit readFinished(token,false,{},error);
+            if (!guard) return;
+        }
+    }
+    if (m_jobActive) emit operationPending(tr("Default-program work is already running and continues until its actual completion. It has not been canceled."));
+}
 void KdeDefaultAppsBackend::startNext()
 {
     if (m_jobActive || m_queue.isEmpty()) return;
-    m_jobActive = true; m_active = m_queue.dequeue();
-    // The worker captures values only: no backend, page, timer or watcher can
-    // be touched after its owner is destroyed. One worker serializes all jobs.
-    const auto paths = m_paths; const auto job = m_active;
-    m_future.setFuture(QtConcurrent::run([paths, job] {
-        if (job.write) return writeTransaction(paths, job.expected, job.requested);
-        DefaultAppsJobResult result;
-        result.success = readSnapshot(paths, result.snapshot, result.error);
-        return result;
-    }));
+    m_jobActive=true; m_active=m_queue.dequeue();
+    const auto paths=m_paths; const auto job=m_active;
+    auto *work=new QObject(QCoreApplication::instance());
+    auto lease=std::make_shared<SettingsFileReservations::Reservation>();
+    QPointer<KdeDefaultAppsBackend> facade(this);
+    OperationManager::instance()->setActivity(work,job.write?tr("Saving Default Programs"):tr("Reading Default Programs"),true);
+    auto *pendingDeadline=new QTimer(work); pendingDeadline->setSingleShot(true);
+    pendingDeadline->setInterval(paths.isolated?qMax(1,paths.softDeadlineMs):10000);
+    connect(pendingDeadline,&QTimer::timeout,work,[facade] {
+        if (facade) emit facade->operationPending(QObject::tr("Default-program work is taking longer than expected. It continues in the background; wait for its actual completion."));
+    });
+    pendingDeadline->start();
+    auto finish=[facade,work,lease,job,pendingDeadline](const DefaultAppsJobResult &result) {
+        pendingDeadline->stop();
+        SettingsFileReservations::endMutation(*lease); SettingsFileReservations::release(*lease);
+        OperationManager::instance()->setActivity(work,{},false);
+        if (facade) {
+            const bool changed=!result.success || (!facade->m_revision.isEmpty() && result.snapshot.revision!=facade->m_revision);
+            if (!result.snapshot.revision.isEmpty()) facade->m_revision=result.snapshot.revision;
+            facade->m_jobActive=false; facade->watch();
+            if (job.write) emit facade->writeFinished(job.tokens.first(),result.outcome,result.snapshot,result.error);
+            else if (job.poll) { if (changed) emit facade->externalChange(); }
+            else for (const auto token:job.tokens) {
+                emit facade->readFinished(token,result.success,result.snapshot,result.error);
+                if (!facade) break;
+            }
+            if (facade) facade->startNext();
+        }
+        work->deleteLater();
+    };
+    auto run=[paths,job,work,lease,finish] {
+        auto *future=new QFutureWatcher<DefaultAppsJobResult>(work);
+        connect(future,&QFutureWatcher<DefaultAppsJobResult>::finished,work,[future,finish] {
+            const auto result=future->result(); future->deleteLater(); finish(result);
+        });
+        // The app-owned work object is retained through worker completion. The
+        // bridge sends immutable identity keys to the GUI registry only, never
+        // a configuration object or a reference to the optional facade.
+        future->setFuture(QtConcurrent::run([paths,job,work,lease] {
+            auto retain=[work,lease](const QStringList &writtenKeys,QString &error) {
+                auto keys=SettingsFileReservations::currentKeys(lease->paths,&error);
+                if (keys.isEmpty()) return false;
+                keys<<writtenKeys; keys.removeDuplicates();
+                bool retained=false;
+                const bool delivered=QMetaObject::invokeMethod(work,[lease,keys,&retained] {
+                    retained=SettingsFileReservations::refresh(*lease,keys);
+                },Qt::BlockingQueuedConnection);
+                if (!delivered || !retained) error=QObject::tr("The settings-file identities could not be retained on the owning thread.");
+                return delivered && retained;
+            };
+            if (job.write) return writeTransaction(paths,job.expected,job.requested,retain);
+            DefaultAppsJobResult result; result.success=readSnapshot(paths,result.snapshot,result.error); return result;
+        }));
+    };
+    if (!job.write) { run(); return; }
+    const auto inventory=SettingsFileReservations::snapshot(); const auto targets=revisionPaths(paths);
+    auto *admission=new QFutureWatcher<SettingsFileReservations::Inspection>(work);
+    connect(admission,&QFutureWatcher<SettingsFileReservations::Inspection>::finished,work,[admission,lease,run,finish,job] {
+        const auto inspected=admission->result(); admission->deleteLater(); QString error;
+        *lease=SettingsFileReservations::acquire(inspected,error);
+        if (!lease->valid() || !SettingsFileReservations::beginMutation(*lease)) {
+            DefaultAppsJobResult result; result.snapshot=job.expected;
+            result.error=error.isEmpty()?QObject::tr("The default-program file reservation could not be acquired."):error; finish(result); return;
+        }
+        run();
+    });
+    admission->setFuture(QtConcurrent::run([targets,inventory] { return SettingsFileReservations::inspect(targets,inventory); }));
 }

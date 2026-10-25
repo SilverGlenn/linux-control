@@ -1,15 +1,19 @@
 #include <QtTest>
 #include <QSignalSpy>
+#include <QProcess>
 #include <limits>
 #include "settings/DisplaySettings.h"
+#include "display/KdeDisplayBackend.h"
 #include "display_fixture.h"
 
 class FakeDisplayBackend : public DisplayBackend {
 public:
     bool available = true;
+    QString restriction;
     int reads = 0, previews = 0, keeps = 0, reverts = 0;
     DisplaySnapshot requested;
     bool rollbackAvailable() const override { return available; }
+    QString editRestrictionReason() const override { return restriction; }
     void readCurrent() override { ++reads; }
     void beginPreview(const DisplaySnapshot &, const DisplaySnapshot &candidate) override
     { ++previews; requested = candidate; }
@@ -40,6 +44,26 @@ private slots:
         QVERIFY(session->isDirty()); QCOMPARE(backend->previews, 0);
         session->selectMode("1"); QVERIFY(!session->isDirty());
         session->selectMode("invented"); QCOMPARE(session->stagedMode(), QStringLiteral("1"));
+    }
+    void candidateScopeIsSeparateFromHelperAvailability()
+    {
+        backend->restriction=QStringLiteral("Display changes withheld in this candidate.");
+        QVERIFY(session->rollbackAvailable());
+        QVERIFY(session->selectedSupportText().contains("withheld"));
+        session->selectMode("2"); QVERIFY(!session->isDirty());
+        QSignalSpy finished(session,&SettingsSession::applyFinished);
+        session->apply(); QCOMPARE(finished.size(),1); QVERIFY(!finished.first()[0].toBool());
+        QCOMPARE(backend->previews,0); QVERIFY(session->errorText().contains("withheld"));
+    }
+    void productionBackendRejectsDirectPreviewBeforeLaunchingHelper()
+    {
+        KdeDisplayBackend production;
+        QSignalSpy finished(&production,&DisplayBackend::transactionFinished),preview(&production,&DisplayBackend::previewReady);
+        production.beginPreview(displayFixture(),displayFixture("2"));
+        QCOMPARE(finished.size(),1); QVERIFY(preview.isEmpty());
+        QVERIFY(!finished.first()[0].toBool()); QVERIFY(finished.first()[3].toString().contains("local candidate"));
+        QVERIFY(DisplayProtocol::same(finished.first()[2].value<DisplaySnapshot>(),displayFixture()));
+        QVERIFY(production.findChildren<QProcess *>().isEmpty());
     }
     void verifiedKeepCompletesApplyOnlyAfterConfirmation()
     {

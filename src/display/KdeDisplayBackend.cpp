@@ -1,4 +1,5 @@
 #include "KdeDisplayBackend.h"
+#include "release/LocalRcPolicy.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -40,6 +41,11 @@ QString KdeDisplayBackend::helperPath() const
 bool KdeDisplayBackend::rollbackAvailable() const
 {
     return !helperPath().isEmpty() && QFileInfo(QStringLiteral("/usr/bin/kscreen-doctor")).isExecutable();
+}
+
+QString KdeDisplayBackend::editRestrictionReason() const
+{
+    return QString::fromUtf8(release::localRc::displayEditsWithheldReason());
 }
 
 void KdeDisplayBackend::readCurrent()
@@ -92,6 +98,13 @@ void KdeDisplayBackend::readCurrent()
 
 void KdeDisplayBackend::beginPreview(const DisplaySnapshot &baseline, const DisplaySnapshot &requested)
 {
+    // Enforce candidate scope at the process boundary, including direct calls.
+    // The independent guard's isolated recovery fixtures remain available.
+    const QString restriction = editRestrictionReason();
+    if (!restriction.isEmpty()) {
+        emit transactionFinished(false, false, baseline, restriction);
+        return;
+    }
     if (m_reader || m_guard || !rollbackAvailable()) {
         emit transactionFinished(false, false, baseline, QStringLiteral("The display rollback helper is unavailable or busy."));
         return;

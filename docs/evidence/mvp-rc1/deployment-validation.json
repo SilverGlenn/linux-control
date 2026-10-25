@@ -1,0 +1,14 @@
+{
+  "actual_payload_files": 11,
+  "source_build_id": "0.1.0-rc.1+7584b7fda4e74a21",
+  "staged_install": true,
+  "staged_upgrade": true,
+  "staged_rollback": true,
+  "staged_remove": true,
+  "old_bytes_modes_and_symlinks_restored": true,
+  "candidate_created_files_removed": true,
+  "shared_dependency_and_preferences_preserved": true,
+  "intervening_edit_refused_before_any_mutation": true,
+  "refusal": "Intervening edits; no managed files changed: share/linux-control/mvp-rc-feedback.md",
+  "live_install": false
+}

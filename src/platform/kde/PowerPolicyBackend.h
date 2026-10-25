@@ -8,6 +8,7 @@
 #include <QFileSystemWatcher>
 #include <QTimer>
 #include <QDBusContext>
+#include <QPointer>
 #include <functional>
 
 struct PowerPolicyCapabilities {
@@ -41,10 +42,16 @@ public:
     virtual void queryCapabilities() = 0;
     virtual void reload() = 0;
     virtual void cancel() = 0;
+    using GuardCompletion=std::function<void(bool,const QString &)>;
+    using Guard=std::function<void(GuardCompletion)>;
+    virtual void reloadGuarded(const PowerPolicyCapabilities &expected, Guard guard);
+    // Local getter generation retirement only; never cancels a native setter.
+    virtual void retireCapabilitiesQuery() {}
 signals:
     void capabilitiesFinished(const PowerPolicyCapabilities &capabilities);
     void reloadFinished(bool acknowledged, bool cancelled, const QString &error);
     void changed();
+    void providerChanged();
 };
 
 class PowerPolicyDBus final : public PowerPolicyDaemon, protected QDBusContext {
@@ -56,8 +63,11 @@ public:
     void queryCapabilities() override;
     void reload() override;
     void cancel() override;
+    void reloadGuarded(const PowerPolicyCapabilities &expected, Guard guard) override;
+    void retireCapabilitiesQuery() override;
 private slots:
     void configurationReloaded();
+    void capabilitiesChanged();
     void portalSettingChanged(const QString &group, const QString &key, const QDBusVariant &value);
     void hardwarePropertiesChanged(const QString &interface, const QVariantMap &changed,
                                    const QStringList &invalidated);
@@ -68,16 +78,22 @@ private:
               const QString &interface, const QString &method, const QVariantList &args,
               Reply completion);
     void finishReload(bool acknowledged, bool cancelled, const QString &error);
+    void queryNativeCapabilities(quint64 generation, quint64 epoch, bool schemaSupported);
+    void invalidateProvider(const QString &reason);
+    void sendReload(const QString &owner, quint64 epoch);
     QDBusConnection m_session, m_system;
-    bool m_schemaSupported = false;
+    bool m_schemaSupported = false, m_schemaAuto = false, m_guardedReload = false;
     bool m_reloading = false;
     bool m_reloadSignal = false;
     bool m_reloadReply = false;
     quint64 m_generation = 0;
     quint64 m_queryGeneration = 0, m_ownerEpoch = 0;
-    QString m_owner, m_reloadOwner;
+    QString m_owner, m_reloadOwner, m_capabilityRevision;
+    quint64 m_guardGeneration = 0;
     QTimer m_reloadTimer;
 };
+
+class PowerPolicyFileJob;
 
 class KdePowerPolicyBackend final : public PowerPolicyBackend {
     Q_OBJECT
@@ -90,6 +106,9 @@ public:
     struct ConfigContext {
         bool fullCascade = false;
         QStringList defaultSources;
+        bool fixture = false;
+        std::function<void()> beforeFileRead,beforeSync,afterSync;
+        int softDeadlineMs = 20000;
     };
     KdePowerPolicyBackend(const QString &configFile, PowerPolicyDaemon *daemon,
                           const ConfigContext &context, QObject *parent = nullptr);
@@ -98,19 +117,12 @@ public:
                      const PowerPolicySnapshot &requested) override;
     void cancel() override;
 private:
-    bool readFile(PowerPolicySnapshot *snapshot, QString *error);
-    void savePolicy(const PowerPolicySnapshot &expected, const PowerPolicySnapshot &requested);
     void watchConfig();
+    void beginJob(bool write,const PowerPolicySnapshot &expected={},const PowerPolicySnapshot &requested={});
     QString m_configFile;
     PowerPolicyDaemon *m_daemon;
-    PowerPolicyCapabilities m_capabilities;
+    ConfigContext m_context;
+    QPointer<PowerPolicyFileJob> m_job;
     QFileSystemWatcher m_watcher;
     QTimer m_debounce;
-    bool m_reading = false;
-    bool m_saved = false;
-    bool m_writing = false;
-    bool m_cascade = false;
-    QStringList m_defaultSources;
-    bool m_writePreflight = false;
-    PowerPolicySnapshot m_expected, m_requested;
 };

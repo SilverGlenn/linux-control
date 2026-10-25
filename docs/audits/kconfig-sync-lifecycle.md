@@ -8,9 +8,10 @@ workers with persistent ownership and soft progress deadlines. Its results and
 remaining limits are tracked in [Batch23](../kde-batch23-save-lifecycle.md).
 
 Batch 24 also migrates NightLight and NightTime and gives all three providers a
-shared worker-inspected reservation facility. Other direct UI-thread callers
-include PowerPolicy, Appearance, AeroEffect, AeroTheme, ThemeComponent, Font and
-Keyboard backends.
+shared worker-inspected reservation facility. Batch 25 extends that facility
+and persistent worker jobs to PowerPolicy. Remaining direct UI-thread callers
+include Appearance, AeroEffect, AeroTheme, ThemeComponent, Font and Keyboard
+backends.
 DefaultApps and StandardShortcuts already use worker transactions and provide
 useful local lifecycle examples. `KSharedConfig`'s installed SDK documentation
 states that each thread has its own repository and inter-thread synchronization
@@ -44,8 +45,20 @@ Native KConfig Notify remains a broadcast. KConfig6.24 `sync()` can send Notify
 after a native lock wait and even after a later write failure. Owner checks
 before starting synchronization cannot cancel that existing native behavior;
 provider changes or partial failures remain uncertain. Shared reservations
-currently cover Screen Locking, Night Light and Day and Night, with the remaining
-providers still needing adoption. See [Batch24](../kde-batch24-shared-file-jobs.md).
+cover Screen Locking, Night Light, Day and Night and Power Policy, with the
+remaining providers still needing adoption. See
+[Batch24](../kde-batch24-shared-file-jobs.md) and
+[Batch25](../kde-batch25-power-file-jobs.md).
+
+Charging policy is separate from the three low/critical battery warning/action
+keys in this editor. The October 18 incident found Lenovo conservation mode off
+and no saved UPower charging-limit preference; the original disabling actor
+remains unproved. The repair enabled conservation and saved UPower's preference.
+October 25 passive checks confirm conservation on, Long_Life selected, saved
+preference 1 and October 19–24 history at or below 80% with pending-charge states
+near that cap. Batch 25 additionally fingerprints all three charging controls
+before and after validation. Validation uses isolated files/fake providers and
+never calls a live power/charging setter or reload.
 
 Evidence inspected: repository backends and `tests/screen_lock_backend_test.cpp`,
 installed `/usr/include/KF6/KConfigCore/ksharedconfig.h`, and cached official

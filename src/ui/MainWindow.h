@@ -46,6 +46,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    void requestControlPanelUpdateInstall();
     // The shared chrome of a left-nav pane: a width-clipped scroll area, the
     // grey navPane frame, and the text layout (already seeded with the
     // "Control Panel Home" link) that callers fill with their own entries.

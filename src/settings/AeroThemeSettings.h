@@ -25,11 +25,13 @@ class AeroThemeBackend : public QObject {
     Q_OBJECT
 public:
     using QObject::QObject;
+    virtual void cancel() {}
     virtual void readCurrent() = 0;
     virtual void writeSettings(const QVariantMap &expected, const QVariantMap &requested) = 0;
 signals:
     void readFinished(bool success, const AeroThemeState &state, const QString &error);
     void writeFinished(bool success, const QString &error);
+    void operationPending(const QString &message);
     void externalChange();
 };
 

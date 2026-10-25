@@ -18,6 +18,7 @@ struct DefaultAppsPaths {
     // tests use it to hold a scan without blocking the application event loop.
     std::function<void()> beforeScan;
     std::function<void(int, const QString &)> beforeCommit;
+    int softDeadlineMs = 10000; // Shorter deadlines are isolated-fixture only.
 };
 struct DefaultAppsJob {
     QList<quint64> tokens;
@@ -39,6 +40,7 @@ public:
     void readCurrent(quint64 token) override;
     void writeChanges(quint64 token, const DefaultAppsSnapshot &expected,
                       const DefaultAppsPreferences &requested) override;
+    void cancel() override;
 private:
     void startNext();
     void enqueueRead(quint64 token, bool poll = false);
@@ -47,7 +49,6 @@ private:
     QFileSystemWatcher m_watcher;
     QTimer m_debounce, m_poll;
     QByteArray m_revision;
-    QFutureWatcher<DefaultAppsJobResult> m_future;
     QQueue<DefaultAppsJob> m_queue;
     DefaultAppsJob m_active;
     bool m_jobActive = false;

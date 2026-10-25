@@ -60,6 +60,10 @@ ShortcutsSettings::ShortcutsSettings(ShortcutsBackend *backend, QObject *parent)
     connect(backend, &ShortcutsBackend::readFinished, this, &ShortcutsSettings::onRead);
     connect(backend, &ShortcutsBackend::writeFinished, this, &ShortcutsSettings::onWritten);
     connect(backend, &ShortcutsBackend::externalChange, this, &ShortcutsSettings::refresh);
+    connect(backend,&ShortcutsBackend::operationPending,this,[this](const QString &message) {
+        if (!m_busy) return;
+        m_operationPending=true; m_result=message; emit stateChanged();
+    });
     m_busy = true; QTimer::singleShot(0, this, &ShortcutsSettings::read);
 }
 bool ShortcutsSettings::canApply() const
@@ -163,7 +167,11 @@ void ShortcutsSettings::restoreAllDefaults()
     stage(candidate);
 }
 void ShortcutsSettings::read()
-{ m_phase = Phase::Reading; m_busy = true; m_pendingRefresh = false; emit stateChanged(); m_backend->readCurrent(++m_token); }
+{
+    m_phase = Phase::Reading; m_busy = true; m_pendingRefresh = false;
+    const auto token=++m_token; QPointer<ShortcutsSettings> guard(this);
+    emit stateChanged(); if (guard) m_backend->readCurrent(token);
+}
 void ShortcutsSettings::refresh()
 { if (m_busy) m_pendingRefresh = true; else read(); }
 void ShortcutsSettings::revert()
@@ -179,15 +187,17 @@ void ShortcutsSettings::apply()
         m_error = !error.isEmpty() ? error : m_lockedOwner == m_applied.owner && !m_lockedOwner.isEmpty()
             ? tr("An earlier shortcut change is uncertain. Further writes are disabled until the shortcut service restarts.")
             : m_conflict ? tr("Shortcuts changed outside Control Panel. Revert to reload them before applying.") : m_applied.reason;
-        emit stateChanged(); emit applyFinished(false); return;
+        QPointer<ShortcutsSettings> guard(this); emit stateChanged(); if (guard) emit applyFinished(false); return;
     }
     if (!m_dirty) { emit applyFinished(true); return; }
     m_writeExpected = m_applied; m_requested = requested; m_phase = Phase::Writing; m_busy = true;
-    m_error.clear(); m_result.clear(); emit stateChanged(); m_backend->writeChanges(++m_token, m_writeExpected, m_requested);
+    m_error.clear(); m_result.clear(); const auto token=++m_token; QPointer<ShortcutsSettings> guard(this);
+    emit stateChanged(); if (guard) m_backend->writeChanges(token, m_writeExpected, m_requested);
 }
 void ShortcutsSettings::onRead(quint64 token, bool success, const ShortcutsSnapshot &snapshot, const QString &error)
 {
     if (m_phase != Phase::Reading || token != m_token) return;
+    if (m_operationPending) { m_result.clear(); m_operationPending=false; }
     m_phase = Phase::Idle;
     if (success) {
         const bool changed = m_ready && !sameSnapshot(m_applied, snapshot);
@@ -206,12 +216,14 @@ void ShortcutsSettings::onRead(quint64 token, bool success, const ShortcutsSnaps
         m_ready = false; if (m_dirty) m_conflict = true;
         m_error = error.isEmpty() ? tr("Shortcut bindings could not be read.") : error;
     }
-    m_reverting = false; m_busy = false; emit stateChanged();
+    m_reverting = false; m_busy = false; QPointer<ShortcutsSettings> guard(this); emit stateChanged();
+    if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0, this, &ShortcutsSettings::refresh);
 }
 void ShortcutsSettings::onWritten(quint64 token, ShortcutsOutcome outcome, const ShortcutsSnapshot &snapshot, const QString &error)
 {
     if (m_phase != Phase::Writing || token != m_token) return;
+    m_operationPending=false;
     m_phase = Phase::Idle; m_busy = false;
     const bool success = outcome == ShortcutsOutcome::Success && verified(m_writeExpected, m_requested, snapshot);
     if (snapshot.available) { m_applied = snapshot; m_ready = true; } else m_ready = false;
@@ -224,6 +236,7 @@ void ShortcutsSettings::onWritten(quint64 token, ShortcutsOutcome outcome, const
         m_error = error.isEmpty() ? tr("Shortcut changes were not fully verified. Some bindings may have been saved. Your draft is preserved; Revert reloads current bindings.") : error;
         m_result.clear();
     }
-    emit stateChanged(); emit applyFinished(success);
+    QPointer<ShortcutsSettings> guard(this); emit stateChanged(); if (!guard) return;
+    emit applyFinished(success); if (!guard) return;
     if (m_pendingRefresh) QTimer::singleShot(0, this, &ShortcutsSettings::refresh);
 }

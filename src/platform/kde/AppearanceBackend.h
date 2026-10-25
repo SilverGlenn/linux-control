@@ -5,6 +5,8 @@
 #include <QFileSystemWatcher>
 #include <QTimer>
 #include <QStringList>
+#include <QPointer>
+#include <functional>
 
 class QDBusConnection;
 
@@ -16,6 +18,7 @@ public:
     using QObject::QObject;
     virtual bool isAvailable() const = 0;
     virtual QString unavailableReason() const = 0;
+    virtual QString identity() const { return {}; }
     virtual void requestReload(const QString &action) = 0;
 signals:
     // Success requires KWin's diagnostic reply to report the requested live option.
@@ -38,19 +41,27 @@ public:
     // Explicit temporary-file mode: SimpleConfig excludes globals and cascading.
     KdeAppearanceBackend(const QString &absoluteConfigPath,
                          AppearanceReloadService *reload, QObject *parent = nullptr);
+    struct FileContext {
+        bool fixture = false;
+        int softDeadlineMs = 20000;
+        std::function<void()> beforeRead, beforeSync, afterSync;
+    };
+    KdeAppearanceBackend(const QString &absoluteConfigPath, AppearanceReloadService *reload,
+                         const FileContext &context, QObject *parent = nullptr);
     void readCurrent() override;
     void writeAction(const QString &expected, const QString &action) override;
 private:
     KdeAppearanceBackend(const QString &configName, AppearanceReloadService *reload,
                          bool isolated, QObject *parent);
-    bool readState(AppearanceState &state, QString &error) const;
+    void beginJob(bool write, const QString &expected = {}, const QString &requested = {});
     void watchFiles();
     QString m_configName;
     QString m_userPath;
     QStringList m_watchedFiles;
     AppearanceReloadService *m_reload;
     bool m_isolated;
-    bool m_writing = false;
+    FileContext m_context;
+    QPointer<QObject> m_job;
     QFileSystemWatcher m_watcher;
     QTimer m_debounce;
 };

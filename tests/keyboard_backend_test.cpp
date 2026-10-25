@@ -1,3 +1,12 @@
+#include "operations/OperationManager.h"
+#include <QLockFile>
+#include <QPointer>
+#include <QSemaphore>
+#include <QSaveFile>
+#include <QThread>
+#include <atomic>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <QtTest>
 #include <QDBusArgument>
 #include <QDBusConnection>
@@ -61,8 +70,18 @@ public:
 public slots:
     void notice(const QHash<QString,QByteArrayList> &value){changes=value;++count;}
 };
+
+struct AsyncGate {
+    std::atomic_bool armed{true},entered{false};
+    QSemaphore released;
+    void once(){if(armed.exchange(false)){entered=true;released.acquire();}}
+};
+
 class KeyboardBackendTest final:public QObject {
     Q_OBJECT
+    QList<std::shared_ptr<AsyncGate>> gates;
+    std::shared_ptr<AsyncGate> gate(){auto result=std::make_shared<AsyncGate>();gates<<result;return result;}
+    static QByteArray bytes(const QString &path){QFile file(path);return file.open(QIODevice::ReadOnly)?file.readAll():QByteArray();}
     static KeyboardBackendOptions options(QTemporaryDir &dir) {
         KeyboardBackendOptions result;result.inputConfig=dir.filePath(QStringLiteral("kcminputrc"));
         result.layoutConfig=dir.filePath(QStringLiteral("kxkbrc"));result.workspaceConfig=dir.filePath(QStringLiteral("plasmarc"));result.isolated=true;
@@ -83,7 +102,101 @@ class KeyboardBackendTest final:public QObject {
         return spy.isEmpty()?QList<QVariant>{}:spy.first();
     }
 private slots:
+    void cleanup(){for(const auto &held:gates)held->released.release(32);QTRY_VERIFY_WITH_TIMEOUT(!OperationManager::instance()->hasActiveJobs(),10000);gates.clear();}
     void initTestCase(){qRegisterMetaType<KeyboardSnapshot>();qRegisterMetaType<KeyboardOutcome>();}
+    void nonregularConfigAndRegistrySourcesFailClosed_data(){
+        QTest::addColumn<int>("source");QTest::newRow("config-fifo")<<0;QTest::newRow("config-broken-link")<<1;
+        QTest::newRow("registry-fifo")<<2;QTest::newRow("extras-broken-link")<<3;
+    }
+    void nonregularConfigAndRegistrySourcesFailClosed()
+    {
+        QFETCH(int,source);QTemporaryDir directory;auto config=options(directory);
+        const auto path=source==2?config.registryPath:source==3?directory.filePath("evdev.extras.xml"):config.inputConfig;
+        if(QFileInfo::exists(path))QVERIFY(QFile::remove(path));
+        if(source==1||source==3)QVERIFY(::symlink("missing-keyboard-source",QFile::encodeName(path).constData())==0);
+        else QVERIFY(::mkfifo(QFile::encodeName(path).constData(),0600)==0);
+        auto *transport=new FakeKeyboardTransport;KdeKeyboardBackend backend(transport,config);QSignalSpy done(&backend,&KeyboardBackend::readFinished);backend.readCurrent(1);
+        QTRY_COMPARE_WITH_TIMEOUT(done.size(),1,2000);QVERIFY(!done[0][1].toBool());QVERIFY(!done[0][3].toString().isEmpty());QCOMPARE(transport->notifications,0);
+    }
+    void sameByteSourceReplacementAfterSyncPreventsNotification()
+    {
+        QTemporaryDir directory;auto config=options(directory);const auto held=gate();config.afterSync=[held]{held->once();};auto *transport=new FakeKeyboardTransport;
+        KdeKeyboardBackend backend(transport,config);const auto before=read(backend);auto requested=before.values;requested["RepeatDelay"]=800;QSignalSpy done(&backend,&KeyboardBackend::writeFinished);backend.writePreferences(2,before,requested);QTRY_VERIFY(held->entered.load());
+        const auto path=config.registryPath;const auto same=bytes(path);QSaveFile file(path);QVERIFY(file.open(QIODevice::WriteOnly));QCOMPARE(file.write(same),same.size());QVERIFY(file.commit());
+        held->released.release();QTRY_COMPARE(done.size(),1);QVERIFY(qvariant_cast<KeyboardOutcome>(done[0][1])!=KeyboardOutcome::Success);QCOMPARE(transport->notifications,0);QCOMPARE(bytes(path),same);
+    }
+    void nativeLockWaitHasHeartbeatSoftDeadlineAndDelayedSuccess()
+    {
+        QTemporaryDir directory;auto config=options(directory);config.writeBudgetMs=20;auto *transport=new FakeKeyboardTransport;KdeKeyboardBackend backend(transport,config);const auto before=read(backend);QVERIFY(before.writable);
+        QLockFile lock(config.inputConfig+".lock");QVERIFY(lock.tryLock());int beats=0;QTimer heartbeat;heartbeat.setInterval(1);connect(&heartbeat,&QTimer::timeout,this,[&]{++beats;});heartbeat.start();
+        QSignalSpy done(&backend,&KeyboardBackend::writeFinished),pending(&backend,&KeyboardBackend::operationPending);auto next=before.values;next["RepeatDelay"]=900;
+        QTimer unlock;unlock.setSingleShot(true);connect(&unlock,&QTimer::timeout,this,[&]{lock.unlock();});unlock.start(180);
+        backend.writePreferences(2,before,next);QTRY_VERIFY(!pending.isEmpty());QVERIFY(beats>=3);QCOMPARE(done.size(),0);QTRY_COMPARE_WITH_TIMEOUT(done.size(),1,10000);
+        QCOMPARE(qvariant_cast<KeyboardOutcome>(done[0][1]),KeyboardOutcome::Success);QCOMPARE(transport->notifications,1);QCOMPARE(read(backend).values.value("RepeatDelay").toInt(),900);QTest::qWait(30);QCOMPARE(done.size(),1);
+    }
+    void orphanedWriteRetainsTransportActivityAndLease()
+    {
+        QTemporaryDir directory;auto config=options(directory);config.writeBudgetMs=20;const auto held=gate();config.beforeSync=[held]{held->once();};
+        auto *transport=new FakeKeyboardTransport;QPointer<FakeKeyboardTransport> retained(transport);auto *first=new KdeKeyboardBackend(transport,config);const auto before=read(*first);QVERIFY(before.writable);
+        auto next=before.values;next["RepeatDelay"]=900;QSignalSpy gone(first,&KeyboardBackend::writeFinished);first->writePreferences(2,before,next);QTRY_VERIFY(held->entered.load());delete first;
+        QVERIFY(retained);QVERIFY(OperationManager::instance()->hasActiveJobs());auto secondOptions=config;secondOptions.beforeSync={};secondOptions.inputConfig=directory.filePath("./kcminputrc");
+        KdeKeyboardBackend second(new FakeKeyboardTransport,secondOptions);auto competing=before.values;competing["RepeatDelay"]=800;const auto refused=write(second,before,competing);QVERIFY(!refused.isEmpty());QCOMPARE(qvariant_cast<KeyboardOutcome>(refused[1]),KeyboardOutcome::Failed);
+        held->released.release();QTRY_VERIFY_WITH_TIMEOUT(!OperationManager::instance()->hasActiveJobs(),10000);QTRY_VERIFY(!retained);QCOMPARE(gone.size(),0);
+        const auto actual=read(second);QCOMPARE(actual.values.value("RepeatDelay").toInt(),900);const auto retry=write(second,actual,competing);QVERIFY(!retry.isEmpty());QCOMPARE(qvariant_cast<KeyboardOutcome>(retry[1]),KeyboardOutcome::Success);
+    }
+    void cancelOrProviderReplacementBeforeNativeSyncDoesNotWrite_data(){QTest::addColumn<bool>("replace");QTest::newRow("cancel")<<false;QTest::newRow("provider")<<true;}
+    void cancelOrProviderReplacementBeforeNativeSyncDoesNotWrite()
+    {
+        QFETCH(bool,replace);QTemporaryDir directory;auto config=options(directory);const auto held=gate();config.beforeSync=[held]{held->once();};auto *transport=new FakeKeyboardTransport;
+        KdeKeyboardBackend backend(transport,config);const auto before=read(backend);QVERIFY(before.writable);auto next=before.values;next["RepeatDelay"]=900;
+        QSignalSpy done(&backend,&KeyboardBackend::writeFinished);backend.writePreferences(2,before,next);QTRY_VERIFY(held->entered.load());
+        if(replace){transport->owner=transport->keyboardOwner=":1.replacement";emit transport->changed();}else backend.cancel();QCOMPARE(done.size(),0);QVERIFY(OperationManager::instance()->hasActiveJobs());
+        held->released.release();QTRY_COMPARE(done.size(),1);QCOMPARE(qvariant_cast<KeyboardOutcome>(done[0][1]),KeyboardOutcome::Failed);QCOMPARE(transport->notifications,0);QVERIFY(!QFileInfo::exists(config.inputConfig));
+    }
+    void cancelOrReplacementDuringNativeWaitCannotReleaseReservationEarly_data(){cancelOrProviderReplacementBeforeNativeSyncDoesNotWrite_data();}
+    void cancelOrReplacementDuringNativeWaitCannotReleaseReservationEarly()
+    {
+        QFETCH(bool,replace);QTemporaryDir directory;auto config=options(directory);config.writeBudgetMs=20;auto entered=std::make_shared<std::atomic_bool>(false);config.syncForTest=[entered](KConfig &config){*entered=true;return config.sync();};
+        auto *transport=new FakeKeyboardTransport;KdeKeyboardBackend backend(transport,config);const auto before=read(backend);QVERIFY(before.writable);auto next=before.values;next["RepeatDelay"]=900;
+        QLockFile lock(config.inputConfig+".lock");QVERIFY(lock.tryLock());QSignalSpy done(&backend,&KeyboardBackend::writeFinished),pending(&backend,&KeyboardBackend::operationPending);backend.writePreferences(2,before,next);
+        QTRY_VERIFY(entered->load());QTRY_VERIFY(!pending.isEmpty());if(replace){transport->owner=transport->keyboardOwner=":1.replacement";emit transport->changed();}else backend.cancel();
+        auto other=config;other.syncForTest={};KdeKeyboardBackend second(new FakeKeyboardTransport,other);auto competing=before.values;competing["RepeatDelay"]=750;const auto refused=write(second,before,competing);QVERIFY(!refused.isEmpty());QCOMPARE(qvariant_cast<KeyboardOutcome>(refused[1]),KeyboardOutcome::Failed);QCOMPARE(done.size(),0);
+        lock.unlock();QTRY_COMPARE_WITH_TIMEOUT(done.size(),1,10000);QVERIFY(qvariant_cast<KeyboardOutcome>(done[0][1])!=KeyboardOutcome::Success);QCOMPARE(transport->notifications,0);QCOMPARE(read(second).values.value("RepeatDelay").toInt(),900);
+    }
+    void failedTerminalReadbackCannotAdvertiseKnownWritableState()
+    {
+        QTemporaryDir directory;auto config=options(directory);auto failRead=std::make_shared<std::atomic_bool>(false),poisoned=std::make_shared<std::atomic_bool>(false);
+        const auto target=config.inputConfig;config.beforeRead=[failRead,poisoned,target]{
+            if(failRead->load()&&!poisoned->exchange(true)){QFile::remove(target);QDir().mkpath(target);}
+        };
+        auto *transport=new FakeKeyboardTransport;KdeKeyboardBackend backend(transport,config);const auto before=read(backend);QVERIFY(before.writable);
+        const auto initial=transport->calls;
+        // Seven audited transport calls per snapshot: pre-write, post-write,
+        // then post-notification observation. Poison only the following terminal read.
+        transport->beforeCall=[failRead,initial](int call){if(call==initial+21)*failRead=true;};
+        auto next=before.values;next["RepeatDelay"]=900;const auto result=write(backend,before,next);QVERIFY(!result.isEmpty());QVERIFY(poisoned->load());
+        QCOMPARE(qvariant_cast<KeyboardOutcome>(result[1]),KeyboardOutcome::Uncertain);const auto state=qvariant_cast<KeyboardSnapshot>(result[2]);
+        QVERIFY(!state.available);QVERIFY(!state.writable);QVERIFY(result[3].toString().contains("Terminal keyboard readback failed"));QCOMPARE(transport->notifications,1);
+    }
+    void foreignEditAfterSyncIsPreservedAndPreventsNotification()
+    {
+        QTemporaryDir directory;auto config=options(directory);const auto held=gate();config.afterSync=[held]{held->once();};auto *transport=new FakeKeyboardTransport;KdeKeyboardBackend backend(transport,config);
+        const auto before=read(backend);auto next=before.values;next["RepeatDelay"]=900;QSignalSpy done(&backend,&KeyboardBackend::writeFinished);backend.writePreferences(2,before,next);
+        QTRY_VERIFY(held->entered.load());{QFile file(config.inputConfig);QVERIFY(file.open(QIODevice::Append));file.write("\n[Unrelated]\nKeep=foreign\n");}
+        held->released.release();QTRY_COMPARE(done.size(),1);QVERIFY(qvariant_cast<KeyboardOutcome>(done[0][1])!=KeyboardOutcome::Success);QCOMPARE(transport->notifications,0);QVERIFY(bytes(config.inputConfig).contains("Keep=foreign"));
+    }
+    void intermediateNativeInodeAliasRemainsReserved()
+    {
+        QTemporaryDir directory,other;auto config=options(directory),otherOptions=options(other);
+        {QFile file(config.inputConfig);QVERIFY(file.open(QIODevice::WriteOnly));file.write("[Keyboard]\nRepeatDelay=600\nRepeatRate=25\n");}
+        const auto held=gate();auto count=std::make_shared<std::atomic_int>(0);auto linked=std::make_shared<std::atomic_bool>(false);const auto alias=directory.filePath("middle-inode"),target=config.inputConfig;
+        config.afterSync=[held,count,linked,alias,target]{const auto step=++*count;if(step==1)*linked=::link(QFile::encodeName(target).constData(),QFile::encodeName(alias).constData())==0;if(step==2)held->once();};
+        KdeKeyboardBackend first(new FakeKeyboardTransport,config);const auto before=read(first);QVERIFY(before.writable);auto next=before.values;next["RepeatDelay"]=800;next["RepeatRate"]=30.0;
+        QSignalSpy done(&first,&KeyboardBackend::writeFinished);first.writePreferences(2,before,next);QTRY_VERIFY(held->entered.load());QVERIFY(linked->load());QVERIFY(::link(QFile::encodeName(alias).constData(),QFile::encodeName(otherOptions.inputConfig).constData())==0);
+        KdeKeyboardBackend second(new FakeKeyboardTransport,otherOptions);const auto secondBefore=read(second);QVERIFY(secondBefore.writable);auto competing=secondBefore.values;competing["RepeatDelay"]=950;
+        const auto refused=write(second,secondBefore,competing);QVERIFY(!refused.isEmpty());QCOMPARE(qvariant_cast<KeyboardOutcome>(refused[1]),KeyboardOutcome::Failed);
+        held->released.release();QTRY_COMPARE(done.size(),1);QCOMPARE(qvariant_cast<KeyboardOutcome>(done[0][1]),KeyboardOutcome::Success);const auto retry=write(second,secondBefore,competing);QVERIFY(!retry.isEmpty());QCOMPARE(qvariant_cast<KeyboardOutcome>(retry[1]),KeyboardOutcome::Success);
+    }
     void readAndSaveBothFilesPreservesUnknown() {
         QTemporaryDir dir;auto o=options(dir);
         {KConfig c(o.inputConfig,KConfig::SimpleConfig);KConfigGroup g(&c,"Other");g.writeEntry("Keep","value");QVERIFY(c.sync());}

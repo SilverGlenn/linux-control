@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QPointer>
 
 class FakePowerPolicyBackend final : public PowerPolicyBackend {
 public:
@@ -579,6 +580,76 @@ private slots:
         QVERIFY(PowerPolicyFields::matchesRequest(baseline,request,actual,error));
         actual.profiles[1].keys[PowerPolicyKey::DimSeconds].revision="foreign numeric-equivalent change";
         QVERIFY(!PowerPolicyFields::matchesRequest(baseline,request,actual,error));
+    }
+    void slowSaveProgressRetainsDraftAndIgnoresOtherPhases()
+    {
+        emit backend->operationPending(QStringLiteral("stale idle progress"));
+        QVERIFY(session->applySupportText().isEmpty());
+        session->selectDisplayTimeout("AC",1200); session->apply();
+        emit backend->operationPending(QStringLiteral("stale preflight progress"));
+        QVERIFY(!session->applySupportText().contains("stale"));
+        backend->read(baseline); QCOMPARE(backend->writes,1);
+        emit backend->operationPending(QStringLiteral("Saving continues in the background."));
+        QVERIFY(session->isBusy()); QVERIFY(session->isDirty()); QVERIFY(session->errorText().isEmpty());
+        QVERIFY(!session->hasConflict()); QVERIFY(session->applySupportText().contains("continues"));
+        const auto draft=session->staged(); const int reads=backend->reads;
+        session->apply(); session->revert(); session->selectDisplayTimeout("AC",1800);
+        QCOMPARE(backend->writes,1); QCOMPARE(backend->reads,reads); QVERIFY(session->staged()==draft);
+        QSignalSpy finished(session,&SettingsSession::applyFinished);
+        backend->write(); QVERIFY(session->isBusy()); QVERIFY(finished.isEmpty());
+        emit backend->operationPending(QStringLiteral("late write progress"));
+        QVERIFY(!session->applySupportText().contains("progress"));
+        backend->read(backend->requested); QVERIFY(!session->isBusy()); QVERIFY(!session->isDirty());
+        QCOMPARE(finished.size(),1); QVERIFY(finished[0][0].toBool());
+        emit backend->operationPending(QStringLiteral("late terminal progress"));
+        QVERIFY(session->applySupportText().isEmpty());
+    }
+    void acknowledgedReadbackCannotEraseExplicitWriteFailure()
+    {
+        session->selectDisplayTimeout("AC",1200); session->apply(); backend->read(baseline);
+        QSignalSpy finished(session,&SettingsSession::applyFinished);
+        emit backend->writeFinished(true,true,false,QStringLiteral("The final native file receipt changed."));
+        backend->read(backend->requested);
+        QCOMPARE(finished.size(),1); QVERIFY(!finished[0][0].toBool());
+        QVERIFY(session->isDirty()); QVERIFY(session->hasConflict());
+        QVERIFY(session->errorText().contains("receipt"));
+        session->apply(); QCOMPARE(backend->writes,1);
+        session->revert(); backend->read(backend->requested);
+        QVERIFY(!session->isDirty()); QVERIFY(!session->hasConflict());
+    }
+    void observersCanDeleteSessionAtOutwardTransitions_data()
+    {
+        QTest::addColumn<int>("stage");
+        QTest::newRow("refresh-start")<<0; QTest::newRow("apply-start")<<1;
+        QTest::newRow("apply-finished")<<2; QTest::newRow("pending-progress")<<3;
+        QTest::newRow("blocked-apply")<<4; QTest::newRow("refresh-finished")<<5;
+    }
+    void observersCanDeleteSessionAtOutwardTransitions()
+    {
+        QFETCH(int,stage); QPointer<PowerPolicySettings> guard(session);
+        const auto remove=[this] { auto *victim=session; session=nullptr; backend=nullptr; delete victim; };
+        if(stage==0) {
+            connect(session,&SettingsSession::stateChanged,this,remove); session->refresh();
+        } else if(stage==1) {
+            session->selectDisplayTimeout("AC",1200);
+            connect(session,&SettingsSession::stateChanged,this,remove); session->apply();
+        } else if(stage==4) {
+            session->selectDisplayTimeout("AC",1200); backend->changed(); baseline.profiles[0].displaySeconds=1800; backend->read(baseline);
+            QVERIFY(session->hasConflict()); connect(session,&SettingsSession::applyFinished,this,remove); session->apply();
+        } else if(stage==5) {
+            session->refresh(); backend->changed();
+            connect(session,&SettingsSession::stateChanged,this,remove); backend->read(baseline);
+        } else {
+            session->selectDisplayTimeout("AC",1200); session->apply(); backend->read(baseline);
+            if(stage==3) {
+                connect(session,&SettingsSession::stateChanged,this,remove);
+                emit backend->operationPending(QStringLiteral("Saving continues in the background."));
+            } else {
+                const auto requested=backend->requested;
+                connect(session,&SettingsSession::applyFinished,this,remove); backend->write(); backend->read(requested);
+            }
+        }
+        QVERIFY(!guard); QVERIFY(!session);
     }
 private:
     PowerPolicySnapshot baseline;

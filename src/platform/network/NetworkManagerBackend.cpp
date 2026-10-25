@@ -1,4 +1,5 @@
 #include "NetworkManagerBackend.h"
+#include "release/LocalRcPolicy.h"
 
 #include <QDBusArgument>
 #include <QDBusMetaType>
@@ -588,6 +589,10 @@ void NetworkManagerBackend::beginChange(const NetworkSnapshot &baseline, const N
     if (m_busy || m_uncertain || m_scanBusy) {
         emit transactionFinished(false, false, m_last, QStringLiteral("A network operation has an unresolved outcome. Further writes are locked until NetworkManager restarts; current state can still be refreshed.")); return;
     }
+    const QString restriction = connectivityRestrictionReason();
+    if (!restriction.isEmpty() && request.action != NetworkRequest::Action::UpdateProfile) {
+        emit transactionFinished(false, false, baseline, restriction); return;
+    }
     QString error;
     if (!NetworkTypes::validateRequest(baseline, request, error)
         || (!request.devicePath.isEmpty() && !numberedPath(request.devicePath, QStringLiteral("Devices")))
@@ -637,6 +642,11 @@ void NetworkManagerBackend::beginChange(const NetworkSnapshot &baseline, const N
             if (activeDevice.isEmpty()) { persist(true); return; }
             m_request.devicePath = activeDevice;
         }
+        // Use the fresh inventory, not the caller's devicePath, to decide
+        // whether an UpdateProfile would affect the current connection.
+        if (!connectivityRestrictionReason().isEmpty()) {
+            finish(false, true, current, connectivityRestrictionReason()); return;
+        }
         if (!current.checkpointAvailable || !permission(current, QStringLiteral("checkpoint-rollback"))
             || !authorized(current, QStringLiteral("network-control"))) {
             finish(false, true, current, QStringLiteral("NetworkManager recovery or network-control permission is unavailable. No connectivity changes were made.")); return;
@@ -655,6 +665,12 @@ void NetworkManagerBackend::beginChange(const NetworkSnapshot &baseline, const N
         }
         createCheckpoint();
     });
+}
+
+QString NetworkManagerBackend::connectivityRestrictionReason() const
+{
+    if (m_options.isolatedFixture && m_options.service.startsWith(QLatin1String("org.example."))) return {};
+    return QString::fromUtf8(release::localRc::connectivityEditsWithheldReason());
 }
 
 void NetworkManagerBackend::createCheckpoint()

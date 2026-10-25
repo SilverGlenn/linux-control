@@ -82,14 +82,16 @@ void FontSettingsPage::updateState()
     const auto p = m_session->stagedPreferences();
     const bool editable = m_session->isReady() && m_session->canApply() && !m_session->isBusy();
     for (int i = 0; i < 6; ++i) {
-        m_fonts[i]->setText(m_session->isReady() ? tr("%1, %2 pt — %3").arg(p.fonts[i].family()).arg(p.fonts[i].pointSizeF()).arg(p.fonts[i].styleName()) : tr("Unavailable"));
+        m_fonts[i]->setText(m_session->isReady() ? tr("%1, %2 pt — %3").arg(p.fonts[i].family()).arg(p.fonts[i].pointSizeF())
+            .arg(p.fonts[i].styleName().isEmpty() ? (p.fonts[i].bold() && p.fonts[i].italic() ? tr("Bold Italic")
+                : p.fonts[i].italic() ? tr("Italic") : p.fonts[i].bold() ? tr("Bold") : tr("Regular")) : p.fonts[i].styleName()) : tr("Unavailable"));
         m_fonts[i]->setEnabled(editable);
     }
     auto update = [editable](QComboBox *combo, const QString &value) {
         const QSignalBlocker blocker(combo); combo->setCurrentIndex(combo->findData(value)); combo->setEnabled(editable);
     };
     update(m_antialias, p.antialias); update(m_hinting, p.hinting); update(m_subpixel, p.subpixel);
-    m_status->setText(m_session->isBusy() ? tr("Working…") : !m_session->isReady() ? tr("Saved font settings are unavailable.")
+    m_status->setText(m_session->isBusy() ? (m_session->pendingMessage().isEmpty() ? tr("Working…") : m_session->pendingMessage()) : !m_session->isReady() ? tr("Saved font settings are unavailable.")
         : m_session->isDirty() ? tr("Your selected fonts and rendering settings have not been applied.") : tr("Showing saved font settings."));
     QString message = m_session->errorText();
     if (m_session->hasConflict()) message += tr("\nYour selection is preserved. Revert reloads saved settings before another Apply.");

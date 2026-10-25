@@ -94,6 +94,8 @@ signals:
     // saved and reloadAcknowledged are deliberately independent. A failed or
     // cancelled reload can leave the file saved without a live acknowledgement.
     void writeFinished(bool saved, bool reloadAcknowledged, bool cancelled, const QString &error);
+    // A slow native save remains active until its actual terminal result.
+    void operationPending(const QString &message);
     void externalChange();
 };
 
@@ -162,4 +164,5 @@ private:
     bool m_applyError = false;
     bool m_reverting = false;
     QString m_writeError;
+    QString m_pendingMessage;
 };

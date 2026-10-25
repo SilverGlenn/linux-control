@@ -4,6 +4,7 @@
 #include "CatalogView.h"
 #include "LinkLabel.h"
 #include "operations/UpdateService.h"
+#include "operations/ControlPanelUpdateService.h"
 #include "IconHelper.h"
 #include "Win7Ui.h"
 #include "SettingsNavigationGuard.h"
@@ -12,6 +13,7 @@
 #include "operations/OperationManager.h"
 #include "packages/ProgramsService.h"
 #include "perf/WeiBenchmark.h"
+#include "release/BuildIdentity.h"
 
 #include <QApplication>
 #include <QScrollArea>
@@ -136,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent, bool enableSounds)
     // Title the main window explicitly rather than via applicationDisplayName,
     // which Qt would otherwise append to every dialog title ("Foo - Control
     // Panel"). With no display name set, dialogs show just their own title.
-    setWindowTitle("Control Panel");
+    setWindowTitle(tr("Control Panel — %1").arg(QString::fromUtf8(release::buildId())));
     setMinimumSize(700, 520);
     resize(1000, 650);
 
@@ -341,6 +343,21 @@ void MainWindow::buildCrumbBar()
         " border-radius: 2px; background: #FFFFFF; }"
         "QLineEdit#controlPanelSearch QToolButton { border: none; border-image: none; background: transparent; }");
     m_searchBox->setClearButtonEnabled(true);
+    auto *buildInfo = new QToolButton;
+    buildInfo->setObjectName(QStringLiteral("controlPanelBuildInfo"));
+    buildInfo->setText(QStringLiteral("?"));
+    buildInfo->setAccessibleName(tr("About this Control Panel build"));
+    buildInfo->setToolTip(QString::fromUtf8(release::versionText()));
+    connect(buildInfo, &QToolButton::clicked, this, [this]() {
+        QMessageBox box(QMessageBox::Information, tr("About Control Panel"),
+            QString::fromUtf8(release::versionText()), QMessageBox::Ok, this);
+        box.setTextFormat(Qt::PlainText);
+        box.setInformativeText(tr("Build: %1\nSource revision: %2\nSource manifest SHA-256: %3")
+            .arg(QString::fromUtf8(release::buildId()), QString::fromUtf8(release::sourceRevision()),
+                 QString::fromUtf8(release::sourceManifestSha256())));
+        box.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+        box.exec();
+    });
     m_searchTimer = new QTimer(this);
     m_searchTimer->setSingleShot(true);
     m_searchTimer->setInterval(180);
@@ -365,6 +382,8 @@ void MainWindow::buildCrumbBar()
     m_searchBox->setFont(searchFont);
 
     layout->addWidget(m_searchBox);
+    layout->addSpacing(4);
+    layout->addWidget(buildInfo);
 }
 
 void MainWindow::setCrumbTrail(const QStringList &trail)
@@ -623,6 +642,8 @@ void MainWindow::showEntry(const QString &entry)
                              Qt::QueuedConnection);
             QObject::connect(wuPage, &LinuxUpdatePage::selectViewClosed,
                              this, &MainWindow::goBack, Qt::QueuedConnection);
+            QObject::connect(wuPage, &LinuxUpdatePage::controlPanelInstallRequested,
+                             this, &MainWindow::requestControlPanelUpdateInstall, Qt::QueuedConnection);
             QObject::connect(wuPage, &QObject::destroyed, this,
                              [this]() { m_updatePage = nullptr; });
             m_scroll->setWidget(wuPage);
@@ -1020,6 +1041,34 @@ bool MainWindow::hasBackgroundWork() const
         || (m_packageSimulation && m_packageSimulation->isBusy())
         || ProgramsService::instance()->isLoading() || ProgramsService::instance()->isActing()
         || PowerProfileService::instance()->isBusy() || WeiBenchmark::instance()->isRunning();
+}
+
+void MainWindow::requestControlPanelUpdateInstall()
+{
+    // Only this explicit action starts the detached installer. Ordinary Close,
+    // navigation, cancelled dialogs and a previous download never schedule it.
+    if (hasBackgroundWork() || m_navigationGuard->pending()) {
+        QMessageBox::information(this, tr("Control Panel update"),
+            tr("Wait for background work to finish before installing the Control Panel update."));
+        return;
+    }
+    bool dirty = currentSettingsSession() && currentSettingsSession()->isDirty();
+    for (const auto &entry : m_settingsSessions) dirty |= entry.session && entry.session->isDirty();
+    dirty |= m_importCoordinator && m_importCoordinator->hasPendingWork();
+    if (dirty) {
+        QMessageBox::information(this, tr("Control Panel update"),
+            tr("Apply or discard your pending changes before choosing Close and install. "
+               "Control Panel will stay open."));
+        return;
+    }
+    QString error;
+    if (!ControlPanelUpdateService::instance()->launchInstaller(&error)) {
+        QMessageBox::information(this, tr("Control Panel update"), error);
+        return;
+    }
+    // The installer still waits for the process-wide shared lock to be released.
+    // Existing closeEvent guards remain authoritative; no force-close is used.
+    close();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "audit_date": "2026-10-17",
-  "freeze_note": "Capability audit maintained through Batch21 native Aero Screen Locking policy/default workflow. All prior664 row IDs, evidence pointers, module statuses and unresolved obligations remain; one bounded workflow extends the inventory. Counts are not unique-setting totals or a completion percentage. Zero whole-module, verified live-write or hardware-exclusion claims.",
-  "source_commit": "280a1bda565faf085df5a48dd9ee03a44d127977",
-  "source_tree_note": "Existing uncommitted Batches1\u201321 preserved. Batch21 records source/private-fixture implementation and inert production discovery; no live preference setters, configure/Notify/reloads, Lock/inhibition, registration/invocation, location/activation, cache rebuild, application launch, privileged appearance helper or live installation. Of51 final fingerprints47match; cached location drift preceded build, other cache/display drift first observed across interrupted build and first probe; transient shortcut-label drift returned to baseline. Three previously unmonitored cache/application files were found at final inventory and preserved; creation time/attribution unverified. Bytes retained privately; attribution/indirect effects unresolved. Full installed-KDE parity remains incomplete.",
+  "audit_date": "2026-10-25",
+  "freeze_note": "Capability inventory maintained through Batch 25 Power Policy file-job lifecycle work. All prior 666 row IDs, evidence pointers, statuses and unresolved obligations remain. Counts are not unique-setting totals or a completion percentage. Zero whole-module, verified live-write or hardware-exclusion claims.",
+  "source_commit": "336bc91882cdab8a1625e95de173160a607974d0",
+  "source_tree_note": "Batches 1\u201324 are committed at source_commit. Batch 25 validation describes the current working tree relative to that checkpoint; private manifests record 410 frozen source/test/build input hashes. Tests use private files, fake providers and private buses, with no live Power Policy or charging setter/reload, power action or live installation. Monitored configuration/cache drift remains unattributed and is retained privately; three charging-policy fingerprints remain unchanged. Earlier source notes are preserved in prior_source_records. Full installed-KDE parity remains incomplete.",
   "baseline": {
     "path": "/home/siru/Projects/linux-control/docs/audits/kde-settings-baseline.json",
     "module_count": 106,
@@ -71,7 +71,7 @@
     {
       "priority": 2,
       "group": "Input and workspace basics",
-      "scope": "Native pointer and keyboard foundations have bounded conditional-provider fixtures. Preserve unresolved workspace bindings, keyboard accessibility, shortcut/default/conflict behavior and physical-device/live-write acceptance. Batches23\u201324 migrate Screen Locking, Night Light and Day and Night file work to value-only workers with app-owned jobs, retained service/activity, common target/global canonical/inode reservations and soft progress. Next migrate Power Policy, Appearance, Aero Effects, Aero Theme, Theme Components, Font and Keyboard and adopt shared ownership; preserve native merge/non-CAS, Notify broadcast and sent-call late-execution limits. Font/Keyboard failed-sync cleanup remains in place. See docs/audits/kconfig-sync-lifecycle.md."
+      "scope": "Native pointer and keyboard foundations have bounded conditional-provider fixtures. Preserve unresolved workspace bindings, keyboard accessibility, shortcut/default/conflict behavior and physical-device/live-write acceptance. Batches 23\u201325 migrate Screen Locking, Night Light, Day and Night and Power Policy file work to value-only workers with app-owned jobs, retained service/activity, common target/global canonical/inode reservations and soft progress. Next migrate Appearance, Aero Effects, Aero Theme, Theme Components, Font and Keyboard and adopt shared ownership; preserve native merge/non-CAS, Notify broadcast and sent-call late-execution limits. Font/Keyboard failed-sync cleanup remains in place. Charging policy requires distinct monitored hardware/persistence evidence. See docs/audits/kconfig-sync-lifecycle.md."
     },
     {
       "priority": 3,
@@ -27708,10 +27708,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.ac.sleep_timeout",
@@ -27795,10 +27813,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.battery.display_timeout",
@@ -27890,10 +27926,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.battery.sleep_timeout",
@@ -27985,10 +28039,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.lowbattery.display_timeout",
@@ -28080,10 +28152,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.lowbattery.sleep_timeout",
@@ -28175,10 +28265,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/tests/display_power_probe.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_kwinoptions.titlebar_double_click",
@@ -42097,10 +42205,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.dim_policy",
@@ -42184,10 +42310,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.display_brightness",
@@ -42271,10 +42415,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.keyboard_brightness",
@@ -42358,10 +42520,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.locked_display_timeout",
@@ -42445,10 +42625,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.lock_before_display_off",
@@ -42532,10 +42730,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.power_button_action",
@@ -42619,10 +42835,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.long_power_button_action",
@@ -42706,10 +42940,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.lid_action",
@@ -42793,10 +43045,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.lid_external_monitor",
@@ -42880,10 +43150,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.sleep_mode",
@@ -42967,10 +43255,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.battery_levels",
@@ -43054,10 +43360,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.critical_battery_action",
@@ -43141,10 +43465,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_powerdevilprofilesconfig.native.explicit_key_defaults_operations",
@@ -43228,10 +43570,28 @@
         },
         {
           "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicyFields.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp"
+        },
+        {
+          "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp"
         }
       ],
       "priority": "P1",
-      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. This cross-key workflow spans17 profile key kinds on3 sources plus3global keys, not54 additional unique-setting counts."
+      "note": "Batches17\u201318 bounded conditional native Aero source/fixture scope. Per-key current/default knowledge and effective/local/inherited/global provenance preserve raw unsupported or unknown values. Supported explicit Set remains available independently when the daemon fallback is unknown; choosing a same-number fallback can establish a local override. Native RestoreDefault follows client default proof, inherited/global/revert/no-op semantics with reviewed scope and stale draft guard. Per-key policy/capabilities, owner/revision preflight, whole battery-pair validity and operation-aware acknowledged readback guard success; uncertain/failed Revert outcomes retain the draft. Custom timeouts follow native minima through604800seconds. Further providers and real effects/persistence remain unverified. This cross-key workflow spans17 profile key kinds on3 sources plus3global keys, not54 additional unique-setting counts. Batch 25 moves native file/schema/process inspection, mutation/sync/cleanup/readback to value-only workers with app-owned daemon/activity and shared canonical/inode target/global reservations. Soft pending preserves busy drafts; cancellation retains ownership until actual native synchronization completes. Final full-source receipt and owner/capability guards reject observed drift before reload dispatch. Isolated fixtures cover navigation/session destruction, alias competition, native lock/failure cleanup, cancellation and reentrant observers. Saved readback and reload acknowledgement do not prove physical effects or persistence; the 17 profile and three low/critical battery warning/action preferences are separate from charging limits, which validation preserves."
     },
     {
       "id": "kcm_nightlight.native.filter_configuration_and_preview",
@@ -43820,7 +44180,7 @@
     },
     {
       "path": "/home/siru/Projects/linux-control/docs/kde-settings-replacement-plan.md",
-      "sha256": "da9ab29cde2eee1b86dc7a36f0cd6ec87e6000e58923fe1fe4af25dd9e41c1e2",
+      "sha256": "f8c795c0e34e7af898ee759e16b26af40d528aeadc39a548f52ce866eb0b8331",
       "kind": "project_source_or_recorded_evidence"
     },
     {
@@ -44020,17 +44380,17 @@
     },
     {
       "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicySettings.h",
-      "sha256": "b8e6c5a5e57740542b15886cdd74f64bae51817489dba4870134a811f67934fc",
+      "sha256": "1fc366cd538bb3c5ddd103a982cb81b9c21d03533b0dd1cbcc3af21de89f7572",
       "kind": "project_source_or_recorded_evidence"
     },
     {
       "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.cpp",
-      "sha256": "bf2c14d3650312b39e18112144ca511eba71bd91f8985bb94b42a965d1e98b5a",
+      "sha256": "3f92a51194e7b63a42ab6b3d7afaf782a6e5c4bcbae292df701854978eeae8fc",
       "kind": "project_source_or_recorded_evidence"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/power_policy_backend_test.cpp",
-      "sha256": "3b9ecfb5d6d04cface4138a6ccd146117310028ed26dc0b2b7a44b71ab2b84ef",
+      "sha256": "e9fc2966d2f329223cb7af3e49a7f313f8a068926f135fff1a8ec3fad9f5129f",
       "kind": "project_source_or_recorded_evidence"
     },
     {
@@ -44486,12 +44846,12 @@
     {
       "path": "/home/siru/Projects/linux-control/CMakeLists.txt",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "bc57056afe3f2d7a974fa5d5babf1467e1e769bad76c72393e58eaa08b8d90b8"
+      "sha256": "74e8c0e56752a6fe54a6dfb23cae1286e86bb61ee28010792cbd89bd41d47a11"
     },
     {
       "path": "/home/siru/Projects/linux-control/README.md",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "dd9cd72a2eadedb9183c874b7c96b94cc75dd947a12920d52b3c7afd554854a8"
+      "sha256": "d55bfc8924278061db54b00b5e19e097e0a9d49c1c5d3e9d828764549fed3a67"
     },
     {
       "path": "/home/siru/Projects/linux-control/src/ui/ActionCatalog.cpp",
@@ -44526,7 +44886,7 @@
     {
       "path": "/home/siru/Projects/linux-control/tests/kde_integration_test.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "be27d915c54af9dec8dfeef706cc41c819f9288427e209b7f603e65fee21f928"
+      "sha256": "5c70feaeee7965e25685202c750d8c256c19aed803d00580741ec5a2ed2900d8"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/action_catalog_test.cpp",
@@ -44606,7 +44966,7 @@
     {
       "path": "/home/siru/Projects/linux-control/docs/kde-parity-status.md",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "6b71181b112065f852af4852adbc55bd6c95cc54807f4355c2f7072c36bde44d"
+      "sha256": "ee13346d63f145da7205baf887d9bd06055c4f0e91b7374c9565f9e3712e6c3f"
     },
     {
       "path": "/home/siru/Projects/linux-control/build/batch14-validation/full-tests.log",
@@ -44801,22 +45161,22 @@
     {
       "path": "/home/siru/Projects/linux-control/src/settings/PowerPolicySettings.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "ee45f606bbadd4e294cde20b3544e9f0b340bc01c7096ad3f481c83f8d0a6f26"
+      "sha256": "fdd80008a13e3ff50688c38471baf3d250c187730a238e33f9484780eb119e91"
     },
     {
       "path": "/home/siru/Projects/linux-control/src/ui/pages/PowerOptionsPage.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "bff79349a893b3e415b58883f7fc7ebe3912cc277dc604ae8c90a33799c48d5e"
+      "sha256": "c7bead9165ab3d803ba981417c68738f7aefaac9e717c48af262fc1523ef357c"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/power_policy_dbus_test.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "73b9650a5097c12ac3887843ab59c49fc7d11e2bc705ece5b1b53369fc307506"
+      "sha256": "d4385e74db289c2f6ae6bdc83ea50f6daa84e27734cc4051eb4d34c0104d6b8c"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/power_policy_test.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "b04692597744074ccc8897b3c2f1f495b43e4e31b4e99fc434ee87783bcdc894"
+      "sha256": "0a84ccf3505a178d1e6a4e8ab980b766c0f94d645e12304bbbf30814a2bdbcb4"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/power_policy_page_test.cpp",
@@ -45301,7 +45661,7 @@
     {
       "path": "/home/siru/Projects/linux-control/docs/audits/kconfig-sync-lifecycle.md",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "43e690cf60a1c895aec051a2564965ed6f08cc95150eab90ee112afa1f8d164e"
+      "sha256": "d5882debd8230089dfdf28d048be890bfd3948d4d341dd7949e146436b16030f"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/screen_lock_async_test.cpp",
@@ -45336,7 +45696,7 @@
     {
       "path": "/home/siru/Projects/linux-control/tests/settings_file_jobs_integration_test.cpp",
       "kind": "project_source_or_recorded_evidence",
-      "sha256": "6f7dd77959088f4001a1ecaa73b8861d7073c2b911318a0d92f577939e3481cc"
+      "sha256": "9e1c7a0cacf9c5eac300ef737e380bcf8ca4f05ff9c28a7ddc57c7c3b73c0088"
     },
     {
       "path": "/home/siru/Projects/linux-control/tests/night_light_async_test.cpp",
@@ -45347,6 +45707,21 @@
       "path": "/home/siru/Projects/linux-control/tests/night_time_async_test.cpp",
       "kind": "project_source_or_recorded_evidence",
       "sha256": "3efa676093335c3fa10b4f8efd610a852a65576de8e6711e55c9dd831f617f28"
+    },
+    {
+      "path": "/home/siru/Projects/linux-control/docs/kde-batch25-power-file-jobs.md",
+      "kind": "project_source_or_recorded_evidence",
+      "sha256": "45ae519c7f2e62d13ad4d301c67455af3ad9457fd37e06b8ba796b40a5689ad9"
+    },
+    {
+      "path": "/home/siru/Projects/linux-control/src/platform/kde/PowerPolicyBackend.h",
+      "kind": "project_source_or_recorded_evidence",
+      "sha256": "3b109fd8abfc6170663120dcfec321d8dc923c96b1f1a3df8d0a12fed10476a3"
+    },
+    {
+      "path": "/home/siru/Projects/linux-control/tests/power_policy_async_test.cpp",
+      "kind": "project_source_or_recorded_evidence",
+      "sha256": "bb50572868efd1784887a219d28e7e847df6008597804a3bde72f9f0e4bef0d4"
     }
   ],
   "limitations": [
@@ -45365,85 +45740,38 @@
     "Batch19 bounded native Aero Night Light filter and preview source/fixture scope. Four independent typed Set/RestoreDefault operations preserve raw values, native enum storage, editor-clamped no-op defaults, local/system/user-global provenance and policy. Owner+epoch/schema preflight, exact saved readback, native Notify and conditional public runtime observations remain distinct; no causal all-temperature reload acknowledgement or physical effect proof exists. Explicit temporary preview has global ownership limits, uncertain transport/late-execution behavior and bounded local tracking; no live preview/write acceptance is claimed. Separate kcm_nighttime schedule/location forms and linked Configure action remain incomplete. Native preview15-second expiry starts after execution; transport timeout cannot cancel an already queued call. Local tracking expiry is not verified physical cleanup.",
     "Batch22 has per-file atomic rename and guarded durable-journal recovery, not cross-file atomic visibility or executed OS-crash durability. Only already-public fixed assets may enter its public read-only recovery record. Host assets are root-owned/trusted; editing remains read-only pending trusted system helper installation. Initial sandbox UID65534 observations reflect root-ID mapping, confirmed by paired metadata. Actual source/binary equivalence, authorization, greeter/locker rendering/adoption and sign-in persistence are unverified. The native KCM dirty-copyFrom behavior is not used as a passive reader or duplicated as effective SDDM semantics.",
     "Batch23 bounds responsive Screen Locking file jobs and failed-sync cleanup. Native KConfig still merges disk entries after its lock wait; internal file reservations do not establish CAS or cross-file atomicity and currently cover only this Screen Locking provider. A mutating native job can conservatively refuse another Screen Locking admission while identity separation is unproved. Other synchronous writers and shared cross-provider reservations need migration. A sent configure request can outlive a transport timeout; physical effects and persistence remain unverified.",
-    "Batch24 supersedes Batch23 provider-local reservations for Screen Locking, Night Light and Day and Night. Shared registry admission covers canonical/inode target and user kdeglobals aliases, original/replacement identities and observed mutation epochs; it coordinates participating app jobs only. Native sync merges after locking and can broadcast Notify after partial failure or owner replacement; no CAS, cross-file atomicity or causal adoption is established. Other synchronous writers still need migration. Retired unsent preview work cannot dispatch; already-sent native global preview/Stop execution and expiry remain uncertain. Full parity and live acceptance remain open."
+    "Batch24 supersedes Batch23 provider-local reservations for Screen Locking, Night Light and Day and Night. Shared registry admission covers canonical/inode target and user kdeglobals aliases, original/replacement identities and observed mutation epochs; it coordinates participating app jobs only. Native sync merges after locking and can broadcast Notify after partial failure or owner replacement; no CAS, cross-file atomicity or causal adoption is established. Other synchronous writers still need migration. Retired unsent preview work cannot dispatch; already-sent native global preview/Stop execution and expiry remain uncertain. Full parity and live acceptance remain open.",
+    "Batch 25 extends shared file ownership to Power Policy and guards its unsent reload with fresh provider/capability identity and full-source receipts. Cancellation cannot stop an already-running native sync or retract a sent reload. Appearance/theme/font/keyboard writers still need worker/shared-reservation migration. The October 18 charging incident original actor remains unproved; October 25 passive history and policy reads confirm the repaired 80 percent conservation behavior. Three hardware/persistence policy fingerprints are included in Batch 25 validation. No new whole-module, live-write or hardware-exclusion credit is inferred."
   ],
   "latest_validation": {
-    "fixture_suites": 100,
-    "elapsed_seconds": 181.9,
+    "fixture_suites": 101,
+    "elapsed_seconds": 191.94,
     "audio_read": "Verified installed PipeWire 1.6.2 discovery; no audio writes, playback or capture.",
     "input_read": "Verified KWin 6.6.6 discovery: four physical pointer devices including one touchpad; repeated reads stable; no setters.",
-    "live_write_acceptance": "unverified; no live setting setters, configure/Notify/reload, preview/Stop, Lock/inhibition, location activation/acquisition, registration/invocation, administrative helper/authorization or installation",
+    "live_write_acceptance": "Unverified. Validation uses private files, fake providers and private buses. No live power/profile/charging setter, reload, authorization, suspend or display action.",
     "keyboard_read": "KWin6.6.6 current English(Colemak) layout;184 models,104 layouts,23 option groups; stable repeated reads; ignored Wayland loop read-only; no setters or notifications.",
     "default_programs_read": "205 desktop entries,1018 MIME names,69 valid saved preferences; stable repeated reads; production provider writable outside sandbox; no launches/cache rebuilds/writes.",
     "live_configuration_fingerprints": {
-      "monitored": 56,
-      "unchanged": 54,
+      "monitored": 59,
+      "unchanged": 57,
       "changed_paths": [
-        "/home/siru/.config/kwinoutputconfig.json",
+        "/home/siru/.cache/ksycoca6_en-PH_wvt24A68eF_+jhq9ocC4HnKMwT8=",
         "/home/siru/.local/state/knighttimestaterc"
       ],
-      "ever_changed_paths": [
-        "/home/siru/.local/state/knighttimestaterc",
-        "/home/siru/.config/kwinoutputconfig.json"
-      ],
       "first_observed_change": {
-        "/home/siru/.local/state/knighttimestaterc": "before-build",
-        "/home/siru/.config/kwinoutputconfig.json": "before-final-build"
+        "/home/siru/.local/state/knighttimestaterc": "during-review",
+        "/home/siru/.cache/ksycoca6_en-PH_wvt24A68eF_+jhq9ocC4HnKMwT8=": "during-build"
       },
-      "probe_intervals": [
-        {
-          "provider": "night-light",
-          "probe": 1,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        },
-        {
-          "provider": "night-light",
-          "probe": 2,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        },
-        {
-          "provider": "night-time",
-          "probe": 1,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        },
-        {
-          "provider": "night-time",
-          "probe": 2,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        },
-        {
-          "provider": "screen-lock",
-          "probe": 1,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        },
-        {
-          "provider": "screen-lock",
-          "probe": 2,
-          "fingerprint_paths": 56,
-          "changed_fingerprints": [],
-          "inventory_paths": 56,
-          "inventory_changed_paths": []
-        }
+      "attribution": "Observed changes remain unattributed; private before/after bytes retained. Configuration fingerprints do not exclude indirect effects.",
+      "charging_policy_paths": [
+        "/sys/bus/platform/devices/VPC2004:00/conservation_mode",
+        "/sys/class/power_supply/BAT0/charge_types",
+        "/var/lib/upower/charging-threshold-status"
       ],
-      "attribution": "Changes are preserved privately and remain unattributed; passive probe intervals preserve all monitored fingerprints and expanded inventory. Trace scope is probe process/children file operations only; indirect effects are not excluded. No live write acceptance."
+      "charging_policy_unchanged": true
     },
-    "install": "DESTDIR only; normal/stripped eight-file installs verified, final helper/policy approval hashes match.",
-    "aero_ui": "Two final fake-provider Aero pending-save captures visually inspected; busy/dirty state and disabled Apply/Revert asserted.",
+    "install": "Normal and stripped DESTDIR installs only; eight files each, final helper/policy hashes match approval manifests. No live installation.",
+    "aero_ui": "Final fake-provider Power Options pending-save capture inspected; actual changed draft, busy progress and disabled Apply/Revert asserted.",
     "shortcuts_read": "277 actions across22 components; stable repeated read-only snapshots with writable capability. No registration/invocation/reload or setting writes.",
     "keyboard_preview": "In-process installed XKB compilation and PC geometry checked by native offscreen fixtures; no active layout changes.",
     "standard_shortcuts_read": {
@@ -45490,7 +45818,7 @@
       "commands": 0,
       "interfaceSignature": "KGlobalAccel/native-desktop-component/v6.6.5/v2/sdk6.24.0/plasma6.6.6/kwin-wayland6.6.6/proc-exe-protected/pid1779/dev66306/ino16647258/library66306:16667173"
     },
-    "validation_artifacts": "/home/siru/Projects/linux-control/build/batch24-validation",
+    "validation_artifacts": "/home/siru/Projects/linux-control/build/batch25-validation",
     "display_power_read": {
       "success": true,
       "stable": true,
@@ -45822,7 +46150,7 @@
         "scope": "Probe process/children file operations only; indirect effects not excluded."
       }
     },
-    "focused_fixture_suites": 15,
+    "focused_fixture_suites": 10,
     "focused_elapsed_seconds": 12.66,
     "aero_login_read": {
       "stable_snapshots": true,
@@ -45848,18 +46176,22 @@
       "sandbox_uid_gid": "65534:65534",
       "interpretation": "Paired metadata proves root-ID mapping in sandbox. Host fixed assets are trusted, not nobody-owned. New system helper/policy/approval is not installed; editor remains read-only. No ownership changed."
     },
-    "focused_scope": "Before the optional capture-only correction; final full suite reruns all96 against final403 frozen source/test/build inputs.",
+    "focused_scope": "Final frozen Power Policy/controller/wire/worker/page and cross-provider/navigation suites.",
     "save_lifecycle": {
-      "worker_file_work": "Screen Locking, Night Light and Day and Night value-only workers; app-owned read/write jobs, retained service/activity, shared canonical/inode target/global reservations and soft pending progress",
-      "preview_pre_dispatch_retirement": "Unsent schema checks retired on Stop/expiry/provider change/accepted Apply/destruction; awaiting observers terminalized without remote-stop claims, retired replies ignored, newer reentrant requests preserved. Known-unsent destruction sends no global Stop. Sent/native-global limitations remain.",
-      "cross_provider_fixture": "Every ordered adjacent provider pair competes on one private target and on distinct targets sharing private kdeglobals; first session destroyed during held write; second requires successful Revert before retry; foreign entries preserved.",
-      "remaining": "Power Policy, Appearance, Aero Effects, Aero Theme, Theme Components, Font and Keyboard still need worker/shared-reservation migration. Native post-lock merge/non-CAS and sent-D-Bus late execution remain limits. Full parity and live effects/persistence incomplete.",
-      "frozen_inputs": 409,
-      "native_screen_lock_wait": "Private native lock contention/terminal-failure regression retained; approximately45seconds, no retry after unlock."
+      "power_policy": "Value-only file/schema/process workers, app-owned read/write jobs with retained daemon/activity, common target/global canonical/inode reservations, soft pending deadline, honest cancellation and guarded unsent reload.",
+      "shared_providers": [
+        "Screen Locking",
+        "Night Light",
+        "Day and Night",
+        "Power Policy"
+      ],
+      "remaining": "Appearance, Aero Effects, Aero Theme, Theme Components, Font and Keyboard worker/reservation migrations. Native post-lock merge/non-CAS, sent-call late execution, physical effects/persistence and full parity remain limits.",
+      "cross_provider_cases": 18,
+      "native_wire_guards": "Receipt failure, owner/capability change, cancellation, deletion and duplicate completion on private buses.",
+      "controller": "Phase-scoped progress, retained busy draft, no explicit error erased by matching readback, deletion-safe outward signals."
     },
     "capture_sha256": {
-      "day-night-saving-continues.png": "caf3a2babbbb64eda9cb7c6cb20c18d03e0dd9d37aa00f69e579ab4f1902b318",
-      "night-light-saving-continues.png": "877b63ab8c2d9874466bf779cef8cdda722463117c9417ece5d52adf85c659e9"
+      "power-saving-continues.png": "3ce59fb591b4f4d2d06a53f7a93391449ac6193bac24be6528e022151b533ead"
     },
     "initial_focused_elapsed_seconds": 32.94,
     "shared_file_provider_reads": {
@@ -45948,6 +46280,38 @@
         }
       }
     },
-    "final_focused_elapsed_seconds": 37.26
-  }
+    "final_focused_elapsed_seconds": 22.84,
+    "validation_date": "2026-10-25",
+    "retained_live_getter_evidence": "Earlier live getter snapshots retained in the backlog remain historical evidence; Batch 25 repeats no native Power Policy probe. Charging follow-up uses passive sysfs/persistence reads.",
+    "frozen_inputs": 410,
+    "charging_repair_followup": {
+      "date": "2026-10-25",
+      "conservation_mode": 1,
+      "charge_type": "Long_Life",
+      "upower_saved_preference": 1,
+      "history": "October19\u201324 max80percent with pending-charge observations near79\u201380; policy remains enabled after October25 reboot.",
+      "original_disabling_actor": "Unproved; previous validation lacked hardware state baseline.",
+      "scope": "Passive reads only; no repair/setter was repeated during Batch 25.",
+      "observed_during_build": {
+        "observed_at": "2026-10-25T13:14:04.048481+08:00",
+        "capacity_percent": 79,
+        "status": "Not charging",
+        "charge_types": "Fast Standard [Long_Life]",
+        "conservation_mode": 1,
+        "ac_online": {
+          "ADP0": "1",
+          "ucsi-source-psy-USBC000:001": "1"
+        },
+        "method": "Passive sysfs reads only"
+      }
+    }
+  },
+  "prior_source_records": [
+    {
+      "audit_date": "2026-10-17",
+      "freeze_note": "Capability audit maintained through Batch21 native Aero Screen Locking policy/default workflow. All prior664 row IDs, evidence pointers, module statuses and unresolved obligations remain; one bounded workflow extends the inventory. Counts are not unique-setting totals or a completion percentage. Zero whole-module, verified live-write or hardware-exclusion claims.",
+      "source_commit": "280a1bda565faf085df5a48dd9ee03a44d127977",
+      "source_tree_note": "Existing uncommitted Batches1\u201321 preserved. Batch21 records source/private-fixture implementation and inert production discovery; no live preference setters, configure/Notify/reloads, Lock/inhibition, registration/invocation, location/activation, cache rebuild, application launch, privileged appearance helper or live installation. Of51 final fingerprints47match; cached location drift preceded build, other cache/display drift first observed across interrupted build and first probe; transient shortcut-label drift returned to baseline. Three previously unmonitored cache/application files were found at final inventory and preserved; creation time/attribution unverified. Bytes retained privately; attribution/indirect effects unresolved. Full installed-KDE parity remains incomplete."
+    }
+  ]
 }

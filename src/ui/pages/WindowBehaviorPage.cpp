@@ -115,7 +115,7 @@ void WindowBehaviorPage::updateState()
     if (m_session->isDirty())
         status += tr("\nSelected: %1 (not applied)").arg(name(m_session->stagedAction()));
     if (m_session->isBusy())
-        status += tr("\nWorking…");
+        status += QLatin1Char('\n') + (m_session->pendingMessage().isEmpty() ? tr("Working…") : m_session->pendingMessage());
     m_status->setText(status);
     QString message = m_session->errorText();
     if (m_session->hasConflict()) {

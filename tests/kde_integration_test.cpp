@@ -505,6 +505,9 @@ private slots:
         inject(window, new PowerOptionsPage(new QScrollArea, &session, &profiles, nullptr), &session, PageId::PowerOptions);
         QCOMPARE(window.currentSettingsSession(), &session);
         session.selectDisplayTimeout(QStringLiteral("AC"), 300); session.apply();
+        emit backend->operationPending(QStringLiteral("Saving Power Options continues in the background."));
+        QVERIFY(session.isDirty()); QVERIFY(session.errorText().isEmpty());
+        QVERIFY(window.findChild<QLabel *>(QStringLiteral("powerPolicyStatus"))->text().contains(QStringLiteral("continues")));
         QVERIFY(session.isBusy()); QVERIFY(window.hasBackgroundWork());
         // Force view destruction to verify ownership independently of the guard.
         window.m_scroll->setWidget(new QWidget);
@@ -908,6 +911,24 @@ private slots:
             QTest::qWait(50); window.m_scroll->verticalScrollBar()->setValue(window.m_scroll->verticalScrollBar()->maximum()); QTest::qWait(150);
             QVERIFY(window.grab().save(output + QStringLiteral("/night-light-saving-continues.png"))); backend->finish(); QTRY_VERIFY(!session.isBusy()); QVERIFY(!session.isDirty());
         }
+    }
+    void capturePowerPendingSaveIfRequested() {
+        const auto output=qEnvironmentVariable("LINUX_CONTROL_UI_CAPTURE_DIR");
+        if(output.isEmpty()) QSKIP("Optional Power Options pending-save Aero capture");
+        QVERIFY(QDir().mkpath(output)); Aero::registerStylesheet(qApp);
+        auto *backend=new IntegrationPowerBackend; PowerPolicySettings session(backend);
+        PowerProfileService profiles(std::make_unique<IntegrationPowerProfiles>());
+        QTRY_VERIFY(!session.isBusy()); MainWindow window(nullptr,false); window.resize(1120,980); window.show();
+        inject(window,new PowerOptionsPage(new QScrollArea,&session,&profiles,nullptr),&session,PageId::PowerOptions);
+        session.selectDisplayTimeout(QStringLiteral("AC"),1200); session.apply();
+        emit backend->operationPending(QStringLiteral("Saving Power Options is taking longer and continues in the background. Wait for completion before retrying or closing."));
+        QVERIFY(session.isBusy()); QVERIFY(session.isDirty()); QVERIFY(session.errorText().isEmpty());
+        QVERIFY(window.findChild<QLabel *>(QStringLiteral("powerPolicyStatus"))->text().contains(QStringLiteral("continues")));
+        QVERIFY(!window.findChild<QPushButton *>(QStringLiteral("powerPolicyApply"))->isEnabled());
+        QVERIFY(!window.findChild<QPushButton *>(QStringLiteral("powerPolicyRevert"))->isEnabled());
+        QTest::qWait(50); window.m_scroll->verticalScrollBar()->setValue(window.m_scroll->verticalScrollBar()->maximum()); QTest::qWait(150);
+        QVERIFY(window.grab().save(output+QStringLiteral("/power-saving-continues.png")));
+        backend->finish(); QTRY_VERIFY(!session.isBusy()); QVERIFY(!session.isDirty());
     }
     void captureNightTimeIfRequested() {
         const auto output = qEnvironmentVariable("LINUX_CONTROL_UI_CAPTURE_DIR");

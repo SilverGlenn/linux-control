@@ -59,6 +59,7 @@ QString DisplaySettings::stagedMode() const
 
 QString DisplaySettings::selectedSupportText() const
 {
+    if (!m_backend->editRestrictionReason().isEmpty()) return m_backend->editRestrictionReason();
     if (!rollbackAvailable()) return QStringLiteral("The display rollback helper is unavailable. Display changes are disabled.");
     if (!m_ready) return QStringLiteral("The current display configuration could not be read.");
     QString error;
@@ -68,6 +69,7 @@ QString DisplaySettings::selectedSupportText() const
 
 QString DisplaySettings::supportText() const
 {
+    if (!m_backend->editRestrictionReason().isEmpty()) return m_backend->editRestrictionReason();
     if (!rollbackAvailable()) return selectedSupportText();
     if (!m_ready) return QStringLiteral("The current display configuration could not be read.");
     QString error;
@@ -165,10 +167,10 @@ void DisplaySettings::apply()
 {
     if (m_busy) return;
     QString reason;
-    if (!m_ready || m_conflict || !rollbackAvailable()
+    if (!m_ready || m_conflict || !m_backend->editRestrictionReason().isEmpty() || !rollbackAvailable()
         || !DisplayProtocol::canChange(m_snapshot, m_staged, reason)) {
         m_error = m_conflict ? QStringLiteral("The display configuration changed. Revert to reload it before applying.")
-            : !rollbackAvailable() ? supportText() : reason.isEmpty()
+            : (!m_backend->editRestrictionReason().isEmpty() || !rollbackAvailable()) ? supportText() : reason.isEmpty()
                 ? QStringLiteral("The current display configuration could not be read.") : reason;
         emit applyFinished(false); emit stateChanged();
         return;

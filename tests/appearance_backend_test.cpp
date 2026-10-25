@@ -7,6 +7,7 @@
 #include <KConfig>
 #include <KConfigGroup>
 #include "platform/kde/AppearanceBackend.h"
+#include "operations/OperationManager.h"
 
 class FakeAppearanceReload : public AppearanceReloadService {
 public:
@@ -34,12 +35,12 @@ private slots:
         reload = new FakeAppearanceReload;
         backend = new KdeAppearanceBackend(path, reload);
     }
-    void cleanup() { delete backend; }
+    void cleanup() { delete backend; QTRY_VERIFY_WITH_TIMEOUT(!OperationManager::instance()->hasActiveJobs(), 15000); }
     void defaultReadCreatesNoOverride()
     {
         QSignalSpy read(backend, &AppearanceBackend::readFinished);
         backend->readCurrent();
-        QCOMPARE(read.size(), 1);
+        QTRY_COMPARE(read.size(), 1);
         QVERIFY(read[0][0].toBool());
         QCOMPARE(qvariant_cast<AppearanceState>(read[0][1]).doubleClickAction, "Maximize");
         QVERIFY(!QFile::exists(path));
@@ -61,6 +62,7 @@ private slots:
         QCOMPARE(changes.size(), 2); // Finished signal and fallback never double-complete.
         QSignalSpy read(&isolated, &AppearanceBackend::readFinished);
         isolated.readCurrent();
+        QTRY_COMPARE(read.size(), 1);
         const auto state = qvariant_cast<AppearanceState>(read[0][1]);
         QVERIFY(!state.reloadAvailable);
         QVERIFY(!state.canApply());
@@ -71,7 +73,7 @@ private slots:
         put("[Windows]\nTitlebarDoubleClickCommand=Maximize\nFocusPolicy=FocusFollowsMouse\n[Unrelated]\nValue=keep\n");
         QSignalSpy finished(backend, &AppearanceBackend::writeFinished);
         backend->writeAction("Maximize", "Minimize");
-        QCOMPARE(finished.size(), 1);
+        QTRY_COMPARE(finished.size(), 1);
         QVERIFY(finished[0][0].toBool());
         QCOMPARE(reload->requests, QStringList{"Minimize"});
         KConfig config(path, KConfig::SimpleConfig);
@@ -84,9 +86,11 @@ private slots:
         put("[Windows]\nTitlebarDoubleClickCommand[$i]=Maximize\n");
         QSignalSpy read(backend, &AppearanceBackend::readFinished);
         backend->readCurrent();
+        QTRY_COMPARE(read.size(), 1);
         QVERIFY(!qvariant_cast<AppearanceState>(read[0][1]).writable);
         QSignalSpy finished(backend, &AppearanceBackend::writeFinished);
         backend->writeAction("Maximize", "Nothing");
+        QTRY_COMPARE(finished.size(), 1);
         QVERIFY(!finished[0][0].toBool());
         QVERIFY(reload->requests.isEmpty());
         QVERIFY(contents().contains("TitlebarDoubleClickCommand[$i]=Maximize"));
@@ -96,17 +100,22 @@ private slots:
         put("[Windows]\nTitlebarDoubleClickCommand=Maximize\n");
         const QByteArray before = contents();
         reload->available = false;
+        QSignalSpy finished(backend, &AppearanceBackend::writeFinished);
         backend->writeAction("Maximize", "Minimize");
+        QTRY_COMPARE(finished.size(), 1);
         QCOMPARE(contents(), before);
         reload->available = true;
         backend->writeAction("Maximize", "Close");
+        QTRY_COMPARE(finished.size(), 2);
         QCOMPARE(contents(), before);
         QVERIFY(reload->requests.isEmpty());
     }
     void immediatePreWriteCheckProtectsExternalEdit()
     {
         put("[Windows]\nTitlebarDoubleClickCommand=Nothing\n");
+        QSignalSpy finished(backend, &AppearanceBackend::writeFinished);
         backend->writeAction("Maximize", "Minimize");
+        QTRY_COMPARE(finished.size(), 1);
         QVERIFY(reload->requests.isEmpty());
         QVERIFY(contents().contains("TitlebarDoubleClickCommand=Nothing"));
     }
@@ -115,10 +124,12 @@ private slots:
         reload->success = false;
         QSignalSpy finished(backend, &AppearanceBackend::writeFinished);
         backend->writeAction("Maximize", "Minimize");
+        QTRY_COMPARE(finished.size(), 1);
         QVERIFY(!finished[0][0].toBool());
         QVERIFY(finished[0][1].toString().contains("Saved"));
         QSignalSpy read(backend, &AppearanceBackend::readFinished);
         backend->readCurrent();
+        QTRY_COMPARE(read.size(), 1);
         QCOMPARE(qvariant_cast<AppearanceState>(read[0][1]).doubleClickAction, "Minimize");
     }
     void atomicReplacementRemainsWatched()
@@ -132,6 +143,7 @@ private slots:
         QTRY_VERIFY(!changed.isEmpty());
         QSignalSpy read(backend, &AppearanceBackend::readFinished);
         backend->readCurrent();
+        QTRY_COMPARE(read.size(), 1);
         QCOMPARE(qvariant_cast<AppearanceState>(read[0][1]).doubleClickAction, "Minimize");
     }
     void runtimeDiagnosticParserIsBoundedAndVersionPinned()

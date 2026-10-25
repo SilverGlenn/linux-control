@@ -7,7 +7,15 @@
 #include <QTemporaryDir>
 #include <memory>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "platform/shortcuts/StandardShortcutsBackend.h"
+#include "platform/apps/DefaultAppsBackend.h"
+#include "operations/OperationManager.h"
+#include <QScopeGuard>
+#include <QThread>
+#include <QDir>
+#include <QTimer>
+#include <atomic>
 
 namespace {
 StandardShortcutsBackendOptions options(QTemporaryDir &dir)
@@ -158,6 +166,41 @@ private slots:
         QCOMPARE(qvariant_cast<ShortcutsOutcome>(reply[1]), ShortcutsOutcome::Partial);
         QCOMPARE(read(backend).find(id)->current, unusual()); QVERIFY(reply[3].toString().contains(QStringLiteral("saved")));
     }
+    void terminalDeliveryStopsOldJobProgressBeforeNestedEvents() {
+        QTemporaryDir dir; auto o=options(dir); o.softDeadlineMs=100;
+        KdeStandardShortcutsBackend backend(o); const auto initial=read(backend);
+        QSignalSpy pending(&backend,&ShortcutsBackend::operationPending),done(&backend,&ShortcutsBackend::writeFinished);
+        bool stable=false;
+        connect(&backend,&ShortcutsBackend::writeFinished,this,[&] {
+            const int before=pending.size(); QTest::qWait(150); stable=pending.size()==before;
+        });
+        backend.writeChanges(69,initial,{{identity(initial,QStringLiteral("Open")),unusual()}});
+        QTRY_COMPARE(done.size(),1); QVERIFY(stable);
+    }
+    void sameByteForeignReplacementDuringRetentionNeverBecomesOwnedRollback() {
+        QTemporaryDir dir; auto o=options(dir); const auto system=dir.filePath(QStringLiteral("policy"));
+        save(system,"[General]\nPolicy=before\n"); o.systemConfigs={system};
+        save(o.config,"[General]\nOriginal=retained\n");
+        struct Gate { QSemaphore entered,release; }; const auto gate=std::make_shared<Gate>();
+        const auto release=qScopeGuard([gate] { gate->release.release(); });
+        o.afterReplaceBeforeRetention=[gate] { gate->entered.release(); gate->release.acquire(); };
+        int notifications=0; o.notify=[&notifications](const QByteArrayList &,QString &) { ++notifications; return true; };
+        KdeStandardShortcutsBackend backend(o); const auto initial=read(backend);
+        QSignalSpy done(&backend,&ShortcutsBackend::writeFinished);
+        backend.writeChanges(70,initial,{{identity(initial,QStringLiteral("Open")),unusual()}});
+        QTRY_VERIFY(gate->entered.available()>0);
+        const auto written=data(o.config); const auto nativeAlias=dir.filePath(QStringLiteral("native-written-inode"));
+        QVERIFY(QFile::rename(o.config,nativeAlias)); save(o.config,written);
+        struct stat foreign{}; QCOMPARE(::stat(QFile::encodeName(o.config).constData(),&foreign),0);
+        // With a receipt sampled after the bridge this policy change would
+        // trigger rollback over the same-byte foreign replacement.
+        save(system,"[General]\nPolicy=changed-externally\n"); gate->release.release();
+        QTRY_COMPARE(done.size(),1); QCOMPARE(qvariant_cast<ShortcutsOutcome>(done[0][1]),ShortcutsOutcome::Uncertain);
+        struct stat after{}; QCOMPARE(::stat(QFile::encodeName(o.config).constData(),&after),0);
+        QCOMPARE(after.st_dev,foreign.st_dev); QCOMPARE(after.st_ino,foreign.st_ino);
+        QCOMPARE(data(o.config),written); QCOMPARE(data(nativeAlias),written); QCOMPARE(notifications,0);
+        QTRY_VERIFY(!OperationManager::instance()->hasActiveJobs());
+    }
     void immutableGroupAndUnsafePath()
     {
         QTemporaryDir dir; auto o = options(dir); save(o.config, "[Shortcuts][$i]\nOpen=Ctrl+O\n");
@@ -187,6 +230,69 @@ private slots:
         QTRY_VERIFY_WITH_TIMEOUT(entered->available() > 0, 1000);
         bool event = false; QTimer::singleShot(0, [&] { event = true; }); QTRY_VERIFY(event);
         delete backend; release->release();
+        QTRY_VERIFY(!OperationManager::instance()->hasActiveJobs());
+    }
+    void orphanWriteKeepsAliasesAndGuiNotificationThroughTerminal_data() {
+        QTest::addColumn<bool>("rollback"); QTest::newRow("saved-notified")<<false; QTest::newRow("owned-rollback")<<true;
+    }
+    void orphanWriteKeepsAliasesAndGuiNotificationThroughTerminal() {
+        QFETCH(bool,rollback); QTemporaryDir dir; auto o=options(dir); o.softDeadlineMs=10;
+        const auto system=dir.filePath(QStringLiteral("policy")); save(system,"[General]\nPolicy=before\n"); o.systemConfigs={system};
+        save(o.config,"[General]\nOriginal=retained\n"); const auto original=data(o.config);
+        struct Gate { QSemaphore entered,release; }; const auto gate=std::make_shared<Gate>();
+        const auto release=qScopeGuard([gate] { gate->release.release(); });
+        auto notifications=std::make_shared<std::atomic_int>(0); auto gui=std::make_shared<std::atomic_bool>(true);
+        o.notify=[notifications,gui](const QByteArrayList &,QString &) { ++*notifications; *gui=QThread::currentThread()==QCoreApplication::instance()->thread(); return true; };
+        o.afterCommit=[gate] { gate->entered.release(); gate->release.acquire(); };
+        auto *backend=new KdeStandardShortcutsBackend(o); const auto initial=read(*backend);
+        QSignalSpy done(backend,&ShortcutsBackend::writeFinished),pending(backend,&ShortcutsBackend::operationPending);
+        int beats=0; QTimer heartbeat; heartbeat.setInterval(1); connect(&heartbeat,&QTimer::timeout,this,[&] { ++beats; }); heartbeat.start();
+        backend->writeChanges(20,initial,{{identity(initial,QStringLiteral("Open")),unusual()}});
+        QTRY_VERIFY(gate->entered.available()>0); QTRY_VERIFY(!pending.isEmpty()); QTRY_VERIFY(beats>=3); QVERIFY(done.isEmpty());
+        delete backend; QVERIFY(OperationManager::instance()->hasActiveJobs());
+        const auto alias=dir.filePath(QStringLiteral("replacement-alias"));
+        QCOMPARE(::link(QFile::encodeName(o.config).constData(),QFile::encodeName(alias).constData()),0);
+        auto other=o; other.config=alias; other.afterCommit={}; other.notify={};
+        KdeStandardShortcutsBackend contender(other); const auto current=read(contender);
+        QSignalSpy refused(&contender,&ShortcutsBackend::writeFinished);
+        contender.writeChanges(21,current,{{identity(current,QStringLiteral("Open")),{}}});
+        QTRY_COMPARE(refused.size(),1); QCOMPARE(qvariant_cast<ShortcutsOutcome>(refused[0][1]),ShortcutsOutcome::Failed);
+        QVERIFY(refused[0][3].toString().contains("tracked")); QVERIFY(QFile::remove(alias));
+        if (rollback) save(system,"[General]\nPolicy=changed-externally\n");
+        gate->release.release(); QTRY_VERIFY(!OperationManager::instance()->hasActiveJobs());
+        QCOMPARE(done.size(),0); QCOMPARE(notifications->load(),rollback?0:1); QVERIFY(gui->load());
+        if (rollback) { QCOMPARE(data(o.config),original); QVERIFY(data(system).contains("changed-externally")); }
+        else QVERIFY(data(o.config).contains("Open="));
+    }
+    void defaultTerminalAndStandardShortcutsShareKdeglobalsReservation() {
+        QTemporaryDir dir; auto o=options(dir); save(o.config,"[General]\nTerminalService=old.desktop\nTerminalApplication=old-command\n");
+        DefaultAppsPaths paths; paths.isolated=true; paths.configHome=dir.path(); paths.dataDirs={dir.filePath(QStringLiteral("data"))};
+        QVERIFY(QDir().mkpath(paths.dataDirs.first()+QStringLiteral("/applications")));
+        save(paths.dataDirs.first()+QStringLiteral("/applications/new.desktop"),"[Desktop Entry]\nType=Application\nName=Terminal\nExec=never-run\nCategories=TerminalEmulator;\nTerminal=true\n");
+        KdeDefaultAppsBackend apps(paths); QSignalSpy inventory(&apps,&DefaultAppsBackend::readFinished); apps.readCurrent(1); QTRY_COMPARE(inventory.size(),1);
+        const auto appsBefore=qvariant_cast<DefaultAppsSnapshot>(inventory[0][2]); QVERIFY(appsBefore.writable);
+        struct Gate { QSemaphore entered,release; }; const auto gate=std::make_shared<Gate>(); const auto release=qScopeGuard([gate] { gate->release.release(); });
+        o.beforeCommit=[gate] { gate->entered.release(); gate->release.acquire(); };
+        KdeStandardShortcutsBackend standard(o); const auto initial=read(standard); QSignalSpy saved(&standard,&ShortcutsBackend::writeFinished);
+        standard.writeChanges(2,initial,{{identity(initial,QStringLiteral("Open")),unusual()}}); QTRY_VERIFY(gate->entered.available()>0);
+        auto requested=appsBefore.preferences; requested.terminalService=QStringLiteral("new.desktop");
+        QSignalSpy denied(&apps,&DefaultAppsBackend::writeFinished); apps.writeChanges(3,appsBefore,requested); QTRY_COMPARE(denied.size(),1);
+        QCOMPARE(qvariant_cast<DefaultAppsOutcome>(denied[0][1]),DefaultAppsOutcome::Failed); QVERIFY(denied[0][3].toString().contains("tracked"));
+        gate->release.release(); QTRY_COMPARE(saved.size(),1); QCOMPARE(qvariant_cast<ShortcutsOutcome>(saved[0][1]),ShortcutsOutcome::Success);
+        QVERIFY(data(o.config).contains("TerminalService=old.desktop")); QTRY_VERIFY(!OperationManager::instance()->hasActiveJobs());
+    }
+    void cancelDropsUnsentWriteWithoutCancelingRunningTransaction() {
+        QTemporaryDir dir; auto o=options(dir); struct Gate { QSemaphore entered,release; }; const auto gate=std::make_shared<Gate>();
+        const auto release=qScopeGuard([gate] { gate->release.release(); });
+        o.beforeCommit=[gate] { gate->entered.release(); gate->release.acquire(); };
+        KdeStandardShortcutsBackend backend(o); const auto initial=read(backend); const auto id=identity(initial,QStringLiteral("Open"));
+        QSignalSpy done(&backend,&ShortcutsBackend::writeFinished),pending(&backend,&ShortcutsBackend::operationPending);
+        backend.writeChanges(30,initial,{{id,unusual()}}); QTRY_VERIFY(gate->entered.available()>0);
+        backend.writeChanges(31,initial,{{id,{}}}); backend.cancel();
+        QCOMPARE(done.size(),1); QCOMPARE(done[0][0].toULongLong(),31u); QVERIFY(done[0][3].toString().contains("before it started"));
+        QVERIFY(!pending.isEmpty()); QVERIFY(OperationManager::instance()->hasActiveJobs());
+        gate->release.release(); QTRY_COMPARE(done.size(),2); QCOMPARE(done[1][0].toULongLong(),30u);
+        QCOMPARE(qvariant_cast<ShortcutsOutcome>(done[1][1]),ShortcutsOutcome::Success); QTRY_VERIFY(!OperationManager::instance()->hasActiveJobs());
     }
 };
 QTEST_MAIN(StandardShortcutsBackendTest)

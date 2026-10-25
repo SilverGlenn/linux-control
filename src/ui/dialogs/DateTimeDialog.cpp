@@ -789,7 +789,7 @@ void DateTimeDialog::openInternetSettings()
     if (!canEditServer)
         serverCombo->setToolTip(helperAvailable
             ? QStringLiteral("The current Chrony configuration does not support this server editor.")
-            : QStringLiteral("Install the administrative time helper in a trusted system location to edit servers."));
+            : QStringLiteral("Server editing requires a trusted root-owned helper and system authorization policy. It is unavailable in a user-local installation."));
 
     v->addSpacing(4);
     auto *note = new QLabel;
@@ -804,7 +804,7 @@ void DateTimeDialog::openInternetSettings()
         ? QStringLiteral("A preferred server is added alongside the existing sources. System defaults removes only this preference. Update now requests new measurements; it does not force a clock jump.")
         : QStringLiteral("System defaults restores the other configured time sources. Update now requests synchronization; it does not confirm success."));
     if (!helperAvailable)
-        note->setText(note->text() + QStringLiteral("\nServer editing is unavailable until the administrative helper is installed."));
+        note->setText(note->text() + QStringLiteral("\nServer editing is unavailable in a user-local installation: it requires a trusted root-owned helper and system authorization policy. Supported synchronization toggles and refresh requests use existing system tools."));
     v->addWidget(note);
 
     connect(update, &QPushButton::clicked, &dlg, [this, status, helperAvailable, note, &dlg]() {

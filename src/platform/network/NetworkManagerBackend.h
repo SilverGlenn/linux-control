@@ -18,6 +18,9 @@ public:
         int writeTimeoutMs = 20000;
         int pollIntervalMs = 250;
         uint rollbackSeconds = 60;
+        // Only synthetic org.example.* services may exercise recovery in an
+        // explicitly injected fixture. The real production service stays gated.
+        bool isolatedFixture = false;
     };
     explicit NetworkManagerBackend(QObject *parent = nullptr);
     NetworkManagerBackend(const QDBusConnection &bus, const Options &options, QObject *parent = nullptr);
@@ -26,6 +29,7 @@ public:
     void beginChange(const NetworkSnapshot &baseline, const NetworkRequest &request) override;
     void keepChange() override;
     void revertChange() override;
+    QString connectivityRestrictionReason() const override;
 
 private slots:
     void ownerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
