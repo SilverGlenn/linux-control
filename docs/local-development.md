@@ -54,9 +54,12 @@ before expanding KDE parity. Keep one identified build installed during the tria
 
 ## Local release and update delivery
 
-The next tooling follow-up is a repeatable local command that freezes source,
-builds its archive for `/home/siru/.local`, runs all discovered fixtures with
-`tools/run_isolated_tests.py`, stages the payload and validates rollback/recovery.
+`tools/build_local_release.py` provides the repeatable local command. It freezes
+source, builds its archive for `/home/siru/.local`, runs all discovered fixtures
+with `tools/run_isolated_tests.py`, stages the payload and independently validates
+rollback/recovery with `tools/validate_release_payload.py`. Miniature real-build
+fixtures pass; the first complete project run is tracked in
+[the local acceptance record](local-acceptance.md).
 Record actual Qt/KF6/KNightTime/AeroQt and external development/runtime inputs.
 Existing ignored development caches are inputs to document, not deployable app
 dependencies. Never lower compatibility or root trust guards to make a build fit.
@@ -77,6 +80,30 @@ verification. There are no timers, startup polling or automatic installations.
 The formal MVP usage trial does not require a public release or Cloud pipeline.
 Local builds and existing reversible local installation can support qualification
 while the published-release end-to-end check remains a separate updater gate.
+
+Release builds require a clean `main` checkout. A private configuration pins
+development trees/files and external runtime roots; inspect digests with
+`python3 tools/build_local_release.py --input-digest /absolute/input`, then verify
+the completed configuration with `--check-config /absolute/config.json`.
+The configuration has schema 1, `cmake_definitions` (dependency-location keys
+only), `development_inputs` and `runtime_dependencies` (`path`/`sha256` pairs).
+Record original development archives as well as extracted trees. Full linked
+runtime dependencies are discovered and hashed separately.
+
+```bash
+python3 tools/build_local_release.py \
+  --root "$PWD" --output "$PWD/build/NEW-RELEASE" \
+  --config "$PWD/build/local-acceptance/release-inputs.json" \
+  --version 0.1.0-rc.3 --jobs 2
+```
+
+The output parent must exist and the output directory must be new; in-checkout
+output must be ignored. The driver logs every phase and only emits
+`validation.json` after actual complete-suite and staged checks pass. It never
+installs live or publishes. Optional `--sequence N` packages through the existing
+release contract; it does not publish. Explicit `--rehearsal` accepts dirty or
+non-main development snapshots, forbids updater packaging, and writes separately
+labelled `rehearsal-validation.json`. Rehearsal evidence is not release evidence.
 
 ## Team coordination
 

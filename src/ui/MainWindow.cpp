@@ -361,7 +361,12 @@ void MainWindow::buildCrumbBar()
     m_searchTimer = new QTimer(this);
     m_searchTimer->setSingleShot(true);
     m_searchTimer->setInterval(180);
-    connect(m_searchBox, &QLineEdit::textEdited, this, [this]() { m_searchTimer->start(); });
+    // Assistive clients edit through Qt's accessibility text interface, which
+    // emits textChanged without textEdited. Internal restoration is signal-
+    // blocked by syncSearchBox; pending navigation keeps the field read-only.
+    connect(m_searchBox, &QLineEdit::textChanged, this, [this]() {
+        if (!m_searchBox->isReadOnly()) m_searchTimer->start();
+    });
     connect(m_searchTimer, &QTimer::timeout, this, [this]() { navigateSearch(m_searchBox->text()); });
     connect(m_searchBox, &QLineEdit::returnPressed, this, [this]() {
         m_searchTimer->stop();

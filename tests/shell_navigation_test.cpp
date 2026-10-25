@@ -10,6 +10,7 @@
 #include <AeroQt/stylesheet.h>
 #include <QtTest>
 #include <QInputMethodEvent>
+#include <QAccessible>
 #include <QAbstractButton>
 #include <QDialog>
 #include <QDir>
@@ -87,6 +88,113 @@ private slots:
         QTest::keyClick(&window, Qt::Key_Escape);
         QTRY_VERIFY(window.m_visibleSearch.isEmpty());
         QVERIFY(!catalogItems(window));
+    }
+
+    void accessibleEditingSearchesAndPreservesHistory() {
+        MainWindow window(nullptr, false); window.show();
+        window.navigateTo(QStringLiteral("Hardware and Sound"));
+        const int before = window.m_historyIndex;
+        auto *accessible = QAccessible::queryAccessibleInterface(window.m_searchBox);
+        QVERIFY(accessible);
+        auto *editable = accessible->editableTextInterface();
+        QVERIFY(editable);
+        QSignalSpy changed(window.m_searchBox, &QLineEdit::textChanged);
+        QSignalSpy edited(window.m_searchBox, &QLineEdit::textEdited);
+        // This is Qt's editable accessibility interface used by assistive
+        // clients, which can update text without a keyboard textEdited signal.
+        editable->replaceText(0, 0, QStringLiteral("Soun"));
+        editable->insertText(4, QStringLiteral("d"));
+        QCOMPARE(window.m_searchBox->text(), QStringLiteral("Sound"));
+        QVERIFY(!changed.isEmpty());
+        QCOMPARE(edited.size(), 0);
+        QTRY_COMPARE(window.m_visibleSearch, QStringLiteral("Sound"));
+        QCOMPARE(window.m_historyIndex, before + 1);
+        auto *list = catalogItems(window);
+        QVERIFY(list);
+        bool foundSound = false;
+        for (int i = 0; i < list->count(); ++i)
+            foundSound |= list->item(i)->data(Qt::UserRole).toInt() == int(ActionId::Sound);
+        QVERIFY(foundSound);
+        editable->deleteText(0, 5);
+        editable->insertText(0, QStringLiteral("Night Light"));
+        QTRY_COMPARE(window.m_visibleSearch, QStringLiteral("Night Light"));
+        QCOMPARE(window.m_historyIndex, before + 1);
+        window.goBack();
+        QCOMPARE(window.m_historyIndex, before);
+        QCOMPARE(window.m_searchBox->text(), QString());
+        QTest::qWait(window.m_searchTimer->interval() + 50);
+        QCOMPARE(window.m_historyIndex, before);
+        QVERIFY(window.m_visibleSearch.isEmpty());
+        QVERIFY(!catalogItems(window));
+        window.goForward();
+        QCOMPARE(window.m_searchBox->text(), QStringLiteral("Night Light"));
+        QTest::qWait(window.m_searchTimer->interval() + 50);
+        QCOMPARE(window.m_historyIndex, before + 1);
+        QCOMPARE(window.m_visibleSearch, QStringLiteral("Night Light"));
+        // An accessible edit on a historical query branches in the same step.
+        window.activateAction(ActionId::LinuxUpdate);
+        window.goBack();
+        editable->replaceText(0, window.m_searchBox->text().size(), QStringLiteral("Sound"));
+        QTRY_COMPARE(window.m_visibleSearch, QStringLiteral("Sound"));
+        QCOMPARE(window.m_historyIndex, before + 1);
+        QCOMPARE(window.m_history.size(), before + 2);
+        QVERIFY(!window.m_forwardBtn->isEnabled());
+    }
+
+    void readOnlySearchTextDoesNotQueueNavigation() {
+        MainWindow window(nullptr, false); window.show();
+        const auto history = window.m_history;
+        const int before = window.m_historyIndex;
+        window.m_searchBox->setReadOnly(true);
+        // Even programmatic changes emit textChanged on a read-only line edit.
+        // They must not leave a query queued behind a navigation decision.
+        window.m_searchBox->setText(QStringLiteral("Sound"));
+        QVERIFY(!window.m_searchTimer->isActive());
+        window.m_searchBox->setReadOnly(false);
+        QTest::qWait(window.m_searchTimer->interval() + 50);
+        QCOMPARE(window.m_history, history);
+        QCOMPARE(window.m_historyIndex, before);
+        QVERIFY(window.m_visibleSearch.isEmpty());
+        QVERIFY(!catalogItems(window));
+    }
+
+    void accessibleSearchCancellationRetainsDraftPageAndHistory() {
+        auto *backend = new FixtureAeroThemeBackend;
+        backend->refuseWrite = true;
+        AeroThemeSettings session(backend);
+        QTRY_VERIFY(!session.isBusy());
+        MainWindow window(nullptr, false); window.show();
+        const auto path = PageRegistry::pathFor(PageId::Personalization);
+        window.m_history = {QString(), path}; window.m_historyIndex = 1;
+        auto *page = new PersonalizationPage(new QScrollArea, &session, nullptr);
+        window.m_scroll->setWidget(page);
+        session.selectValue(QStringLiteral("aeroIntensity"), 60);
+        QVERIFY(session.isDirty());
+        auto *accessible = QAccessible::queryAccessibleInterface(window.m_searchBox);
+        QVERIFY(accessible);
+        auto *editable = accessible->editableTextInterface();
+        QVERIFY(editable);
+        int decisions = 0;
+        connect(window.m_navigationGuard, &SettingsNavigationGuard::pendingChanged, &window, [&]() {
+            if (window.m_navigationGuard->pending()) {
+                ++decisions;
+                QVERIFY(window.m_searchBox->isReadOnly());
+                cancelPrompt();
+            }
+        });
+        editable->replaceText(0, 0, QStringLiteral("Sound"));
+        QTRY_COMPARE(decisions, 1);
+        QTRY_VERIFY(!window.m_navigationGuard->pending());
+        QTRY_COMPARE(window.m_searchBox->text(), QString());
+        QCOMPARE(window.m_scroll->widget(), page);
+        QCOMPARE(window.m_history, QStringList({QString(), path}));
+        QCOMPARE(window.m_historyIndex, 1);
+        QVERIFY(window.m_visibleSearch.isEmpty());
+        QVERIFY(session.isDirty());
+        QTest::qWait(window.m_searchTimer->interval() + 50);
+        QCOMPARE(decisions, 1);
+        QCOMPARE(window.m_scroll->widget(), page);
+        QVERIFY(session.isDirty());
     }
 
     void deferredNavigationRefreshPreservesNewSearchText() {
